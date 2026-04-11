@@ -1,0 +1,24 @@
+{
+  "name": "Diagnostic MaPrimeAdapt'",
+  "short_name": "Diag MPA",
+  "description": "Diagnostic logement autonomie MaPrimeAdapt' — EI David MARIE-ANNE",
+  "start_url": "./diagnostic_mpa.html",
+  "display": "standalone",
+  "background_color": "#f0f5fa",
+  "theme_color": "#1F4E79",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

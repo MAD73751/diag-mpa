@@ -270,6 +270,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--gris-bg); color: va
   .main { padding: 12px; }
 }
 @media(max-width:480px) { .row2, .row3 { grid-template-columns: 1fr; } }
+.chip .ck, .rdio .dot { pointer-events: none; }
 </style>
 </head>
 <body>
@@ -713,19 +714,25 @@ function goSec(n){
 
 // CONTROLS
 function tChip(el){
-  const k=el.dataset.k,v=el.dataset.v;
-  el.classList.toggle('on');
-  const on=el.classList.contains('on');
-  el.querySelector('.ck').innerHTML=on?'✓':'';
+  // Remonter au button.chip si clic sur un enfant (span.ck)
+  const btn = el.closest('.chip') || el;
+  const k=btn.dataset.k, v=btn.dataset.v;
+  if(!k || !v) return;
+  btn.classList.toggle('on');
+  const on=btn.classList.contains('on');
+  const ck = btn.querySelector('.ck');
+  if(ck) ck.innerHTML=on?'✓':'';
   if(!D.chk[k])D.chk[k]=[];
   if(on){if(!D.chk[k].includes(v))D.chk[k].push(v);}
   else D.chk[k]=D.chk[k].filter(x=>x!==v);
   sv();
 }
 function tRdio(el){
-  const k=el.dataset.k,v=el.dataset.v;
-  el.closest('.radios').querySelectorAll('.rdio').forEach(r=>r.classList.remove('on'));
-  el.classList.add('on');
+  const btn = el.closest('.rdio') || el;
+  const k=btn.dataset.k, v=btn.dataset.v;
+  if(!k || !v) return;
+  btn.closest('.radios').querySelectorAll('.rdio').forEach(r=>r.classList.remove('on'));
+  btn.classList.add('on');
   D.rad[k]=v; sv();
 }
 

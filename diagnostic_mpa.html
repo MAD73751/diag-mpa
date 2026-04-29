@@ -134,11 +134,13 @@ body { font-family: 'DM Sans', sans-serif; background: var(--gris-bg); color: va
 /* CHIPS / RADIOS */
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip {
-  display: flex; align-items: center; gap: 5px;
+  display: inline-flex; align-items: center; gap: 5px;
   background: var(--bleu-pl); border: 1.5px solid var(--border);
   border-radius: 20px; padding: 5px 11px;
   cursor: pointer; font-size: 12px; color: var(--texte);
   transition: all 0.12s; user-select: none;
+  -webkit-appearance: none; appearance: none;
+  font-family: inherit; touch-action: manipulation;
 }
 .chip.on { background: var(--bleu-cl); border-color: var(--bleu2); color: var(--bleu); font-weight: 500; }
 .chip .ck { width: 14px; height: 14px; border: 1.5px solid var(--border); border-radius: 3px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 9px; flex-shrink: 0; }
@@ -146,11 +148,13 @@ body { font-family: 'DM Sans', sans-serif; background: var(--gris-bg); color: va
 
 .radios { display: flex; flex-wrap: wrap; gap: 6px; }
 .rdio {
-  display: flex; align-items: center; gap: 5px;
+  display: inline-flex; align-items: center; gap: 5px;
   background: var(--bleu-pl); border: 1.5px solid var(--border);
   border-radius: 20px; padding: 5px 12px;
   cursor: pointer; font-size: 12px; color: var(--texte);
   transition: all 0.12s; user-select: none;
+  -webkit-appearance: none; appearance: none;
+  font-family: inherit; touch-action: manipulation;
 }
 .rdio.on { background: var(--bleu-cl); border-color: var(--bleu2); color: var(--bleu); font-weight: 500; }
 .rdio .dot { width: 12px; height: 12px; border: 1.5px solid var(--border); border-radius: 50%; background: #fff; flex-shrink: 0; }
@@ -171,18 +175,21 @@ body { font-family: 'DM Sans', sans-serif; background: var(--gris-bg); color: va
 .piece-body.open { display: block; }
 
 .stat-btns { display: flex; gap: 6px; margin-bottom: 12px; }
-.stat-btn { flex: 1; padding: 8px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; font-size: 12px; font-weight: 500; font-family: 'DM Sans', sans-serif; transition: all 0.12s; text-align: center; color: var(--texte); }
+.stat-btn { flex: 1; padding: 8px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; font-size: 12px; font-weight: 500; font-family: 'DM Sans', sans-serif; transition: all 0.12s; text-align: center; color: var(--texte);   touch-action: manipulation;
+}
 .stat-btn.ok { background: #e8f5e9; border-color: var(--vert); color: var(--vert); }
 .stat-btn.nok { background: #fde8e8; border-color: var(--rouge); color: var(--rouge); }
 
 .prio-btns { display: flex; gap: 5px; margin-bottom: 10px; }
-.prio-btn { flex: 1; padding: 7px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; font-size: 11.5px; font-weight: 500; font-family: 'DM Sans', sans-serif; transition: all 0.12s; text-align: center; color: var(--texte); }
+.prio-btn { flex: 1; padding: 7px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; font-size: 11.5px; font-weight: 500; font-family: 'DM Sans', sans-serif; transition: all 0.12s; text-align: center; color: var(--texte);   touch-action: manipulation;
+}
 .prio-btn.h.on { background: #fde8e8; border-color: var(--rouge); color: var(--rouge); }
 .prio-btn.m.on { background: #fef3e2; border-color: var(--orange); color: var(--orange); }
 .prio-btn.b.on { background: #e8f5e9; border-color: var(--vert); color: var(--vert); }
 
 .etages { display: flex; gap: 4px; }
-.etg-btn { flex: 1; padding: 5px 4px; text-align: center; border: 1.5px solid var(--border); border-radius: 6px; background: #fff; cursor: pointer; font-size: 11px; font-family: 'DM Sans', sans-serif; color: var(--texte2); transition: all 0.12s; }
+.etg-btn { flex: 1; padding: 5px 4px; text-align: center; border: 1.5px solid var(--border); border-radius: 6px; background: #fff; cursor: pointer; font-size: 11px; font-family: 'DM Sans', sans-serif; color: var(--texte2); transition: all 0.12s;   touch-action: manipulation;
+}
 .etg-btn.on { background: var(--bleu-cl); border-color: var(--bleu2); color: var(--bleu); font-weight: 500; }
 
 .lbl { font-size: 11.5px; font-weight: 500; color: var(--texte2); margin-bottom: 5px; }
@@ -338,19 +345,19 @@ body { font-family: 'DM Sans', sans-serif; background: var(--gris-bg); color: va
       </div>
       <div class="field"><div class="field-label">Situation familiale</div>
         <div class="chips">
-          <span class="chip" data-k="sit" data-v="Marié(e)" onclick="tChip(this)"><span class="ck"></span>Marié(e)</span>
-          <span class="chip" data-k="sit" data-v="Pacsé(e)" onclick="tChip(this)"><span class="ck"></span>Pacsé(e)</span>
-          <span class="chip" data-k="sit" data-v="Vie maritale" onclick="tChip(this)"><span class="ck"></span>Vie maritale</span>
-          <span class="chip" data-k="sit" data-v="Veuf(ve)" onclick="tChip(this)"><span class="ck"></span>Veuf(ve)</span>
-          <span class="chip" data-k="sit" data-v="Célibataire" onclick="tChip(this)"><span class="ck"></span>Célibataire</span>
+          <button type="button" class="chip" data-k="sit" data-v="Marié(e)" onclick="tChip(this)"><span class="ck"></span>Marié(e)</button>
+          <button type="button" class="chip" data-k="sit" data-v="Pacsé(e)" onclick="tChip(this)"><span class="ck"></span>Pacsé(e)</button>
+          <button type="button" class="chip" data-k="sit" data-v="Vie maritale" onclick="tChip(this)"><span class="ck"></span>Vie maritale</button>
+          <button type="button" class="chip" data-k="sit" data-v="Veuf(ve)" onclick="tChip(this)"><span class="ck"></span>Veuf(ve)</button>
+          <button type="button" class="chip" data-k="sit" data-v="Célibataire" onclick="tChip(this)"><span class="ck"></span>Célibataire</button>
         </div>
       </div>
       <div class="row2">
         <div class="field"><div class="field-label">Aides perçues</div>
           <div class="chips">
-            <span class="chip" data-k="aid" data-v="APA" onclick="tChip(this)"><span class="ck"></span>APA</span>
-            <span class="chip" data-k="aid" data-v="PCH" onclick="tChip(this)"><span class="ck"></span>PCH</span>
-            <span class="chip" data-k="aid" data-v="FDC" onclick="tChip(this)"><span class="ck"></span>FDC</span>
+            <button type="button" class="chip" data-k="aid" data-v="APA" onclick="tChip(this)"><span class="ck"></span>APA</button>
+            <button type="button" class="chip" data-k="aid" data-v="PCH" onclick="tChip(this)"><span class="ck"></span>PCH</button>
+            <button type="button" class="chip" data-k="aid" data-v="FDC" onclick="tChip(this)"><span class="ck"></span>FDC</button>
           </div>
         </div>
         <div class="field"><label>Régime retraite</label>
@@ -368,15 +375,15 @@ body { font-family: 'DM Sans', sans-serif; background: var(--gris-bg); color: va
       <div class="row2">
         <div class="field"><div class="field-label">Type</div>
           <div class="radios" id="rg_tlog">
-            <span class="rdio" data-k="tlog" data-v="Maison individuelle" onclick="tRdio(this)"><span class="dot"></span>Maison</span>
-            <span class="rdio" data-k="tlog" data-v="Bâtiment collectif" onclick="tRdio(this)"><span class="dot"></span>Collectif</span>
+            <button type="button" class="rdio" data-k="tlog" data-v="Maison individuelle" onclick="tRdio(this)"><span class="dot"></span>Maison</button>
+            <button type="button" class="rdio" data-k="tlog" data-v="Bâtiment collectif" onclick="tRdio(this)"><span class="dot"></span>Collectif</button>
           </div>
         </div>
         <div class="field"><div class="field-label">Statut occupation</div>
           <div class="radios">
-            <span class="rdio" data-k="stat" data-v="Propriétaire" onclick="tRdio(this)"><span class="dot"></span>Propriétaire</span>
-            <span class="rdio" data-k="stat" data-v="Locataire" onclick="tRdio(this)"><span class="dot"></span>Locataire</span>
-            <span class="rdio" data-k="stat" data-v="Usufruitier" onclick="tRdio(this)"><span class="dot"></span>Usufruitier</span>
+            <button type="button" class="rdio" data-k="stat" data-v="Propriétaire" onclick="tRdio(this)"><span class="dot"></span>Propriétaire</button>
+            <button type="button" class="rdio" data-k="stat" data-v="Locataire" onclick="tRdio(this)"><span class="dot"></span>Locataire</button>
+            <button type="button" class="rdio" data-k="stat" data-v="Usufruitier" onclick="tRdio(this)"><span class="dot"></span>Usufruitier</button>
           </div>
         </div>
       </div>
@@ -392,9 +399,9 @@ body { font-family: 'DM Sans', sans-serif; background: var(--gris-bg); color: va
       </div>
       <div class="field"><div class="field-label">Zone géographique</div>
         <div class="radios">
-          <span class="rdio" data-k="zone" data-v="Urbaine" onclick="tRdio(this)"><span class="dot"></span>Urbaine</span>
-          <span class="rdio" data-k="zone" data-v="Rurale" onclick="tRdio(this)"><span class="dot"></span>Rurale</span>
-          <span class="rdio" data-k="zone" data-v="Mixte" onclick="tRdio(this)"><span class="dot"></span>Mixte</span>
+          <button type="button" class="rdio" data-k="zone" data-v="Urbaine" onclick="tRdio(this)"><span class="dot"></span>Urbaine</button>
+          <button type="button" class="rdio" data-k="zone" data-v="Rurale" onclick="tRdio(this)"><span class="dot"></span>Rurale</button>
+          <button type="button" class="rdio" data-k="zone" data-v="Mixte" onclick="tRdio(this)"><span class="dot"></span>Mixte</button>
         </div>
       </div>
     </div>
@@ -403,19 +410,19 @@ body { font-family: 'DM Sans', sans-serif; background: var(--gris-bg); color: va
       <div class="card-title"><span class="ico">📡</span> Orientation MaPrimeAdapt'</div>
       <div class="field"><div class="field-label">Canal d'orientation</div>
         <div class="chips">
-          <span class="chip" data-k="ori" data-v="Prof. social" onclick="tChip(this)"><span class="ck"></span>Prof. social</span>
-          <span class="chip" data-k="ori" data-v="Prof. médical" onclick="tChip(this)"><span class="ck"></span>Prof. médical</span>
-          <span class="chip" data-k="ori" data-v="Internet" onclick="tChip(this)"><span class="ck"></span>Internet</span>
-          <span class="chip" data-k="ori" data-v="Bouche à oreille" onclick="tChip(this)"><span class="ck"></span>Bouche à oreille</span>
-          <span class="chip" data-k="ori" data-v="Prof. bâtiment" onclick="tChip(this)"><span class="ck"></span>Prof. bâtiment</span>
-          <span class="chip" data-k="ori" data-v="Presse/TV" onclick="tChip(this)"><span class="ck"></span>Presse/TV</span>
+          <button type="button" class="chip" data-k="ori" data-v="Prof. social" onclick="tChip(this)"><span class="ck"></span>Prof. social</button>
+          <button type="button" class="chip" data-k="ori" data-v="Prof. médical" onclick="tChip(this)"><span class="ck"></span>Prof. médical</button>
+          <button type="button" class="chip" data-k="ori" data-v="Internet" onclick="tChip(this)"><span class="ck"></span>Internet</button>
+          <button type="button" class="chip" data-k="ori" data-v="Bouche à oreille" onclick="tChip(this)"><span class="ck"></span>Bouche à oreille</button>
+          <button type="button" class="chip" data-k="ori" data-v="Prof. bâtiment" onclick="tChip(this)"><span class="ck"></span>Prof. bâtiment</button>
+          <button type="button" class="chip" data-k="ori" data-v="Presse/TV" onclick="tChip(this)"><span class="ck"></span>Presse/TV</button>
         </div>
       </div>
       <div class="row2">
         <div class="field"><div class="field-label">Accompagnement France Rénov' ?</div>
           <div class="radios">
-            <span class="rdio" data-k="fr" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
-            <span class="rdio" data-k="fr" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
+            <button type="button" class="rdio" data-k="fr" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</button>
+            <button type="button" class="rdio" data-k="fr" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</button>
           </div>
         </div>
         <div class="field"><label>Contact France Rénov' (si oui)</label><input type="text" id="fr_ct" placeholder="Nom / coordonnées"></div>
@@ -447,29 +454,29 @@ body { font-family: 'DM Sans', sans-serif; background: var(--gris-bg); color: va
       <div class="row2">
         <div class="field"><div class="field-label">Situation de handicap ?</div>
           <div class="radios">
-            <span class="rdio" data-k="handi" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
-            <span class="rdio" data-k="handi" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
+            <button type="button" class="rdio" data-k="handi" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</button>
+            <button type="button" class="rdio" data-k="handi" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</button>
           </div>
         </div>
         <div class="field"><div class="field-label">Niveau GIR</div>
           <div class="radios">
-            <span class="rdio" data-k="gir" data-v="1" onclick="tRdio(this)"><span class="dot"></span>1</span>
-            <span class="rdio" data-k="gir" data-v="2" onclick="tRdio(this)"><span class="dot"></span>2</span>
-            <span class="rdio" data-k="gir" data-v="3" onclick="tRdio(this)"><span class="dot"></span>3</span>
-            <span class="rdio" data-k="gir" data-v="4" onclick="tRdio(this)"><span class="dot"></span>4</span>
-            <span class="rdio" data-k="gir" data-v="5" onclick="tRdio(this)"><span class="dot"></span>5</span>
-            <span class="rdio" data-k="gir" data-v="6" onclick="tRdio(this)"><span class="dot"></span>6</span>
-            <span class="rdio" data-k="gir" data-v="Non évalué" onclick="tRdio(this)"><span class="dot"></span>NE</span>
+            <button type="button" class="rdio" data-k="gir" data-v="1" onclick="tRdio(this)"><span class="dot"></span>1</button>
+            <button type="button" class="rdio" data-k="gir" data-v="2" onclick="tRdio(this)"><span class="dot"></span>2</button>
+            <button type="button" class="rdio" data-k="gir" data-v="3" onclick="tRdio(this)"><span class="dot"></span>3</button>
+            <button type="button" class="rdio" data-k="gir" data-v="4" onclick="tRdio(this)"><span class="dot"></span>4</button>
+            <button type="button" class="rdio" data-k="gir" data-v="5" onclick="tRdio(this)"><span class="dot"></span>5</button>
+            <button type="button" class="rdio" data-k="gir" data-v="6" onclick="tRdio(this)"><span class="dot"></span>6</button>
+            <button type="button" class="rdio" data-k="gir" data-v="Non évalué" onclick="tRdio(this)"><span class="dot"></span>NE</button>
           </div>
         </div>
       </div>
       <div class="field"><div class="field-label">Aides techniques utilisées</div>
         <div class="chips">
-          <span class="chip" data-k="atec" data-v="Fauteuil roulant" onclick="tChip(this)"><span class="ck"></span>Fauteuil roulant</span>
-          <span class="chip" data-k="atec" data-v="Déambulateur" onclick="tChip(this)"><span class="ck"></span>Déambulateur</span>
-          <span class="chip" data-k="atec" data-v="Canne" onclick="tChip(this)"><span class="ck"></span>Canne</span>
-          <span class="chip" data-k="atec" data-v="Banc bain" onclick="tChip(this)"><span class="ck"></span>Banc bain</span>
-          <span class="chip" data-k="atec" data-v="Barre appui" onclick="tChip(this)"><span class="ck"></span>Barre appui</span>
+          <button type="button" class="chip" data-k="atec" data-v="Fauteuil roulant" onclick="tChip(this)"><span class="ck"></span>Fauteuil roulant</button>
+          <button type="button" class="chip" data-k="atec" data-v="Déambulateur" onclick="tChip(this)"><span class="ck"></span>Déambulateur</button>
+          <button type="button" class="chip" data-k="atec" data-v="Canne" onclick="tChip(this)"><span class="ck"></span>Canne</button>
+          <button type="button" class="chip" data-k="atec" data-v="Banc bain" onclick="tChip(this)"><span class="ck"></span>Banc bain</button>
+          <button type="button" class="chip" data-k="atec" data-v="Barre appui" onclick="tChip(this)"><span class="ck"></span>Barre appui</button>
         </div>
       </div>
       <div class="field"><label>Autre aide technique</label><input type="text" id="atec_autre" placeholder="Préciser…"></div>
@@ -480,20 +487,20 @@ body { font-family: 'DM Sans', sans-serif; background: var(--gris-bg); color: va
       <div class="row3">
         <div class="field"><div class="field-label">Chute dans les 6 mois ?</div>
           <div class="radios">
-            <span class="rdio" data-k="chute" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
-            <span class="rdio" data-k="chute" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
+            <button type="button" class="rdio" data-k="chute" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</button>
+            <button type="button" class="rdio" data-k="chute" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</button>
           </div>
         </div>
         <div class="field"><div class="field-label">Hospitalisation ?</div>
           <div class="radios">
-            <span class="rdio" data-k="hosp" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
-            <span class="rdio" data-k="hosp" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
+            <button type="button" class="rdio" data-k="hosp" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</button>
+            <button type="button" class="rdio" data-k="hosp" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</button>
           </div>
         </div>
         <div class="field"><div class="field-label">Perte autonomie depuis ?</div>
           <div class="radios">
-            <span class="rdio" data-k="paut" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
-            <span class="rdio" data-k="paut" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
+            <button type="button" class="rdio" data-k="paut" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</button>
+            <button type="button" class="rdio" data-k="paut" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</button>
           </div>
         </div>
       </div>
@@ -501,21 +508,21 @@ body { font-family: 'DM Sans', sans-serif; background: var(--gris-bg); color: va
       <div class="row2">
         <div class="field"><div class="field-label">Suivi ergothérapeute (&lt;6 mois) ?</div>
           <div class="radios">
-            <span class="rdio" data-k="ergo" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
-            <span class="rdio" data-k="ergo" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
+            <button type="button" class="rdio" data-k="ergo" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</button>
+            <button type="button" class="rdio" data-k="ergo" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</button>
           </div>
         </div>
         <div class="field"><div class="field-label">Rapport ergo disponible ?</div>
           <div class="radios">
-            <span class="rdio" data-k="rergo" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
-            <span class="rdio" data-k="rergo" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
+            <button type="button" class="rdio" data-k="rergo" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</button>
+            <button type="button" class="rdio" data-k="rergo" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</button>
           </div>
         </div>
       </div>
       <div class="field"><div class="field-label">Aide professionnelle régulière ou proche aidant ?</div>
         <div class="radios">
-          <span class="rdio" data-k="aid2" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
-          <span class="rdio" data-k="aid2" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
+          <button type="button" class="rdio" data-k="aid2" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</button>
+          <button type="button" class="rdio" data-k="aid2" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</button>
         </div>
       </div>
     </div>
@@ -524,18 +531,18 @@ body { font-family: 'DM Sans', sans-serif; background: var(--gris-bg); color: va
       <div class="card-title"><span class="ico">📝</span> Évaluations & Personne de confiance</div>
       <div class="field"><div class="field-label">Évaluations logement/autonomie récentes (&lt;6 mois)</div>
         <div class="chips">
-          <span class="chip" data-k="eval" data-v="Aucune" onclick="tChip(this)"><span class="ck"></span>Aucune</span>
-          <span class="chip" data-k="eval" data-v="ANAH" onclick="tChip(this)"><span class="ck"></span>ANAH</span>
-          <span class="chip" data-k="eval" data-v="APA" onclick="tChip(this)"><span class="ck"></span>APA</span>
-          <span class="chip" data-k="eval" data-v="CNAV" onclick="tChip(this)"><span class="ck"></span>CNAV</span>
-          <span class="chip" data-k="eval" data-v="CCAS" onclick="tChip(this)"><span class="ck"></span>CCAS</span>
+          <button type="button" class="chip" data-k="eval" data-v="Aucune" onclick="tChip(this)"><span class="ck"></span>Aucune</button>
+          <button type="button" class="chip" data-k="eval" data-v="ANAH" onclick="tChip(this)"><span class="ck"></span>ANAH</button>
+          <button type="button" class="chip" data-k="eval" data-v="APA" onclick="tChip(this)"><span class="ck"></span>APA</button>
+          <button type="button" class="chip" data-k="eval" data-v="CNAV" onclick="tChip(this)"><span class="ck"></span>CNAV</button>
+          <button type="button" class="chip" data-k="eval" data-v="CCAS" onclick="tChip(this)"><span class="ck"></span>CCAS</button>
         </div>
       </div>
       <div class="row2">
         <div class="field"><div class="field-label">Personne de confiance désignée ?</div>
           <div class="radios">
-            <span class="rdio" data-k="conf" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
-            <span class="rdio" data-k="conf" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
+            <button type="button" class="rdio" data-k="conf" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</button>
+            <button type="button" class="rdio" data-k="conf" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</button>
           </div>
         </div>
         <div class="field"><label>Identité personne de confiance</label><input type="text" id="conf_id" placeholder="Nom, prénom, lien, téléphone"></div>

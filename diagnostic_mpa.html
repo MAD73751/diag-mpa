@@ -2,1557 +2,1199 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#1F4E79">
-<title>Diagnostic MaPrimeAdapt'</title>
-<link rel="manifest" href="manifest.json">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Diag MPA">
-<link rel="apple-touch-icon" href="icon-192.png">
-<script>
-if('serviceWorker' in navigator){
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(r => console.log('SW registered'))
-      .catch(e => console.log('SW error', e));
-  });
-}
-</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Diagnostic MaPrimeAdapt' — DMAAI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap');
+:root {
+  --bleu: #1F4E79;
+  --bleu2: #2E75B6;
+  --bleu-cl: #D6E4F0;
+  --bleu-pl: #EBF3FB;
+  --gris-bg: #F0F5FA;
+  --gris-card: #F8FAFC;
+  --texte: #1a1a2e;
+  --texte2: #5a6a7a;
+  --rouge: #C0392B;
+  --vert: #1E8449;
+  --orange: #D35400;
+  --border: #cdd8e3;
+  --radius: 10px;
+  --sh: 0 2px 12px rgba(31,78,121,0.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--gris-bg); color: var(--texte); min-height: 100vh; font-size: 14px; }
 
-  :root {
-    --bleu: #1F4E79;
-    --bleu-titre: #2E75B6;
-    --bleu-clair: #D6E4F0;
-    --bleu-pale: #EBF3FB;
-    --gris: #F2F2F2;
-    --texte: #1a1a2e;
-    --texte-sec: #5a6a7a;
-    --rouge: #C0392B;
-    --vert: #1E8449;
-    --orange: #D35400;
-    --border: #cdd8e3;
-    --radius: 12px;
-    --shadow: 0 2px 16px rgba(31,78,121,0.10);
-  }
+/* LAYOUT */
+.layout { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 220px; flex-shrink: 0;
+  background: var(--bleu);
+  display: flex; flex-direction: column;
+  position: sticky; top: 0; height: 100vh;
+  overflow-y: auto;
+}
+.main { flex: 1; padding: 24px; max-width: 900px; }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+/* SIDEBAR */
+.sidebar-logo {
+  padding: 20px 16px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.sidebar-logo .brand { font-family: 'DM Serif Display', serif; color: #fff; font-size: 16px; line-height: 1.2; }
+.sidebar-logo .sub { font-size: 10px; color: rgba(255,255,255,0.55); margin-top: 3px; }
+.sidebar-logo .version { font-size: 9px; color: rgba(255,255,255,0.35); margin-top: 2px; }
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: #f0f5fa;
-    color: var(--texte);
-    min-height: 100vh;
-    font-size: 15px;
-  }
+.nav-section { padding: 12px 0 4px 14px; font-size: 9px; font-weight: 600; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; }
+.nav-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 16px; cursor: pointer;
+  font-size: 12.5px; color: rgba(255,255,255,0.65);
+  transition: all 0.15s; border-left: 3px solid transparent;
+  margin-bottom: 1px;
+}
+.nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.nav-item.active { background: rgba(255,255,255,0.12); color: #fff; border-left-color: #fff; font-weight: 500; }
+.nav-item .ico { font-size: 14px; width: 18px; text-align: center; }
+.nav-item .done-badge { margin-left: auto; font-size: 9px; background: rgba(30,132,73,0.4); color: #7dcea0; border-radius: 10px; padding: 1px 6px; }
 
-  /* HEADER */
-  .app-header {
-    background: var(--bleu);
-    color: white;
-    padding: 14px 16px 10px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 2px 12px rgba(31,78,121,0.3);
-  }
-  .app-header .top-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-  }
-  .app-header h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 17px;
-    font-weight: 400;
-    letter-spacing: 0.3px;
-  }
-  .app-header .subtitle {
-    font-size: 11px;
-    opacity: 0.7;
-    margin-top: 1px;
-  }
-  .header-actions {
-    display: flex;
-    gap: 6px;
-  }
-  .btn-icon {
-    background: rgba(255,255,255,0.15);
-    border: none;
-    color: white;
-    border-radius: 8px;
-    padding: 6px 10px;
-    font-size: 12px;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 500;
-    transition: background 0.2s;
-  }
-  .btn-icon:hover { background: rgba(255,255,255,0.25); }
-  .btn-icon.primary {
-    background: #2E75B6;
-  }
+.sidebar-actions { padding: 12px; border-top: 1px solid rgba(255,255,255,0.1); margin-top: auto; }
+.sb-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.1); border: none;
+  color: rgba(255,255,255,0.8); border-radius: 7px;
+  padding: 8px 10px; font-family: 'DM Sans', sans-serif;
+  font-size: 12px; cursor: pointer; width: 100%;
+  margin-bottom: 6px; transition: all 0.15s;
+}
+.sb-btn:hover { background: rgba(255,255,255,0.18); color: #fff; }
+.sb-btn.primary { background: var(--bleu2); color: #fff; }
+.sb-btn.primary:hover { background: #1a5a9a; }
+.sb-btn.success { background: rgba(30,132,73,0.4); color: #7dcea0; }
+.sb-btn.success:hover { background: rgba(30,132,73,0.6); color: #fff; }
 
-  /* NAV TABS */
-  .nav-tabs {
-    display: flex;
-    overflow-x: auto;
-    gap: 4px;
-    padding-bottom: 2px;
-    scrollbar-width: none;
-  }
-  .nav-tabs::-webkit-scrollbar { display: none; }
-  .nav-tab {
-    flex-shrink: 0;
-    background: rgba(255,255,255,0.12);
-    border: none;
-    color: rgba(255,255,255,0.7);
-    border-radius: 6px;
-    padding: 5px 10px;
-    font-size: 11.5px;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 500;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-  .nav-tab.active {
-    background: white;
-    color: var(--bleu);
-  }
-  .nav-tab.done::after {
-    content: ' ✓';
-    opacity: 0.8;
-  }
+/* STATUS BAR */
+.status-bar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 12px; border-radius: 6px; margin-bottom: 16px;
+  font-size: 11.5px; font-weight: 500;
+}
+.status-bar.offline { background: #fde8e8; color: var(--rouge); }
+.status-bar.online { background: #e8f5e9; color: var(--vert); }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 
-  /* MAIN */
-  .main { padding: 12px; max-width: 680px; margin: 0 auto; }
+/* SECTIONS */
+.section { display: none; animation: fadeIn 0.2s ease; }
+.section.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* SECTIONS */
-  .section { display: none; }
-  .section.active { display: block; }
+.page-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--bleu); margin-bottom: 4px; }
+.page-desc { font-size: 12.5px; color: var(--texte2); margin-bottom: 20px; }
 
-  .section-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 20px;
-    color: var(--bleu);
-    margin-bottom: 4px;
-  }
-  .section-desc {
-    font-size: 12.5px;
-    color: var(--texte-sec);
-    margin-bottom: 16px;
-  }
+/* CARDS */
+.card {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px;
+  margin-bottom: 14px; box-shadow: var(--sh);
+}
+.card-title {
+  font-size: 11px; font-weight: 600; color: var(--bleu2);
+  text-transform: uppercase; letter-spacing: 0.8px;
+  margin-bottom: 14px; padding-bottom: 8px;
+  border-bottom: 2px solid var(--bleu-cl);
+  display: flex; align-items: center; gap: 6px;
+}
+.card-title .ico { font-size: 13px; }
 
-  /* CARDS */
-  .card {
-    background: white;
-    border-radius: var(--radius);
-    padding: 14px 14px 10px;
-    margin-bottom: 12px;
-    box-shadow: var(--shadow);
-    border: 1px solid rgba(31,78,121,0.07);
-  }
-  .card-title {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--bleu-titre);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid var(--bleu-clair);
-  }
+/* FIELDS */
+.field { margin-bottom: 12px; }
+.field label { display: block; font-size: 12px; font-weight: 500; color: var(--texte2); margin-bottom: 4px; }
+.field input[type=text], .field input[type=date], .field input[type=number],
+.field input[type=tel], .field input[type=email], .field select, .field textarea {
+  width: 100%; padding: 9px 11px;
+  border: 1.5px solid var(--border); border-radius: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 13px;
+  color: var(--texte); background: #fff;
+  transition: border 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none; appearance: none;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: none; border-color: var(--bleu2);
+  box-shadow: 0 0 0 3px rgba(46,117,182,0.12);
+}
+.field textarea { resize: vertical; min-height: 70px; }
+.field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 5 5-5' stroke='%235a6a7a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 11px center; padding-right: 30px;
+}
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
 
-  /* FORM ELEMENTS */
-  .field { margin-bottom: 12px; }
-  .field label {
-    display: block;
-    font-size: 12.5px;
-    font-weight: 500;
-    color: var(--texte-sec);
-    margin-bottom: 4px;
-  }
-  .field input[type="text"],
-  .field input[type="date"],
-  .field input[type="tel"],
-  .field input[type="email"],
-  .field input[type="number"],
-  .field select,
-  .field textarea {
-    width: 100%;
-    padding: 9px 11px;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    color: var(--texte);
-    background: white;
-    transition: border 0.2s;
-    -webkit-appearance: none;
-    appearance: none;
-  }
-  .field input:focus,
-  .field select:focus,
-  .field textarea:focus {
-    outline: none;
-    border-color: var(--bleu-titre);
-    box-shadow: 0 0 0 3px rgba(46,117,182,0.12);
-  }
-  .field textarea { resize: vertical; min-height: 70px; }
-  .field select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a6a7a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+/* CHIPS / RADIOS */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--bleu-pl); border: 1.5px solid var(--border);
+  border-radius: 20px; padding: 5px 11px;
+  cursor: pointer; font-size: 12px; color: var(--texte);
+  transition: all 0.12s; user-select: none;
+}
+.chip.on { background: var(--bleu-cl); border-color: var(--bleu2); color: var(--bleu); font-weight: 500; }
+.chip .ck { width: 14px; height: 14px; border: 1.5px solid var(--border); border-radius: 3px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 9px; flex-shrink: 0; }
+.chip.on .ck { background: var(--bleu2); border-color: var(--bleu2); color: #fff; }
 
-  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.radios { display: flex; flex-wrap: wrap; gap: 6px; }
+.rdio {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--bleu-pl); border: 1.5px solid var(--border);
+  border-radius: 20px; padding: 5px 12px;
+  cursor: pointer; font-size: 12px; color: var(--texte);
+  transition: all 0.12s; user-select: none;
+}
+.rdio.on { background: var(--bleu-cl); border-color: var(--bleu2); color: var(--bleu); font-weight: 500; }
+.rdio .dot { width: 12px; height: 12px; border: 1.5px solid var(--border); border-radius: 50%; background: #fff; flex-shrink: 0; }
+.rdio.on .dot { background: var(--bleu2); border-color: var(--bleu2); box-shadow: inset 0 0 0 2.5px #fff; }
 
-  /* CHECKBOXES */
-  .check-group { display: flex; flex-wrap: wrap; gap: 6px; }
-  .check-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--bleu-pale);
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    padding: 6px 10px;
-    cursor: pointer;
-    font-size: 13px;
-    transition: all 0.15s;
-    user-select: none;
-  }
-  .check-item input { display: none; }
-  .check-item .box {
-    width: 16px; height: 16px;
-    border: 2px solid var(--border);
-    border-radius: 4px;
-    background: white;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    font-size: 10px;
-  }
-  .check-item.checked {
-    background: var(--bleu-clair);
-    border-color: var(--bleu-titre);
-  }
-  .check-item.checked .box {
-    background: var(--bleu-titre);
-    border-color: var(--bleu-titre);
-    color: white;
-  }
+/* PIÈCES */
+.piece-card { border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; overflow: hidden; }
+.piece-head { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; cursor: pointer; background: var(--gris-card); transition: background 0.15s; }
+.piece-head:hover { background: var(--bleu-pl); }
+.piece-name { font-size: 13px; font-weight: 500; color: var(--bleu); }
+.piece-meta { display: flex; align-items: center; gap: 8px; }
+.badge-statut { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
+.badge-ok { background: #e8f5e9; color: var(--vert); }
+.badge-nok { background: #fde8e8; color: var(--rouge); }
+.ptog { font-size: 14px; color: var(--texte2); transition: transform 0.2s; margin-left: 6px; }
+.ptog.open { transform: rotate(180deg); }
+.piece-body { display: none; padding: 12px 14px; border-top: 1px solid var(--border); background: #fff; }
+.piece-body.open { display: block; }
 
-  /* RADIO */
-  .radio-group { display: flex; gap: 8px; flex-wrap: wrap; }
-  .radio-item {
-    display: flex; align-items: center; gap: 6px;
-    background: var(--bleu-pale);
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    padding: 7px 12px;
-    cursor: pointer;
-    font-size: 13px;
-    transition: all 0.15s;
-    user-select: none;
-  }
-  .radio-item input { display: none; }
-  .radio-item .dot {
-    width: 16px; height: 16px;
-    border: 2px solid var(--border);
-    border-radius: 50%;
-    background: white;
-    flex-shrink: 0;
-  }
-  .radio-item.selected {
-    background: var(--bleu-clair);
-    border-color: var(--bleu-titre);
-  }
-  .radio-item.selected .dot {
-    background: var(--bleu-titre);
-    border-color: var(--bleu-titre);
-    box-shadow: inset 0 0 0 3px white;
-  }
+.stat-btns { display: flex; gap: 6px; margin-bottom: 12px; }
+.stat-btn { flex: 1; padding: 8px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; font-size: 12px; font-weight: 500; font-family: 'DM Sans', sans-serif; transition: all 0.12s; text-align: center; color: var(--texte); }
+.stat-btn.ok { background: #e8f5e9; border-color: var(--vert); color: var(--vert); }
+.stat-btn.nok { background: #fde8e8; border-color: var(--rouge); color: var(--rouge); }
 
-  /* PRIORITY BADGE */
-  .priority-group { display: flex; gap: 6px; }
-  .priority-btn {
-    flex: 1; padding: 7px; border: 1.5px solid var(--border);
-    border-radius: 8px; background: white; cursor: pointer;
-    font-size: 12px; font-weight: 500; font-family: 'DM Sans', sans-serif;
-    transition: all 0.15s; text-align: center;
-  }
-  .priority-btn.haute.sel { background: #fde8e8; border-color: var(--rouge); color: var(--rouge); }
-  .priority-btn.moyenne.sel { background: #fef3e2; border-color: var(--orange); color: var(--orange); }
-  .priority-btn.basse.sel { background: #e8f5e9; border-color: var(--vert); color: var(--vert); }
+.prio-btns { display: flex; gap: 5px; margin-bottom: 10px; }
+.prio-btn { flex: 1; padding: 7px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; font-size: 11.5px; font-weight: 500; font-family: 'DM Sans', sans-serif; transition: all 0.12s; text-align: center; color: var(--texte); }
+.prio-btn.h.on { background: #fde8e8; border-color: var(--rouge); color: var(--rouge); }
+.prio-btn.m.on { background: #fef3e2; border-color: var(--orange); color: var(--orange); }
+.prio-btn.b.on { background: #e8f5e9; border-color: var(--vert); color: var(--vert); }
 
-  /* PIECE ROWS */
-  .piece-row {
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    padding: 10px 12px;
-    margin-bottom: 8px;
-    background: var(--gris);
-  }
-  .piece-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 0;
-    cursor: pointer;
-  }
-  .piece-name {
-    font-weight: 600; font-size: 13.5px; color: var(--bleu);
-  }
-  .piece-toggle {
-    font-size: 18px; color: var(--bleu-titre);
-    transition: transform 0.2s;
-  }
-  .piece-toggle.open { transform: rotate(180deg); }
-  .piece-body { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
-  .piece-body.open { display: block; }
+.etages { display: flex; gap: 4px; }
+.etg-btn { flex: 1; padding: 5px 4px; text-align: center; border: 1.5px solid var(--border); border-radius: 6px; background: #fff; cursor: pointer; font-size: 11px; font-family: 'DM Sans', sans-serif; color: var(--texte2); transition: all 0.12s; }
+.etg-btn.on { background: var(--bleu-cl); border-color: var(--bleu2); color: var(--bleu); font-weight: 500; }
 
-  /* ADAPT STATUS */
-  .adapt-status { display: flex; gap: 8px; margin-bottom: 10px; }
-  .adapt-btn {
-    flex: 1; padding: 8px; border: 1.5px solid var(--border);
-    border-radius: 8px; background: white; cursor: pointer;
-    font-size: 12.5px; font-weight: 500; font-family: 'DM Sans', sans-serif;
-    transition: all 0.15s; text-align: center;
-  }
-  .adapt-btn.adapte.sel { background: #e8f5e9; border-color: var(--vert); color: var(--vert); }
-  .adapt-btn.non-adapte.sel { background: #fde8e8; border-color: var(--rouge); color: var(--rouge); }
+.lbl { font-size: 11.5px; font-weight: 500; color: var(--texte2); margin-bottom: 5px; }
+.divider { height: 1px; background: var(--border); margin: 10px 0; }
 
-  /* PHOTOS */
-  .photo-area {
-    border: 2px dashed var(--border);
-    border-radius: 10px;
-    padding: 14px;
-    text-align: center;
-    background: var(--bleu-pale);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .photo-area:hover { border-color: var(--bleu-titre); background: var(--bleu-clair); }
-  .photo-area input[type="file"] { display: none; }
-  .photo-area .icon { font-size: 28px; margin-bottom: 6px; }
-  .photo-area .hint { font-size: 12px; color: var(--texte-sec); }
-  .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
-  .photo-thumb { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; }
-  .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
-  .photo-thumb .del-photo {
-    position: absolute; top: 3px; right: 3px;
-    background: rgba(0,0,0,0.6); color: white;
-    border: none; border-radius: 50%;
-    width: 20px; height: 20px; font-size: 11px;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-  }
+/* PHOTOS */
+.photo-zone { margin-top: 10px; }
+.photo-zone .lbl { margin-bottom: 6px; }
+.photo-add-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--bleu-pl); border: 1.5px dashed var(--bleu2);
+  border-radius: 8px; padding: 7px 14px;
+  cursor: pointer; font-size: 12px; font-weight: 500;
+  color: var(--bleu2); transition: all 0.15s;
+}
+.photo-add-btn:hover { background: var(--bleu-cl); }
+.photo-grid-pc {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;
+}
+.photo-thumb-pc {
+  position: relative; width: 80px; height: 80px;
+  border-radius: 8px; overflow: hidden;
+  border: 1.5px solid var(--border);
+}
+.photo-thumb-pc img { width: 100%; height: 100%; object-fit: cover; }
+.photo-del {
+  position: absolute; top: 2px; right: 2px;
+  background: rgba(0,0,0,0.6); color: white;
+  border: none; border-radius: 50%;
+  width: 18px; height: 18px; font-size: 10px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  line-height: 1;
+}
+.photo-count-badge {
+  display: inline-block; background: var(--bleu2); color: white;
+  border-radius: 10px; padding: 1px 7px; font-size: 10px;
+  font-weight: 600; margin-left: 6px;
+}
 
-  /* SYNTHESE */
-  .synthese-block {
-    background: var(--bleu-pale);
-    border: 1.5px solid var(--bleu-clair);
-    border-radius: 10px;
-    padding: 14px;
-    margin-bottom: 10px;
-  }
-  .synthese-label { font-size: 11px; font-weight: 600; color: var(--bleu-titre); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; }
-  .synthese-value { font-size: 14px; color: var(--texte); }
+/* BUTTONS */
+.btn { display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; padding: 10px 16px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
+.btn-primary { background: var(--bleu); color: #fff; }
+.btn-primary:hover { background: #173d61; }
+.btn-secondary { background: #fff; color: var(--bleu); border: 1.5px solid var(--bleu-cl); }
+.btn-secondary:hover { border-color: var(--bleu2); background: var(--bleu-pl); }
+.btn-success { background: var(--vert); color: #fff; }
+.btn-success:hover { background: #155a32; }
+.btn-danger { background: #fde8e8; color: var(--rouge); border: 1.5px solid #f5c6cb; }
+.btn-lg { padding: 12px 20px; font-size: 14px; width: 100%; justify-content: center; margin-bottom: 8px; }
+.btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
 
-  /* BUTTONS */
-  .btn-primary {
-    background: var(--bleu);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 13px 20px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 8px;
-    transition: background 0.2s;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-  }
-  .btn-primary:hover { background: #173d61; }
-  .btn-secondary {
-    background: white;
-    color: var(--bleu);
-    border: 2px solid var(--bleu-clair);
-    border-radius: 10px;
-    padding: 11px 20px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 8px;
-    transition: all 0.2s;
-  }
-  .btn-secondary:hover { border-color: var(--bleu-titre); background: var(--bleu-pale); }
-  .btn-danger {
-    background: #fde8e8;
-    color: var(--rouge);
-    border: 2px solid #f5c6cb;
-    border-radius: 10px;
-    padding: 11px 20px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 8px;
-  }
+/* ÉCONOMIQUE */
+.rav-box { background: var(--bleu-pl); border: 1.5px solid var(--bleu-cl); border-radius: var(--radius); padding: 16px; text-align: center; }
+.rav-val { font-size: 28px; font-weight: 600; color: var(--bleu); margin: 6px 0; }
+.rav-label { font-size: 11px; color: var(--texte2); }
 
-  .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+/* SYNTHÈSE */
+.syn-block { background: var(--bleu-pl); border: 1px solid var(--bleu-cl); border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; }
+.syn-label { font-size: 10px; font-weight: 600; color: var(--bleu2); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 3px; }
+.syn-val { font-size: 13px; }
 
-  /* PROGRESS */
-  .progress-bar {
-    height: 4px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 2px;
-    margin-top: 8px;
-    overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%;
-    background: white;
-    border-radius: 2px;
-    transition: width 0.4s;
-  }
+/* TOAST */
+.toast { position: fixed; bottom: 20px; right: 20px; background: #1a1a2e; color: #fff; padding: 10px 18px; border-radius: 20px; font-size: 12.5px; font-weight: 500; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
+.toast.show { opacity: 1; }
 
-  /* TOAST */
-  .toast {
-    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-    background: #1a1a2e; color: white;
-    padding: 10px 20px; border-radius: 20px;
-    font-size: 13px; font-weight: 500;
-    opacity: 0; transition: opacity 0.3s;
-    z-index: 999; pointer-events: none;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-  }
-  .toast.show { opacity: 1; }
+/* PROGRESS SIDEBAR */
+.nav-progress { padding: 8px 14px; }
+.prog-bar { height: 3px; background: rgba(255,255,255,0.15); border-radius: 2px; overflow: hidden; margin-top: 4px; }
+.prog-fill { height: 100%; background: rgba(255,255,255,0.7); border-radius: 2px; transition: width 0.4s; }
+.prog-text { font-size: 10px; color: rgba(255,255,255,0.45); }
 
-  /* MODAL */
-  .modal-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.5); z-index: 200;
-    align-items: center; justify-content: center; padding: 16px;
-  }
-  .modal-overlay.show { display: flex; }
-  .modal {
-    background: white; border-radius: 16px; padding: 20px;
-    max-width: 380px; width: 100%;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-  }
-  .modal h3 { font-size: 16px; margin-bottom: 8px; color: var(--bleu); }
-  .modal p { font-size: 13px; color: var(--texte-sec); margin-bottom: 16px; }
-
-  /* RESPONSIVE */
-  @media (max-width: 480px) {
-    .field-row { grid-template-columns: 1fr; }
-    .field-row-3 { grid-template-columns: 1fr 1fr; }
-  }
-
-  .etage-select { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-  .etage-btn {
-    padding: 6px 4px; text-align: center;
-    border: 1.5px solid var(--border); border-radius: 6px;
-    background: white; cursor: pointer; font-size: 11.5px;
-    font-family: 'DM Sans', sans-serif;
-    transition: all 0.15s;
-  }
-  .etage-btn.sel { background: var(--bleu-clair); border-color: var(--bleu-titre); color: var(--bleu); font-weight: 600; }
-
-  .divider { height: 1px; background: var(--border); margin: 12px 0; }
-  .label-sm { font-size: 11.5px; font-weight: 500; color: var(--texte-sec); margin-bottom: 5px; }
+@media(max-width:700px) {
+  .layout { flex-direction: column; }
+  .sidebar { width: 100%; height: auto; position: static; flex-direction: row; flex-wrap: wrap; padding: 8px; gap: 4px; }
+  .sidebar-logo { display: none; }
+  .nav-item { padding: 6px 10px; border-left: none; border-radius: 6px; font-size: 11px; }
+  .nav-section, .sidebar-actions, .nav-progress { display: none; }
+  .main { padding: 12px; }
+}
+@media(max-width:480px) { .row2, .row3 { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 
-<div class="app-header">
-  <div class="top-row">
-    <div>
-      <h1>🏠 Diagnostic MaPrimeAdapt'</h1>
-      <div class="subtitle">EI David MARIE-ANNE · DMAAI</div>
-    </div>
-    <div class="header-actions">
-      <button class="btn-icon" onclick="exportJSON()">⬇ Export</button>
-      <button class="btn-icon" onclick="document.getElementById('importFile').click()">⬆ Import</button>
-      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
-    </div>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">Agent Diagnostic<br>MaPrimeAdapt'</div>
+    <div class="sub">EI David MARIE-ANNE</div>
+    <div class="version">v1.0 · DMAAI 2026</div>
   </div>
-  <div class="nav-tabs" id="navTabs">
-    <button class="nav-tab active" onclick="goSection(0)" id="tab0">① Généralités</button>
-    <button class="nav-tab" onclick="goSection(1)" id="tab1">② Autonomie</button>
-    <button class="nav-tab" onclick="goSection(2)" id="tab2">③ Logement</button>
-    <button class="nav-tab" onclick="goSection(3)" id="tab3">④ État des lieux</button>
-    <button class="nav-tab" onclick="goSection(4)" id="tab4">⑤ Travaux</button>
-    <button class="nav-tab" onclick="goSection(5)" id="tab5">⑥ Synthèse</button>
+
+  <div class="nav-section">Navigation</div>
+  <div class="nav-item active" onclick="goSec(0)" id="ni0"><span class="ico">📋</span> Généralités</div>
+  <div class="nav-item" onclick="goSec(1)" id="ni1"><span class="ico">🧠</span> Autonomie</div>
+  <div class="nav-item" onclick="goSec(2)" id="ni2"><span class="ico">💰</span> Économique</div>
+  <div class="nav-item" onclick="goSec(3)" id="ni3"><span class="ico">🏠</span> État des lieux</div>
+  <div class="nav-item" onclick="goSec(4)" id="ni4"><span class="ico">🔧</span> Travaux</div>
+  <div class="nav-item" onclick="goSec(5)" id="ni5"><span class="ico">📊</span> Synthèse</div>
+
+  <div class="nav-progress">
+    <div class="prog-text" id="progText">0 / 6 sections</div>
+    <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
   </div>
-  <div class="progress-bar">
-    <div class="progress-fill" id="progressFill" style="width:16%"></div>
+
+  <div class="nav-section">Données</div>
+  <div class="nav-item" onclick="expJSON()"><span class="ico">⬇</span> Exporter JSON</div>
+  <div class="nav-item" onclick="document.getElementById('impFile').click()"><span class="ico">⬆</span> Importer JSON</div>
+  <input type="file" id="impFile" accept=".json" style="display:none" onchange="impJSON(event)">
+
+  <div class="sidebar-actions">
+    <button class="sb-btn success" onclick="genDocx()">📄 Générer rapport .docx</button>
+    <button class="sb-btn" onclick="expJSON()">⬇ Exporter données</button>
+    <button class="sb-btn" style="color:rgba(255,100,100,0.8)" onclick="if(confirm('Tout effacer ?')){resetAll()}">🗑 Réinitialiser</button>
   </div>
 </div>
 
+<!-- MAIN -->
 <div class="main">
 
-<!-- ==================== SECTION 0 : GÉNÉRALITÉS ==================== -->
-<div class="section active" id="sec0">
-  <p class="section-title">Informations générales</p>
-  <p class="section-desc">Structure AMO, demandeur et logement</p>
-
-  <div class="card">
-    <div class="card-title">Structure AMO</div>
-    <div class="field">
-      <label>Raison sociale</label>
-      <input type="text" id="amo_structure" value="EI David MARIE-ANNE" placeholder="Nom de la structure">
-    </div>
-    <div class="field">
-      <label>Diagnostiqueur</label>
-      <input type="text" id="amo_diagnostiqueur" value="David MARIE-ANNE" placeholder="Nom Prénom">
-    </div>
-    <div class="field">
-      <label>Fonction</label>
-      <input type="text" id="amo_fonction" value="Architecte DPLG / Ingénieur TCE" placeholder="Titre / fonction">
-    </div>
-    <div class="field">
-      <label>Date de la visite</label>
-      <input type="date" id="visite_date">
-    </div>
+  <!-- STATUS -->
+  <div class="status-bar offline" id="statusBar">
+    <span class="status-dot"></span>
+    <span id="statusText">Serveur déconnecté — Export JSON uniquement (rapport .docx nécessite le serveur)</span>
   </div>
 
-  <div class="card">
-    <div class="card-title">Demandeur</div>
-    <div class="field-row">
-      <div class="field"><label>Nom</label><input type="text" id="dem_nom"></div>
-      <div class="field"><label>Prénom</label><input type="text" id="dem_prenom"></div>
-    </div>
-    <div class="field">
-      <label>Date de naissance</label>
-      <input type="date" id="dem_naissance">
-    </div>
-    <div class="field">
-      <label>Situation familiale</label>
-      <div class="check-group" id="cg_situation">
-        <label class="check-item" onclick="toggleCheck(this,'situation','Marié(e)')"><input><span class="box"></span>Marié(e)</label>
-        <label class="check-item" onclick="toggleCheck(this,'situation','Pacsé(e)')"><input><span class="box"></span>Pacsé(e)</label>
-        <label class="check-item" onclick="toggleCheck(this,'situation','Vie maritale')"><input><span class="box"></span>Vie maritale</label>
-        <label class="check-item" onclick="toggleCheck(this,'situation','Veuf(ve)')"><input><span class="box"></span>Veuf(ve)</label>
-        <label class="check-item" onclick="toggleCheck(this,'situation','Célibataire')"><input><span class="box"></span>Célibataire</label>
+  <!-- SEC 0 : GÉNÉRALITÉS -->
+  <div class="section active" id="s0">
+    <p class="page-title">Informations générales</p>
+    <p class="page-desc">Structure AMO · demandeur · logement · orientation</p>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">🏢</span> Structure AMO</div>
+      <div class="row2">
+        <div class="field"><label>Raison sociale</label><input type="text" id="amo_rso" value="EI David MARIE-ANNE"></div>
+        <div class="field"><label>Diagnostiqueur</label><input type="text" id="amo_diag" value="David MARIE-ANNE"></div>
+      </div>
+      <div class="row3">
+        <div class="field"><label>Fonction</label><input type="text" id="amo_fonc" value="Architecte DPLG / Ingénieur TCE"></div>
+        <div class="field"><label>Date de visite</label><input type="date" id="v_date"></div>
+        <div class="field"><label>Référence dossier</label><input type="text" id="ref_dossier" placeholder="ex: MPA-2026-001"></div>
       </div>
     </div>
-    <div class="field">
-      <label>Aides perçues</label>
-      <div class="check-group" id="cg_aides">
-        <label class="check-item" onclick="toggleCheck(this,'aides','APA')"><input><span class="box"></span>APA</label>
-        <label class="check-item" onclick="toggleCheck(this,'aides','PCH')"><input><span class="box"></span>PCH</label>
-        <label class="check-item" onclick="toggleCheck(this,'aides','FDC')"><input><span class="box"></span>FDC</label>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">👤</span> Demandeur</div>
+      <div class="row3">
+        <div class="field"><label>Nom</label><input type="text" id="d_nom"></div>
+        <div class="field"><label>Prénom</label><input type="text" id="d_prn"></div>
+        <div class="field"><label>Date de naissance</label><input type="date" id="d_nais"></div>
+      </div>
+      <div class="field"><div class="field-label">Situation familiale</div>
+        <div class="chips">
+          <span class="chip" data-k="sit" data-v="Marié(e)" onclick="tChip(this)"><span class="ck"></span>Marié(e)</span>
+          <span class="chip" data-k="sit" data-v="Pacsé(e)" onclick="tChip(this)"><span class="ck"></span>Pacsé(e)</span>
+          <span class="chip" data-k="sit" data-v="Vie maritale" onclick="tChip(this)"><span class="ck"></span>Vie maritale</span>
+          <span class="chip" data-k="sit" data-v="Veuf(ve)" onclick="tChip(this)"><span class="ck"></span>Veuf(ve)</span>
+          <span class="chip" data-k="sit" data-v="Célibataire" onclick="tChip(this)"><span class="ck"></span>Célibataire</span>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field"><div class="field-label">Aides perçues</div>
+          <div class="chips">
+            <span class="chip" data-k="aid" data-v="APA" onclick="tChip(this)"><span class="ck"></span>APA</span>
+            <span class="chip" data-k="aid" data-v="PCH" onclick="tChip(this)"><span class="ck"></span>PCH</span>
+            <span class="chip" data-k="aid" data-v="FDC" onclick="tChip(this)"><span class="ck"></span>FDC</span>
+          </div>
+        </div>
+        <div class="field"><label>Régime retraite</label>
+          <select id="d_ret">
+            <option value="">--</option><option>Aucun</option><option>Régime général</option>
+            <option>MSA</option><option>Fonctionnaires</option><option>Prof. libérales</option><option>Autre</option>
+          </select>
+        </div>
       </div>
     </div>
-    <div class="field">
-      <label>Régime de retraite</label>
-      <select id="dem_retraite">
-        <option value="">-- Sélectionner --</option>
-        <option>Aucun</option>
-        <option>Régime général</option>
-        <option>MSA</option>
-        <option>Régime des fonctionnaires</option>
-        <option>Régime des professions libérales</option>
-        <option>Autre</option>
-      </select>
-    </div>
-  </div>
 
-  <div class="card">
-    <div class="card-title">Logement</div>
-    <div class="field">
-      <label>Statut d'occupation</label>
-      <div class="radio-group" id="rg_statut">
-        <label class="radio-item" onclick="toggleRadio(this,'statut_occupation','Propriétaire')"><input><span class="dot"></span>Propriétaire</label>
-        <label class="radio-item" onclick="toggleRadio(this,'statut_occupation','Locataire')"><input><span class="dot"></span>Locataire</label>
-        <label class="radio-item" onclick="toggleRadio(this,'statut_occupation','Usufruitier')"><input><span class="dot"></span>Usufruitier</label>
-        <label class="radio-item" onclick="toggleRadio(this,'statut_occupation','Occupant gratuit')"><input><span class="dot"></span>Occupant gratuit</label>
+    <div class="card">
+      <div class="card-title"><span class="ico">🏘</span> Logement</div>
+      <div class="field"><label>Adresse</label><input type="text" id="l_adr" placeholder="N° rue, commune, code postal"></div>
+      <div class="row2">
+        <div class="field"><label>Type</label>
+          <div class="radios" id="rg_tlog">
+            <span class="rdio" data-k="tlog" data-v="Maison individuelle" onclick="tRdio(this)"><span class="dot"></span>Maison</span>
+            <span class="rdio" data-k="tlog" data-v="Bâtiment collectif" onclick="tRdio(this)"><span class="dot"></span>Collectif</span>
+          </div>
+        </div>
+        <div class="field"><label>Statut occupation</label>
+          <div class="radios">
+            <span class="rdio" data-k="stat" data-v="Propriétaire" onclick="tRdio(this)"><span class="dot"></span>Propriétaire</span>
+            <span class="rdio" data-k="stat" data-v="Locataire" onclick="tRdio(this)"><span class="dot"></span>Locataire</span>
+            <span class="rdio" data-k="stat" data-v="Usufruitier" onclick="tRdio(this)"><span class="dot"></span>Usufruitier</span>
+          </div>
+        </div>
+      </div>
+      <div class="row3">
+        <div class="field"><label>Année constr.</label><input type="number" id="l_an" placeholder="1975"></div>
+        <div class="field"><label>Surface (m²)</label><input type="number" id="l_surf"></div>
+        <div class="field"><label>Nb pièces</label><input type="number" id="l_pces"></div>
+      </div>
+      <div class="row3">
+        <div class="field"><label>Nb niveaux</label><input type="number" id="l_niv" min="1"></div>
+        <div class="field"><label>Étage logement</label><input type="text" id="l_etg" placeholder="RDC…"></div>
+        <div class="field"><label>Nb occupants</label><input type="number" id="l_occ" min="1"></div>
+      </div>
+      <div class="field"><label>Zone géographique</label>
+        <div class="radios">
+          <span class="rdio" data-k="zone" data-v="Urbaine" onclick="tRdio(this)"><span class="dot"></span>Urbaine</span>
+          <span class="rdio" data-k="zone" data-v="Rurale" onclick="tRdio(this)"><span class="dot"></span>Rurale</span>
+          <span class="rdio" data-k="zone" data-v="Mixte" onclick="tRdio(this)"><span class="dot"></span>Mixte</span>
+        </div>
       </div>
     </div>
-    <div class="field">
-      <label>Type de logement</label>
-      <div class="radio-group" id="rg_type_log">
-        <label class="radio-item" onclick="toggleRadio(this,'type_logement','Maison individuelle')"><input><span class="dot"></span>Maison individuelle</label>
-        <label class="radio-item" onclick="toggleRadio(this,'type_logement','BHC')"><input><span class="dot"></span>Bâtiment collectif</label>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">📡</span> Orientation MaPrimeAdapt'</div>
+      <div class="field"><div class="field-label">Canal d'orientation</div>
+        <div class="chips">
+          <span class="chip" data-k="ori" data-v="Prof. social" onclick="tChip(this)"><span class="ck"></span>Prof. social</span>
+          <span class="chip" data-k="ori" data-v="Prof. médical" onclick="tChip(this)"><span class="ck"></span>Prof. médical</span>
+          <span class="chip" data-k="ori" data-v="Internet" onclick="tChip(this)"><span class="ck"></span>Internet</span>
+          <span class="chip" data-k="ori" data-v="Bouche à oreille" onclick="tChip(this)"><span class="ck"></span>Bouche à oreille</span>
+          <span class="chip" data-k="ori" data-v="Prof. bâtiment" onclick="tChip(this)"><span class="ck"></span>Prof. bâtiment</span>
+          <span class="chip" data-k="ori" data-v="Presse/TV" onclick="tChip(this)"><span class="ck"></span>Presse/TV</span>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Accompagnement France Rénov' ?</label>
+          <div class="radios">
+            <span class="rdio" data-k="fr" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
+            <span class="rdio" data-k="fr" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
+          </div>
+        </div>
+        <div class="field"><label>Contact France Rénov' (si oui)</label><input type="text" id="fr_ct" placeholder="Nom / coordonnées"></div>
       </div>
     </div>
-    <div class="field-row">
-      <div class="field"><label>Année de construction</label><input type="number" id="log_annee" min="1800" max="2025" placeholder="ex. 1975"></div>
-      <div class="field"><label>Étage du logement</label><input type="text" id="log_etage" placeholder="RDC / 1er…"></div>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">📷</span> Photos extérieures du bâtiment</div>
+      <label class="photo-add-btn">
+        📷 Ajouter photos façade / entrée
+        <input type="file" accept="image/*" multiple style="display:none" onchange="addExtPhotos(this.files)">
+      </label>
+      <div class="photo-grid-pc" id="photoGridExt" style="margin-top:8px"></div>
     </div>
-    <div class="field-row">
-      <div class="field"><label>Nb d'occupants</label><input type="number" id="log_nb_occupants" min="1"></div>
-      <div class="field"><label>Nb de pièces</label><input type="number" id="log_nb_pieces" min="1"></div>
+
+    <div class="btn-row">
+      <div></div>
+      <button class="btn btn-primary" onclick="goSec(1)">Suivant — Autonomie →</button>
     </div>
-    <div class="field-row">
-      <div class="field"><label>Surface habitable (m²)</label><input type="number" id="log_surface"></div>
-      <div class="field"><label>Nb de niveaux intérieurs</label><input type="number" id="log_niveaux" min="1"></div>
+  </div>
+
+  <!-- SEC 1 : AUTONOMIE -->
+  <div class="section" id="s1">
+    <p class="page-title">Situation d'autonomie</p>
+    <p class="page-desc">GIR · handicap · chutes · aidants · évaluations</p>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">♿</span> Handicap & Niveau d'autonomie</div>
+      <div class="row2">
+        <div class="field"><label>Situation de handicap ?</label>
+          <div class="radios">
+            <span class="rdio" data-k="handi" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
+            <span class="rdio" data-k="handi" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
+          </div>
+        </div>
+        <div class="field"><label>Niveau GIR</label>
+          <div class="radios">
+            <span class="rdio" data-k="gir" data-v="1" onclick="tRdio(this)"><span class="dot"></span>1</span>
+            <span class="rdio" data-k="gir" data-v="2" onclick="tRdio(this)"><span class="dot"></span>2</span>
+            <span class="rdio" data-k="gir" data-v="3" onclick="tRdio(this)"><span class="dot"></span>3</span>
+            <span class="rdio" data-k="gir" data-v="4" onclick="tRdio(this)"><span class="dot"></span>4</span>
+            <span class="rdio" data-k="gir" data-v="5" onclick="tRdio(this)"><span class="dot"></span>5</span>
+            <span class="rdio" data-k="gir" data-v="6" onclick="tRdio(this)"><span class="dot"></span>6</span>
+            <span class="rdio" data-k="gir" data-v="Non évalué" onclick="tRdio(this)"><span class="dot"></span>NE</span>
+          </div>
+        </div>
+      </div>
+      <div class="field"><div class="field-label">Aides techniques utilisées</div>
+        <div class="chips">
+          <span class="chip" data-k="atec" data-v="Fauteuil roulant" onclick="tChip(this)"><span class="ck"></span>Fauteuil roulant</span>
+          <span class="chip" data-k="atec" data-v="Déambulateur" onclick="tChip(this)"><span class="ck"></span>Déambulateur</span>
+          <span class="chip" data-k="atec" data-v="Canne" onclick="tChip(this)"><span class="ck"></span>Canne</span>
+          <span class="chip" data-k="atec" data-v="Banc bain" onclick="tChip(this)"><span class="ck"></span>Banc bain</span>
+          <span class="chip" data-k="atec" data-v="Barre appui" onclick="tChip(this)"><span class="ck"></span>Barre appui</span>
+        </div>
+      </div>
+      <div class="field"><label>Autre aide technique</label><input type="text" id="atec_autre" placeholder="Préciser…"></div>
     </div>
-    <div class="field">
-      <label>Zone géographique</label>
-      <div class="radio-group" id="rg_zone">
-        <label class="radio-item" onclick="toggleRadio(this,'zone','Urbaine')"><input><span class="dot"></span>Urbaine</label>
-        <label class="radio-item" onclick="toggleRadio(this,'zone','Rurale')"><input><span class="dot"></span>Rurale</label>
-        <label class="radio-item" onclick="toggleRadio(this,'zone','Mixte')"><input><span class="dot"></span>Mixte</label>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">🏥</span> Chutes & Suivi médical</div>
+      <div class="row3">
+        <div class="field"><label>Chute dans les 6 mois ?</label>
+          <div class="radios">
+            <span class="rdio" data-k="chute" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
+            <span class="rdio" data-k="chute" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
+          </div>
+        </div>
+        <div class="field"><label>Hospitalisation ?</label>
+          <div class="radios">
+            <span class="rdio" data-k="hosp" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
+            <span class="rdio" data-k="hosp" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
+          </div>
+        </div>
+        <div class="field"><label>Perte autonomie depuis ?</label>
+          <div class="radios">
+            <span class="rdio" data-k="paut" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
+            <span class="rdio" data-k="paut" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="row2">
+        <div class="field"><label>Suivi ergothérapeute (&lt;6 mois) ?</label>
+          <div class="radios">
+            <span class="rdio" data-k="ergo" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
+            <span class="rdio" data-k="ergo" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
+          </div>
+        </div>
+        <div class="field"><label>Rapport ergo disponible ?</label>
+          <div class="radios">
+            <span class="rdio" data-k="rergo" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
+            <span class="rdio" data-k="rergo" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
+          </div>
+        </div>
+      </div>
+      <div class="field"><label>Aide professionnelle régulière ou proche aidant ?</label>
+        <div class="radios">
+          <span class="rdio" data-k="aid2" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
+          <span class="rdio" data-k="aid2" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
+        </div>
       </div>
     </div>
-    <div class="field">
-      <label>Adresse du logement</label>
-      <input type="text" id="log_adresse" placeholder="N° rue, commune">
+
+    <div class="card">
+      <div class="card-title"><span class="ico">📝</span> Évaluations & Personne de confiance</div>
+      <div class="field"><label>Évaluations logement/autonomie récentes (&lt;6 mois)</label>
+        <div class="chips">
+          <span class="chip" data-k="eval" data-v="Aucune" onclick="tChip(this)"><span class="ck"></span>Aucune</span>
+          <span class="chip" data-k="eval" data-v="ANAH" onclick="tChip(this)"><span class="ck"></span>ANAH</span>
+          <span class="chip" data-k="eval" data-v="APA" onclick="tChip(this)"><span class="ck"></span>APA</span>
+          <span class="chip" data-k="eval" data-v="CNAV" onclick="tChip(this)"><span class="ck"></span>CNAV</span>
+          <span class="chip" data-k="eval" data-v="CCAS" onclick="tChip(this)"><span class="ck"></span>CCAS</span>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Personne de confiance désignée ?</label>
+          <div class="radios">
+            <span class="rdio" data-k="conf" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
+            <span class="rdio" data-k="conf" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
+          </div>
+        </div>
+        <div class="field"><label>Identité personne de confiance</label><input type="text" id="conf_id" placeholder="Nom, prénom, lien, téléphone"></div>
+      </div>
+      <div class="field"><label>Observations complémentaires</label><textarea id="obs_aut" placeholder="Notes libres sur la situation d'autonomie…"></textarea></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goSec(0)">← Retour</button>
+      <button class="btn btn-primary" onclick="goSec(2)">Suivant — Économique →</button>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-title">Orientation vers MPA'</div>
-    <div class="field">
-      <label>Canal d'orientation</label>
-      <div class="check-group" id="cg_orientation">
-        <label class="check-item" onclick="toggleCheck(this,'orientation','Professionnel social')"><input><span class="box"></span>Prof. social</label>
-        <label class="check-item" onclick="toggleCheck(this,'orientation','Professionnel médical')"><input><span class="box"></span>Prof. médical</label>
-        <label class="check-item" onclick="toggleCheck(this,'orientation','Recherche internet')"><input><span class="box"></span>Internet</label>
-        <label class="check-item" onclick="toggleCheck(this,'orientation','Tiers (voisin, ami)')"><input><span class="box"></span>Bouche à oreille</label>
-        <label class="check-item" onclick="toggleCheck(this,'orientation','Prof. bâtiment')"><input><span class="box"></span>Prof. bâtiment</label>
-        <label class="check-item" onclick="toggleCheck(this,'orientation','Presse/TV')"><input><span class="box"></span>Presse/TV</label>
+  <!-- SEC 2 : ÉCONOMIQUE -->
+  <div class="section" id="s2">
+    <p class="page-title">Situation économique</p>
+    <p class="page-desc">Facultatif — ressources, charges, reste à vivre</p>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">📈</span> Ressources mensuelles (€)</div>
+      <div class="row2">
+        <div class="field"><label>Salaire</label><input type="number" id="e_sal" min="0" oninput="calcRAV()"></div>
+        <div class="field"><label>Pension retraite</label><input type="number" id="e_pen" min="0" oninput="calcRAV()"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Allocations (APA, PCH…)</label><input type="number" id="e_alloc" min="0" oninput="calcRAV()"></div>
+        <div class="field"><label>Autres revenus</label><input type="number" id="e_autre" min="0" oninput="calcRAV()"></div>
+      </div>
+      <div class="field"><label>Épargne mobilisable pour les travaux</label><input type="number" id="e_ep" min="0"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">📉</span> Charges fixes mensuelles (€)</div>
+      <div class="row3">
+        <div class="field"><label>Loyer / charges</label><input type="number" id="c_loy" min="0" oninput="calcRAV()"></div>
+        <div class="field"><label>Prêt immobilier</label><input type="number" id="c_pret" min="0" oninput="calcRAV()"></div>
+        <div class="field"><label>Crédits</label><input type="number" id="c_cred" min="0" oninput="calcRAV()"></div>
+      </div>
+      <div class="row3">
+        <div class="field"><label>Mutuelle</label><input type="number" id="c_mut" min="0" oninput="calcRAV()"></div>
+        <div class="field"><label>Électricité</label><input type="number" id="c_elec" min="0" oninput="calcRAV()"></div>
+        <div class="field"><label>Assurances</label><input type="number" id="c_ass" min="0" oninput="calcRAV()"></div>
+      </div>
+      <div class="field"><label>Autres charges</label><input type="number" id="c_autre" min="0" oninput="calcRAV()"></div>
+    </div>
+
+    <div class="card">
+      <div class="rav-box">
+        <div class="rav-label">Reste à vivre estimé</div>
+        <div class="rav-val" id="ravVal">—</div>
+        <div class="rav-label">Revenus mensuels − charges fixes</div>
       </div>
     </div>
-    <div class="field">
-      <label>Accompagnement France Rénov' ?</label>
-      <div class="radio-group" id="rg_fr">
-        <label class="radio-item" onclick="toggleRadio(this,'fr_renov','Oui')"><input><span class="dot"></span>Oui</label>
-        <label class="radio-item" onclick="toggleRadio(this,'fr_renov','Non')"><input><span class="dot"></span>Non</label>
-      </div>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">💬</span> Remarques du ménage</div>
+      <div class="field"><textarea id="rem_men" placeholder="Souhaits, contraintes, budget envisagé par le demandeur…" style="min-height:90px"></textarea></div>
     </div>
-    <div class="field">
-      <label>Coordonnées France Rénov' (si oui)</label>
-      <input type="text" id="fr_coords" placeholder="Nom / contact">
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goSec(1)">← Retour</button>
+      <button class="btn btn-primary" onclick="goSec(3)">Suivant — État des lieux →</button>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-title">Photos extérieures du bâtiment</div>
-    <div class="photo-area" onclick="document.getElementById('photoExt').click()">
-      <div class="icon">📷</div>
-      <div class="hint">Appuyer pour ajouter des photos<br>façade avant / arrière</div>
-      <input type="file" id="photoExt" accept="image/*" multiple onchange="addPhotos('ext',event)">
-    </div>
-    <div class="photo-grid" id="photoGridExt"></div>
-  </div>
-
-  <button class="btn-primary" onclick="goSection(1)">Suivant → Autonomie</button>
-</div>
-
-<!-- ==================== SECTION 1 : AUTONOMIE ==================== -->
-<div class="section" id="sec1">
-  <p class="section-title">Situation autonomie</p>
-  <p class="section-desc">GIR, handicap, chutes, aidants</p>
-
-  <div class="card">
-    <div class="card-title">Handicap & Autonomie</div>
-    <div class="field">
-      <label>Le demandeur est-il en situation de handicap ?</label>
-      <div class="radio-group" id="rg_handicap">
-        <label class="radio-item" onclick="toggleRadio(this,'handicap','Oui')"><input><span class="dot"></span>Oui</label>
-        <label class="radio-item" onclick="toggleRadio(this,'handicap','Non')"><input><span class="dot"></span>Non</label>
-      </div>
-    </div>
-    <div class="field">
-      <label>Niveau GIR (si évalué)</label>
-      <div class="radio-group" id="rg_gir">
-        <label class="radio-item" onclick="toggleRadio(this,'gir','1')"><input><span class="dot"></span>GIR 1</label>
-        <label class="radio-item" onclick="toggleRadio(this,'gir','2')"><input><span class="dot"></span>GIR 2</label>
-        <label class="radio-item" onclick="toggleRadio(this,'gir','3')"><input><span class="dot"></span>GIR 3</label>
-        <label class="radio-item" onclick="toggleRadio(this,'gir','4')"><input><span class="dot"></span>GIR 4</label>
-        <label class="radio-item" onclick="toggleRadio(this,'gir','5')"><input><span class="dot"></span>GIR 5</label>
-        <label class="radio-item" onclick="toggleRadio(this,'gir','6')"><input><span class="dot"></span>GIR 6</label>
-        <label class="radio-item" onclick="toggleRadio(this,'gir','Non évalué')"><input><span class="dot"></span>Non évalué</label>
-      </div>
-    </div>
-    <div class="field">
-      <label>Aides techniques utilisées au quotidien</label>
-      <div class="check-group" id="cg_aides_tech">
-        <label class="check-item" onclick="toggleCheck(this,'aides_tech','Fauteuil roulant')"><input><span class="box"></span>Fauteuil roulant</label>
-        <label class="check-item" onclick="toggleCheck(this,'aides_tech','Déambulateur')"><input><span class="box"></span>Déambulateur</label>
-        <label class="check-item" onclick="toggleCheck(this,'aides_tech','Canne')"><input><span class="box"></span>Canne</label>
-        <label class="check-item" onclick="toggleCheck(this,'aides_tech','Banc bain')"><input><span class="box"></span>Banc bain</label>
-        <label class="check-item" onclick="toggleCheck(this,'aides_tech','Barre appui')"><input><span class="box"></span>Barre appui</label>
-      </div>
-      <input type="text" id="aides_tech_autre" placeholder="Autre aide technique…" style="margin-top:8px">
+  <!-- SEC 3 : ÉTAT DES LIEUX -->
+  <div class="section" id="s3">
+    <p class="page-title">État des lieux</p>
+    <p class="page-desc">Adapté / Non adapté · circulation · équipements · étage</p>
+    <div id="edlCont"></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goSec(2)">← Retour</button>
+      <button class="btn btn-primary" onclick="goSec(4)">Suivant — Travaux →</button>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-title">Chutes &amp; Suivi médical</div>
-    <div class="field">
-      <label>Chute dans les 6 derniers mois ?</label>
-      <div class="radio-group" id="rg_chute">
-        <label class="radio-item" onclick="toggleRadio(this,'chute','Oui')"><input><span class="dot"></span>Oui</label>
-        <label class="radio-item" onclick="toggleRadio(this,'chute','Non')"><input><span class="dot"></span>Non</label>
-      </div>
+  <!-- SEC 4 : TRAVAUX -->
+  <div class="section" id="s4">
+    <p class="page-title">Projet de travaux</p>
+    <p class="page-desc">Priorité · solutions proposées · solutions retenues</p>
+    <div id="travCont"></div>
+    <div class="card">
+      <div class="card-title"><span class="ico">📋</span> Recommandations rédigées</div>
+      <div class="field"><label>Détail des préconisations AMO</label><textarea id="prec" placeholder="Expliciter les préconisations pour chaque zone concernée…" style="min-height:130px"></textarea></div>
+      <div class="field"><label>Création de pièce nouvelle (si adaptation impossible)</label><textarea id="crp" placeholder="Raison de la création, emplacement initial, nouvel emplacement, priorité…" style="min-height:70px"></textarea></div>
     </div>
-    <div class="field">
-      <label>Hospitalisation suite à la chute ?</label>
-      <div class="radio-group" id="rg_hospit">
-        <label class="radio-item" onclick="toggleRadio(this,'hospit','Oui')"><input><span class="dot"></span>Oui</label>
-        <label class="radio-item" onclick="toggleRadio(this,'hospit','Non')"><input><span class="dot"></span>Non</label>
-      </div>
-    </div>
-    <div class="field">
-      <label>Perte d'autonomie depuis la chute ?</label>
-      <div class="radio-group" id="rg_perte_aut">
-        <label class="radio-item" onclick="toggleRadio(this,'perte_aut','Oui')"><input><span class="dot"></span>Oui</label>
-        <label class="radio-item" onclick="toggleRadio(this,'perte_aut','Non')"><input><span class="dot"></span>Non</label>
-      </div>
-    </div>
-    <div class="divider"></div>
-    <div class="field">
-      <label>Suivi ergothérapeute (&lt; 6 mois) ?</label>
-      <div class="radio-group" id="rg_ergo">
-        <label class="radio-item" onclick="toggleRadio(this,'ergo','Oui')"><input><span class="dot"></span>Oui</label>
-        <label class="radio-item" onclick="toggleRadio(this,'ergo','Non')"><input><span class="dot"></span>Non</label>
-      </div>
-    </div>
-    <div class="field">
-      <label>Rapport ergo disponible (&lt; 6 mois) ?</label>
-      <div class="radio-group" id="rg_rapport_ergo">
-        <label class="radio-item" onclick="toggleRadio(this,'rapport_ergo','Oui')"><input><span class="dot"></span>Oui</label>
-        <label class="radio-item" onclick="toggleRadio(this,'rapport_ergo','Non')"><input><span class="dot"></span>Non</label>
-      </div>
-    </div>
-    <div class="divider"></div>
-    <div class="field">
-      <label>Aide professionnelle régulière (aide-soignant, AVS…) ou proche aidant ?</label>
-      <div class="radio-group" id="rg_aidant">
-        <label class="radio-item" onclick="toggleRadio(this,'aidant','Oui')"><input><span class="dot"></span>Oui</label>
-        <label class="radio-item" onclick="toggleRadio(this,'aidant','Non')"><input><span class="dot"></span>Non</label>
-      </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goSec(3)">← Retour</button>
+      <button class="btn btn-primary" onclick="goSec(5)">Synthèse →</button>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-title">Évaluations antérieures (&lt; 6 mois)</div>
-    <div class="field">
-      <label>Évaluation logement récente ?</label>
-      <div class="check-group" id="cg_eval_log">
-        <label class="check-item" onclick="toggleCheck(this,'eval_log','ANAH')"><input><span class="box"></span>ANAH</label>
-        <label class="check-item" onclick="toggleCheck(this,'eval_log','APA')"><input><span class="box"></span>APA</label>
-        <label class="check-item" onclick="toggleCheck(this,'eval_log','CNAV')"><input><span class="box"></span>CNAV</label>
-        <label class="check-item" onclick="toggleCheck(this,'eval_log','CCAS')"><input><span class="box"></span>CCAS</label>
-      </div>
-    </div>
-    <div class="field">
-      <label>Personne de confiance</label>
-      <div class="radio-group" id="rg_confiance">
-        <label class="radio-item" onclick="toggleRadio(this,'confiance','Oui')"><input><span class="dot"></span>Oui</label>
-        <label class="radio-item" onclick="toggleRadio(this,'confiance','Non')"><input><span class="dot"></span>Non</label>
-      </div>
-    </div>
-    <div class="field">
-      <label>Identité personne de confiance</label>
-      <input type="text" id="confiance_identite" placeholder="Nom, prénom, lien, téléphone">
-    </div>
-    <div class="field">
-      <label>Observations complémentaires autonomie</label>
-      <textarea id="obs_autonomie" placeholder="Notes libres…"></textarea>
+  <!-- SEC 5 : SYNTHÈSE -->
+  <div class="section" id="s5">
+    <p class="page-title">Synthèse & Export</p>
+    <p class="page-desc">Récapitulatif du diagnostic · génération du rapport</p>
+    <div id="synCont"></div>
+    <div class="card">
+      <div class="card-title"><span class="ico">⚡</span> Actions</div>
+      <button class="btn btn-success btn-lg" onclick="genDocx()">📄 Générer le rapport Word (.docx)</button>
+      <button class="btn btn-primary btn-lg" style="background:var(--bleu2)" onclick="expJSON()">⬇ Sauvegarder les données (JSON)</button>
+      <button class="btn btn-secondary btn-lg" onclick="goSec(0)">← Revenir au début</button>
+      <button class="btn btn-danger btn-lg" onclick="if(confirm('Effacer toutes les données ?')){resetAll()}">🗑 Réinitialiser</button>
     </div>
   </div>
-
-  <div class="btn-row">
-    <button class="btn-secondary" onclick="goSection(0)">← Retour</button>
-    <button class="btn-primary" onclick="goSection(2)">Suivant →</button>
-  </div>
-</div>
-
-<!-- ==================== SECTION 2 : LOGEMENT ==================== -->
-<div class="section" id="sec2">
-  <p class="section-title">Informations projet</p>
-  <p class="section-desc">Situation économique (facultatif)</p>
-
-  <div class="card">
-    <div class="card-title">Ressources mensuelles</div>
-    <div class="field-row">
-      <div class="field"><label>Salaire (€)</label><input type="number" id="eco_salaire" min="0"></div>
-      <div class="field"><label>Pension retraite (€)</label><input type="number" id="eco_pension" min="0"></div>
-    </div>
-    <div class="field-row">
-      <div class="field"><label>Allocations (APA, PCH…) (€)</label><input type="number" id="eco_alloc" min="0"></div>
-      <div class="field"><label>Autres revenus (€)</label><input type="number" id="eco_autres_rev" min="0"></div>
-    </div>
-    <div class="field">
-      <label>Épargne mobilisable pour travaux (€)</label>
-      <input type="number" id="eco_epargne" min="0">
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Charges fixes mensuelles</div>
-    <div class="field-row">
-      <div class="field"><label>Loyer / charges (€)</label><input type="number" id="eco_loyer" min="0"></div>
-      <div class="field"><label>Prêt immobilier (€)</label><input type="number" id="eco_pret" min="0"></div>
-    </div>
-    <div class="field-row">
-      <div class="field"><label>Crédits (€)</label><input type="number" id="eco_credits" min="0"></div>
-      <div class="field"><label>Mutuelle (€)</label><input type="number" id="eco_mutuelle" min="0"></div>
-    </div>
-    <div class="field-row">
-      <div class="field"><label>Électricité (€)</label><input type="number" id="eco_elec" min="0"></div>
-      <div class="field"><label>Assurances (€)</label><input type="number" id="eco_assur" min="0"></div>
-    </div>
-    <div class="field">
-      <label>Autres charges (€)</label>
-      <input type="number" id="eco_autres_ch" min="0">
-    </div>
-  </div>
-
-  <div class="card" id="rAvCard" style="background: var(--bleu-pale); border-color: var(--bleu-clair);">
-    <div class="card-title">Reste à vivre estimé</div>
-    <div style="font-size: 28px; font-weight: 700; color: var(--bleu); text-align:center; padding: 8px 0;" id="rAvDisplay">—</div>
-    <div style="font-size: 12px; color: var(--texte-sec); text-align:center;">Revenus totaux − Charges fixes mensuelles</div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Notes générales visite</div>
-    <div class="field">
-      <label>Remarques du ménage sur le projet</label>
-      <textarea id="remarques_menage" placeholder="Souhaits, contraintes exprimés par le demandeur…" style="min-height:100px"></textarea>
-    </div>
-  </div>
-
-  <div class="btn-row">
-    <button class="btn-secondary" onclick="goSection(1)">← Retour</button>
-    <button class="btn-primary" onclick="goSection(3)">Suivant →</button>
-  </div>
-</div>
-
-<!-- ==================== SECTION 3 : ÉTAT DES LIEUX ==================== -->
-<div class="section" id="sec3">
-  <p class="section-title">État des lieux pièce par pièce</p>
-  <p class="section-desc">Adapté / Non adapté — circulation, équipements, étage</p>
-
-  <div id="piecesContainer"></div>
-
-  <div class="btn-row">
-    <button class="btn-secondary" onclick="goSection(2)">← Retour</button>
-    <button class="btn-primary" onclick="goSection(4)">Suivant →</button>
-  </div>
-</div>
-
-<!-- ==================== SECTION 4 : TRAVAUX ==================== -->
-<div class="section" id="sec4">
-  <p class="section-title">Projet de travaux</p>
-  <p class="section-desc">Priorité, solutions proposées, solutions retenues</p>
-
-  <div id="travauxContainer"></div>
-
-  <div class="card">
-    <div class="card-title">Recommandations rédigées</div>
-    <div class="field">
-      <label>Détail des préconisations AMO</label>
-      <textarea id="preconisations" placeholder="Expliciter le détail des préconisations pour chaque recommandation…" style="min-height:140px"></textarea>
-    </div>
-    <div class="field">
-      <label>Création d'une pièce nouvelle (si nécessaire)</label>
-      <textarea id="creation_piece" placeholder="Raison de la création, emplacement initial, nouvel emplacement, priorité…" style="min-height:80px"></textarea>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Photos des zones concernées</div>
-    <div class="photo-area" onclick="document.getElementById('photoTrav').click()">
-      <div class="icon">📷</div>
-      <div class="hint">Photos « avant » des zones à traiter</div>
-      <input type="file" id="photoTrav" accept="image/*" multiple onchange="addPhotos('trav',event)">
-    </div>
-    <div class="photo-grid" id="photoGridTrav"></div>
-  </div>
-
-  <div class="btn-row">
-    <button class="btn-secondary" onclick="goSection(3)">← Retour</button>
-    <button class="btn-primary" onclick="goSection(5)">Synthèse →</button>
-  </div>
-</div>
-
-<!-- ==================== SECTION 5 : SYNTHÈSE ==================== -->
-<div class="section" id="sec5">
-  <p class="section-title">Synthèse & Export</p>
-  <p class="section-desc">Récapitulatif du diagnostic</p>
-
-  <div id="syntheseContent"></div>
-
-  <div class="card">
-    <div class="card-title">Actions</div>
-    <button class="btn-primary" onclick="exportJSON()">⬇ Sauvegarder les données (JSON)</button>
-    <button class="btn-primary" style="background:#1E8449; margin-top:8px" onclick="genererDocx()">📄 Générer le rapport Word (.docx)</button>
-    <button class="btn-secondary" onclick="goSection(0)">← Retour au début</button>
-    <button class="btn-danger" onclick="confirmReset()">🗑 Réinitialiser le formulaire</button>
-  </div>
-</div>
 
 </div><!-- /main -->
+</div><!-- /layout -->
 
-<!-- MODAL -->
-<div class="modal-overlay" id="resetModal">
-  <div class="modal">
-    <h3>Réinitialiser ?</h3>
-    <p>Toutes les données saisies seront effacées. Cette action est irréversible. Avez-vous bien exporté vos données ?</p>
-    <button class="btn-danger" onclick="doReset()">Oui, tout effacer</button>
-    <button class="btn-secondary" onclick="closeModal()">Annuler</button>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
+<div class="toast" id="toastEl"></div>
 
 <script>
-// ============================================================
-// DATA MODEL
-// ============================================================
-const PIECES = [
-  'Cheminement extérieur','Parties communes','Garage / stationnement',
+const PIECES=['Cheminement extérieur','Parties communes','Garage / stationnement',
   'Entrée','Salon','Salle à manger','Salle de bain','Sanitaires',
-  'Chambre 1 (usager)','Chambre 2','Cuisine','Escalier','Couloirs','Autre'
-];
+  'Chambre 1 (usager)','Chambre 2','Cuisine','Escalier','Couloirs','Autre'];
+const API = 'http://localhost:5052';
 
-let D = loadData();
-let photos = { ext: [], trav: [] };
-let currentSection = 0;
+let D = loadD();
+let serverOK = false;
+let PHOTOS_PWA = {}; // Photos du JSON PWA { ext:[], piece_0:[], ... }
 
-function loadData() {
-  try {
-    const s = localStorage.getItem('dmaai_mpa');
-    return s ? JSON.parse(s) : initData();
-  } catch { return initData(); }
+function loadD(){
+  try{ const s=localStorage.getItem('dmaai_mpa_agent'); return s?JSON.parse(s):initD(); }
+  catch{ return initD(); }
 }
-
-function initData() {
-  const d = {
-    checks: {}, radios: {}, fields: {},
-    pieces: {}, travaux: {},
-    eco: {}
-  };
-  PIECES.forEach(p => {
-    d.pieces[p] = { statut:'', circ:'', equip:'', etage:'', remarque:'' };
-    d.travaux[p] = { priorite:'', solutions:'', retenues:'' };
+function initD(){
+  const d={flds:{},chk:{},rad:{},pieces:{},trav:{}};
+  PIECES.forEach(p=>{
+    d.pieces[p]={st:'',circ:'',equip:'',etg:'',rem:''};
+    d.trav[p]={prio:'',sol:'',ret:''};
   });
   return d;
 }
-
-function save() {
-  // Sync fields
-  document.querySelectorAll('[id]').forEach(el => {
-    if (['INPUT','TEXTAREA','SELECT'].includes(el.tagName)) {
-      if (el.type !== 'file' && el.type !== 'checkbox' && el.type !== 'radio') {
-        D.fields[el.id] = el.value;
-      }
-    }
+function sv(){
+  document.querySelectorAll('input:not([type=file]),textarea,select').forEach(el=>{
+    if(el.id) D.flds[el.id]=el.value;
   });
-  localStorage.setItem('dmaai_mpa', JSON.stringify(D));
+  localStorage.setItem('dmaai_mpa_agent',JSON.stringify(D));
 }
-
-function restoreData() {
-  // Restore simple fields
-  Object.entries(D.fields || {}).forEach(([id, val]) => {
-    const el = document.getElementById(id);
-    if (el) el.value = val;
+function restore(){
+  Object.entries(D.flds||{}).forEach(([k,v])=>{
+    const el=document.getElementById(k);
+    if(el&&!['file','checkbox','radio'].includes(el.type))el.value=v;
   });
-  // Restore checks
-  Object.entries(D.checks || {}).forEach(([key, vals]) => {
-    document.querySelectorAll(`[onclick*="toggleCheck"][onclick*="'${key}'"]`).forEach(el => {
-      const label = el.textContent.trim().replace('✓','').trim();
-      // find matching val
-      const v = vals.find ? vals : [];
-      if (Array.isArray(vals) && vals.includes(el.querySelector('.box') ? el.querySelector('.box').nextSibling?.textContent?.trim() : '')) {
-        el.classList.add('checked');
-        el.querySelector('.box').innerHTML = '✓';
-      }
-    });
+  document.querySelectorAll('.chip').forEach(el=>{
+    const k=el.dataset.k,v=el.dataset.v;
+    if((D.chk[k]||[]).includes(v)){el.classList.add('on');el.querySelector('.ck').innerHTML='✓';}
   });
-  // Restore radios
-  Object.entries(D.radios || {}).forEach(([key, val]) => {
-    document.querySelectorAll(`[onclick*="toggleRadio"][onclick*="'${key}'"]`).forEach(el => {
-      const elVal = el.getAttribute('onclick').match(/'([^']+)'\)$/)?.[1];
-      if (elVal === val) {
-        el.classList.add('selected');
-      }
-    });
+  document.querySelectorAll('.rdio').forEach(el=>{
+    const k=el.dataset.k,v=el.dataset.v;
+    if(D.rad[k]===v)el.classList.add('on');
   });
 }
 
-// ============================================================
-// NAVIGATION
-// ============================================================
-function goSection(n) {
-  save();
-  document.querySelectorAll('.section').forEach((s,i) => s.classList.toggle('active', i===n));
-  document.querySelectorAll('.nav-tab').forEach((t,i) => t.classList.toggle('active', i===n));
-  currentSection = n;
-  document.querySelector('.progress-fill').style.width = ((n+1)/6*100)+'%';
+// NAV
+function goSec(n){
+  sv();
+  document.querySelectorAll('.section').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('[id^="ni"]').forEach((t,i)=>t.classList.toggle('active',i===n));
+  document.getElementById('progFill').style.width=((n+1)/6*100)+'%';
+  document.getElementById('progText').textContent=`${n+1} / 6 sections`;
   window.scrollTo(0,0);
-  if (n===5) buildSynthese();
-  updateCalcRAV();
+  if(n===3){buildEDL(); setTimeout(refreshAllPhotoGrids,30);}
+  if(n===4){buildTrav(); setTimeout(refreshAllPhotoGrids,30);}
+  if(n===5)buildSyn();
+  calcRAV();
 }
 
-// ============================================================
-// FORM CONTROLS
-// ============================================================
-function toggleCheck(el, key, val) {
-  el.classList.toggle('checked');
-  const box = el.querySelector('.box');
-  const checked = el.classList.contains('checked');
-  box.innerHTML = checked ? '✓' : '';
-  if (!D.checks[key]) D.checks[key] = [];
-  if (checked) { if (!D.checks[key].includes(val)) D.checks[key].push(val); }
-  else D.checks[key] = D.checks[key].filter(v=>v!==val);
-  save();
+// CONTROLS
+function tChip(el){
+  const k=el.dataset.k,v=el.dataset.v;
+  el.classList.toggle('on');
+  const on=el.classList.contains('on');
+  el.querySelector('.ck').innerHTML=on?'✓':'';
+  if(!D.chk[k])D.chk[k]=[];
+  if(on){if(!D.chk[k].includes(v))D.chk[k].push(v);}
+  else D.chk[k]=D.chk[k].filter(x=>x!==v);
+  sv();
+}
+function tRdio(el){
+  const k=el.dataset.k,v=el.dataset.v;
+  el.closest('.radios').querySelectorAll('.rdio').forEach(r=>r.classList.remove('on'));
+  el.classList.add('on');
+  D.rad[k]=v; sv();
 }
 
-function toggleRadio(el, key, val) {
-  const group = el.closest('.radio-group');
-  group.querySelectorAll('.radio-item').forEach(r => r.classList.remove('selected'));
-  el.classList.add('selected');
-  D.radios[key] = val;
-  save();
-}
-
-// ============================================================
-// PIÈCES — État des lieux
-// ============================================================
-function buildPieces() {
-  const c = document.getElementById('piecesContainer');
-  c.innerHTML = '';
-  PIECES.forEach((p,i) => {
-    const pd = D.pieces[p] || {statut:'',circ:'',equip:'',etage:'',remarque:''};
-    const div = document.createElement('div');
-    div.className = 'card';
-    div.innerHTML = `
-      <div class="piece-header" onclick="togglePiece(${i})">
+// ÉTAT DES LIEUX
+function buildEDL(){
+  const c=document.getElementById('edlCont'); c.innerHTML='';
+  PIECES.forEach((p,i)=>{
+    const pd=D.pieces[p]||{};
+    const statLabel=pd.st==='ok'?'Adapté':pd.st==='nok'?'Non adapté':'';
+    const statClass=pd.st==='ok'?'badge-ok':pd.st==='nok'?'badge-nok':'';
+    const div=document.createElement('div'); div.className='piece-card';
+    div.innerHTML=`
+      <div class="piece-head" onclick="togP(${i})">
         <span class="piece-name">${p}</span>
-        <span class="piece-toggle" id="ptog${i}">▼</span>
+        <span class="piece-meta">
+          ${statLabel?`<span class="badge-statut ${statClass}">${statLabel}</span>`:''}
+          <span class="ptog" id="ptog${i}">▼</span>
+        </span>
       </div>
       <div class="piece-body" id="pb${i}">
-        <div class="label-sm">Statut</div>
-        <div class="adapt-status">
-          <button class="adapt-btn adapte ${pd.statut==='adapte'?'sel':''}" onclick="setPieceStatut('${p}','adapte',this)">✅ Adapté</button>
-          <button class="adapt-btn non-adapte ${pd.statut==='non-adapte'?'sel':''}" onclick="setPieceStatut('${p}','non-adapte',this)">⚠️ Non adapté</button>
+        <div class="lbl" style="margin-bottom:6px">Statut d'adaptation</div>
+        <div class="stat-btns">
+          <button class="stat-btn ${pd.st==='ok'?'ok':''}" onclick="setPS('${p}','ok',this)">✅ Adapté</button>
+          <button class="stat-btn ${pd.st==='nok'?'nok':''}" onclick="setPS('${p}','nok',this)">⚠️ Non adapté</button>
         </div>
         <div class="divider"></div>
-        <div class="label-sm">Si non adapté — Lié à la circulation</div>
-        <textarea rows="2" placeholder="Dimensions, sol non plane, obstacles, risque de glisse…" oninput="D.pieces['${p}'].circ=this.value;save()">${pd.circ||''}</textarea>
-        <div class="label-sm" style="margin-top:8px">Si non adapté — Lié aux équipements</div>
-        <textarea rows="2" placeholder="Éclairage, sanitaires, meubles, dispositifs de commande…" oninput="D.pieces['${p}'].equip=this.value;save()">${pd.equip||''}</textarea>
+        <div class="lbl">Problèmes de circulation (si non adapté)</div>
+        <textarea rows="2" placeholder="Dimensions insuffisantes, sol non plane, obstacles, risque glisse…" oninput="D.pieces['${p}'].circ=this.value;sv()" style="width:100%;margin-bottom:10px">${pd.circ||''}</textarea>
+        <div class="lbl">Problèmes d'équipements (si non adapté)</div>
+        <textarea rows="2" placeholder="Éclairage, sanitaires non adaptés, commandes inaccessibles…" oninput="D.pieces['${p}'].equip=this.value;sv()" style="width:100%;margin-bottom:10px">${pd.equip||''}</textarea>
         <div class="divider"></div>
-        <div class="label-sm">Étage</div>
-        <div class="etage-select">
-          ${['RDC','1er','2ème','3ème'].map(e=>`<button class="etage-btn ${pd.etage===e?'sel':''}" onclick="setPieceEtage('${p}','${e}',this)">${e}</button>`).join('')}
+        <div class="lbl" style="margin-bottom:6px">Étage</div>
+        <div class="etages" style="margin-bottom:10px">
+          ${['RDC','1er','2ème','3ème'].map(e=>`<button class="etg-btn ${pd.etg===e?'on':''}" onclick="setPE('${p}','${e}',this)">${e}</button>`).join('')}
         </div>
-        <div class="label-sm" style="margin-top:10px">Remarque sur l'état (murs, sols, plomberie, ventilation, chauffage…)</div>
-        <textarea rows="2" placeholder="Observations générales sur la pièce…" oninput="D.pieces['${p}'].remarque=this.value;save()">${pd.remarque||''}</textarea>
-        <div style="margin-top:10px">
-          <div class="label-sm">Photos de la pièce</div>
-          <div class="photo-area" style="padding:10px" onclick="document.getElementById('photoPiece${i}').click()">
-            <div class="hint">📷 Ajouter photos — ${p}</div>
-            <input type="file" id="photoPiece${i}" accept="image/*" multiple onchange="addPhotos('piece_${i}',event)">
-          </div>
-          <div class="photo-grid" id="photoGridPiece${i}"></div>
+        <div class="lbl">Remarques sur l'état général de la pièce</div>
+        <textarea rows="2" placeholder="Murs, sols, plomberie, ventilation, chauffage…" oninput="D.pieces['${p}'].rem=this.value;sv()" style="width:100%;margin-bottom:10px">${pd.rem||''}</textarea>
+        <div class="divider"></div>
+        <div class="photo-zone">
+          <div class="lbl">Photos de la pièce <span class="photo-count-badge" id="photoCnt${i}" style="display:none"></span></div>
+          <label class="photo-add-btn">
+            📷 Ajouter des photos
+            <input type="file" accept="image/*" multiple style="display:none" onchange="addPiecePhotos(${i}, this.files)">
+          </label>
+          <div class="photo-grid-pc" id="photoGrid${i}"></div>
         </div>
-      </div>
-    `;
+      </div>`;
     c.appendChild(div);
   });
 }
-
-function togglePiece(i) {
-  const body = document.getElementById('pb'+i);
-  const tog = document.getElementById('ptog'+i);
-  const open = body.classList.toggle('open');
-  tog.classList.toggle('open', open);
+function togP(i){
+  const b=document.getElementById('pb'+i),t=document.getElementById('ptog'+i);
+  const o=b.classList.toggle('open'); t.classList.toggle('open',o);
+}
+function setPS(p,v,btn){
+  btn.closest('.stat-btns').querySelectorAll('.stat-btn').forEach(b=>b.className='stat-btn');
+  btn.classList.add(v==='ok'?'ok':'nok');
+  D.pieces[p].st=v; sv();
+  // Mettre à jour le badge statut SANS reconstruire tout le DOM
+  const i = PIECES.indexOf(p);
+  const head = document.getElementById('pb'+i)?.closest('.piece-card')?.querySelector('.piece-meta');
+  if(head){
+    const existing = head.querySelector('.badge-statut');
+    if(existing) existing.remove();
+    const badge = document.createElement('span');
+    badge.className = 'badge-statut ' + (v==='ok'?'badge-ok':'badge-nok');
+    badge.textContent = v==='ok'?'Adapté':'Non adapté';
+    head.insertBefore(badge, head.querySelector('.ptog'));
+  }
+}
+function setPE(p,v,btn){
+  btn.closest('.etages').querySelectorAll('.etg-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); D.pieces[p].etg=v; sv();
 }
 
-function setPieceStatut(p, val, btn) {
-  btn.closest('.adapt-status').querySelectorAll('.adapt-btn').forEach(b=>b.classList.remove('sel'));
-  btn.classList.add('sel');
-  D.pieces[p].statut = val;
-  save();
-}
-
-function setPieceEtage(p, val, btn) {
-  btn.closest('.etage-select').querySelectorAll('.etage-btn').forEach(b=>b.classList.remove('sel'));
-  btn.classList.add('sel');
-  D.pieces[p].etage = val;
-  save();
-}
-
-// ============================================================
 // TRAVAUX
-// ============================================================
-function buildTravaux() {
-  const c = document.getElementById('travauxContainer');
-  c.innerHTML = '';
-  PIECES.forEach((p,i) => {
-    const td = D.travaux[p] || {priorite:'',solutions:'',retenues:''};
-    const div = document.createElement('div');
-    div.className = 'card';
-    div.innerHTML = `
-      <div class="piece-header" onclick="toggleTrav(${i})">
+function buildTrav(){
+  const c=document.getElementById('travCont'); c.innerHTML='';
+  PIECES.forEach((p,i)=>{
+    const td=D.trav[p]||{};
+    const div=document.createElement('div'); div.className='piece-card';
+    div.innerHTML=`
+      <div class="piece-head" onclick="togT(${i})">
         <span class="piece-name">${p}</span>
-        <span class="piece-toggle" id="ttog${i}">▼</span>
+        <span class="piece-meta">
+          ${td.prio?`<span class="badge-statut ${td.prio==='Haute'?'badge-nok':td.prio==='Basse'?'badge-ok':'badge-statut'}" style="${td.prio==='Moyenne'?'background:#fef3e2;color:var(--orange)':''}">${td.prio}</span>`:''}
+          <span class="ptog" id="ttog${i}">▼</span>
+        </span>
       </div>
       <div class="piece-body" id="tb${i}">
-        <div class="label-sm">Priorité</div>
-        <div class="priority-group">
-          <button class="priority-btn haute ${td.priorite==='Haute'?'sel':''}" onclick="setTravPrio('${p}','Haute',this)">🔴 Haute</button>
-          <button class="priority-btn moyenne ${td.priorite==='Moyenne'?'sel':''}" onclick="setTravPrio('${p}','Moyenne',this)">🟠 Moyenne</button>
-          <button class="priority-btn basse ${td.priorite==='Basse'?'sel':''}" onclick="setTravPrio('${p}','Basse',this)">🟢 Basse</button>
+        <div class="lbl" style="margin-bottom:6px">Priorité des travaux</div>
+        <div class="prio-btns">
+          <button class="prio-btn h ${td.prio==='Haute'?'on':''}" onclick="setTP('${p}','Haute',this)">Haute</button>
+          <button class="prio-btn m ${td.prio==='Moyenne'?'on':''}" onclick="setTP('${p}','Moyenne',this)">Moyenne</button>
+          <button class="prio-btn b ${td.prio==='Basse'?'on':''}" onclick="setTP('${p}','Basse',this)">Basse</button>
         </div>
-        <div class="label-sm" style="margin-top:10px">Solutions proposées par l'AMO</div>
-        <textarea rows="3" placeholder="Travaux préconisés (nomenclature SEL si possible)…" oninput="D.travaux['${p}'].solutions=this.value;save()">${td.solutions||''}</textarea>
-        <div class="label-sm" style="margin-top:8px">Solutions retenues par le demandeur</div>
-        <textarea rows="2" placeholder="Travaux validés, observations du ménage…" oninput="D.travaux['${p}'].retenues=this.value;save()">${td.retenues||''}</textarea>
-      </div>
-    `;
+        <div class="lbl" style="margin-top:10px">Solutions proposées par l'AMO</div>
+        <textarea rows="3" placeholder="Travaux préconisés — nomenclature SEL si possible…" oninput="D.trav['${p}'].sol=this.value;sv()" style="width:100%;margin-bottom:8px">${td.sol||''}</textarea>
+        <div class="lbl">Solutions retenues par le demandeur</div>
+        <textarea rows="2" placeholder="Travaux validés, observations…" oninput="D.trav['${p}'].ret=this.value;sv()" style="width:100%;margin-bottom:10px">${td.ret||''}</textarea>
+        <div class="divider"></div>
+        <div class="photo-zone">
+          <div class="lbl">Photos avant travaux <span class="photo-count-badge" id="travPhotoCnt${i}" style="display:none"></span></div>
+          <label class="photo-add-btn">
+            📷 Ajouter des photos
+            <input type="file" accept="image/*" multiple style="display:none" onchange="addPiecePhotos(${i}, this.files)">
+          </label>
+          <div class="photo-grid-pc" id="travPhotoGrid${i}"></div>
+        </div>
+      </div>`;
     c.appendChild(div);
   });
 }
-
-function toggleTrav(i) {
-  const body = document.getElementById('tb'+i);
-  const tog = document.getElementById('ttog'+i);
-  const open = body.classList.toggle('open');
-  tog.classList.toggle('open', open);
+function togT(i){
+  const b=document.getElementById('tb'+i),t=document.getElementById('ttog'+i);
+  const o=b.classList.toggle('open'); t.classList.toggle('open',o);
 }
 
-function setTravPrio(p, val, btn) {
-  btn.closest('.priority-group').querySelectorAll('.priority-btn').forEach(b=>b.classList.remove('sel'));
-  btn.classList.add('sel');
-  D.travaux[p].priorite = val;
-  save();
-}
-
-// ============================================================
-// PHOTOS
-// ============================================================
-function addPhotos(key, event) {
-  if (!photos[key]) photos[key] = [];
-  const files = event.target.files;
-  Array.from(files).forEach(f => {
-    const r = new FileReader();
-    r.onload = e => {
-      photos[key].push({ name: f.name, data: e.target.result });
-      renderPhotos(key);
+// ── GESTION PHOTOS PC ────────────────────────────────────────────────────────
+function addPiecePhotos(idx, files) {
+  const key = 'piece_' + idx;
+  if (!PHOTOS_PWA[key]) PHOTOS_PWA[key] = [];
+  const promises = Array.from(files).map(file => new Promise((res) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      PHOTOS_PWA[key].push({ name: file.name, data: e.target.result });
+      res();
     };
-    r.readAsDataURL(f);
+    reader.readAsDataURL(file);
+  }));
+  Promise.all(promises).then(() => {
+    renderPiecePhotos(idx);
+    // Aussi rafraîchir dans le tableau travaux si même index
+    renderTravPhotos(idx);
   });
 }
 
-function renderPhotos(key) {
-  const gridId = key.startsWith('piece_') ? 'photoGridPiece'+key.split('_')[1]
-               : key === 'ext' ? 'photoGridExt' : 'photoGridTrav';
-  const grid = document.getElementById(gridId);
+function renderPiecePhotos(idx) {
+  const key = 'piece_' + idx;
+  const photos = PHOTOS_PWA[key] || [];
+  const grid = document.getElementById('photoGrid' + idx);
+  const cnt  = document.getElementById('photoCnt' + idx);
   if (!grid) return;
   grid.innerHTML = '';
-  (photos[key]||[]).forEach((p,i) => {
+  photos.forEach((ph, pi) => {
     const div = document.createElement('div');
-    div.className = 'photo-thumb';
-    div.innerHTML = `<img src="${p.data}"><button class="del-photo" onclick="delPhoto('${key}',${i})">×</button>`;
+    div.className = 'photo-thumb-pc';
+    div.innerHTML = `<img src="${ph.data}" alt="${ph.name}">
+      <button class="photo-del" onclick="delPiecePhoto(${idx},${pi})" title="Supprimer">×</button>`;
+    grid.appendChild(div);
+  });
+  if (cnt) {
+    cnt.textContent = photos.length;
+    cnt.style.display = photos.length ? 'inline-block' : 'none';
+  }
+}
+
+function renderTravPhotos(idx) {
+  const key = 'piece_' + idx;
+  const photos = PHOTOS_PWA[key] || [];
+  const grid = document.getElementById('travPhotoGrid' + idx);
+  const cnt  = document.getElementById('travPhotoCnt' + idx);
+  if (!grid) return;
+  grid.innerHTML = '';
+  photos.forEach((ph, pi) => {
+    const div = document.createElement('div');
+    div.className = 'photo-thumb-pc';
+    div.innerHTML = `<img src="${ph.data}" alt="${ph.name}">
+      <button class="photo-del" onclick="delPiecePhoto(${idx},${pi})" title="Supprimer">×</button>`;
+    grid.appendChild(div);
+  });
+  if (cnt) {
+    cnt.textContent = photos.length;
+    cnt.style.display = photos.length ? 'inline-block' : 'none';
+  }
+}
+
+function delPiecePhoto(idx, pi) {
+  const key = 'piece_' + idx;
+  if (PHOTOS_PWA[key]) {
+    PHOTOS_PWA[key].splice(pi, 1);
+    renderPiecePhotos(idx);
+    renderTravPhotos(idx);
+  }
+}
+
+function refreshAllPhotoGrids() {
+  PIECES.forEach((p, i) => {
+    renderPiecePhotos(i);
+    renderTravPhotos(i);
+  });
+  renderExtPhotos();
+}
+
+// Photos extérieures
+function addExtPhotos(files) {
+  if (!PHOTOS_PWA['ext']) PHOTOS_PWA['ext'] = [];
+  const promises = Array.from(files).map(file => new Promise((res) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      PHOTOS_PWA['ext'].push({ name: file.name, data: e.target.result });
+      res();
+    };
+    reader.readAsDataURL(file);
+  }));
+  Promise.all(promises).then(() => renderExtPhotos());
+}
+
+function renderExtPhotos() {
+  const photos = PHOTOS_PWA['ext'] || [];
+  const grid = document.getElementById('photoGridExt');
+  if (!grid) return;
+  grid.innerHTML = '';
+  photos.forEach((ph, pi) => {
+    const div = document.createElement('div');
+    div.className = 'photo-thumb-pc';
+    div.innerHTML = `<img src="${ph.data}" alt="${ph.name}">
+      <button class="photo-del" onclick="delExtPhoto(${pi})" title="Supprimer">×</button>`;
     grid.appendChild(div);
   });
 }
 
-function delPhoto(key, i) {
-  photos[key].splice(i,1);
-  renderPhotos(key);
-}
-
-// ============================================================
-// CALCUL RESTE À VIVRE
-// ============================================================
-function updateCalcRAV() {
-  const ids = ['eco_salaire','eco_pension','eco_alloc','eco_autres_rev'];
-  const chIds = ['eco_loyer','eco_pret','eco_credits','eco_mutuelle','eco_elec','eco_assur','eco_autres_ch'];
-  const sum = ids.reduce((a,id) => a + (parseFloat(document.getElementById(id)?.value)||0), 0);
-  const ch = chIds.reduce((a,id) => a + (parseFloat(document.getElementById(id)?.value)||0), 0);
-  const rav = sum - ch;
-  const el = document.getElementById('rAvDisplay');
-  if (el && (sum || ch)) {
-    el.textContent = rav.toLocaleString('fr-FR', {style:'currency',currency:'EUR'});
-    el.style.color = rav >= 0 ? 'var(--vert)' : 'var(--rouge)';
+function delExtPhoto(pi) {
+  if (PHOTOS_PWA['ext']) {
+    PHOTOS_PWA['ext'].splice(pi, 1);
+    renderExtPhotos();
   }
 }
-document.querySelectorAll('[id^="eco_"]').forEach(el => el?.addEventListener('input', updateCalcRAV));
+function setTP(p,v,btn){
+  btn.closest('.prio-btns').querySelectorAll('.prio-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); D.trav[p].prio=v; sv();
+}
 
-// ============================================================
+// RESTE À VIVRE
+function calcRAV(){
+  const rev=['e_sal','e_pen','e_alloc','e_autre'].reduce((a,id)=>a+(parseFloat(document.getElementById(id)?.value)||0),0);
+  const ch=['c_loy','c_pret','c_cred','c_mut','c_elec','c_ass','c_autre'].reduce((a,id)=>a+(parseFloat(document.getElementById(id)?.value)||0),0);
+  const el=document.getElementById('ravVal');
+  if(el&&(rev||ch)){
+    const rav=rev-ch;
+    el.textContent=rav.toLocaleString('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0});
+    el.style.color=rav>=0?'var(--vert)':'var(--rouge)';
+  }
+}
+
 // SYNTHÈSE
-// ============================================================
-function buildSynthese() {
-  save();
-  const c = document.getElementById('syntheseContent');
-  const f = D.fields;
-  const r = D.radios;
-  const ch = D.checks;
-  const nonAdaptees = PIECES.filter(p => D.pieces[p]?.statut === 'non-adapte');
-  const hautesPrio = PIECES.filter(p => D.travaux[p]?.priorite === 'Haute');
-
-  c.innerHTML = `
+function buildSyn(){
+  sv();
+  const f=D.flds,r=D.rad;
+  const nok=PIECES.filter(p=>D.pieces[p]?.st==='nok');
+  const haut=PIECES.filter(p=>D.trav[p]?.prio==='Haute');
+  const c=document.getElementById('synCont');
+  c.innerHTML=`
     <div class="card">
-      <div class="card-title">Demandeur & Logement</div>
-      <div class="synthese-block">
-        <div class="synthese-label">Demandeur</div>
-        <div class="synthese-value">${f.dem_nom||'—'} ${f.dem_prenom||''} · Né(e) le ${f.dem_naissance||'—'}</div>
-      </div>
-      <div class="synthese-block">
-        <div class="synthese-label">Logement</div>
-        <div class="synthese-value">${f.log_adresse||'—'} · ${r.type_logement||'—'} · ${f.log_surface||'—'} m²</div>
-      </div>
-      <div class="synthese-block">
-        <div class="synthese-label">GIR</div>
-        <div class="synthese-value">${r.gir ? 'GIR '+r.gir : '—'} · Handicap : ${r.handicap||'—'}</div>
-      </div>
-      <div class="synthese-block">
-        <div class="synthese-label">Date de visite</div>
-        <div class="synthese-value">${f.visite_date ? new Date(f.visite_date).toLocaleDateString('fr-FR') : '—'}</div>
-      </div>
+      <div class="card-title">📋 Récapitulatif</div>
+      <div class="syn-block"><div class="syn-label">Demandeur</div><div class="syn-val">${f.d_nom||'—'} ${f.d_prn||''} · Né(e) le ${f.d_nais||'—'}</div></div>
+      <div class="syn-block"><div class="syn-label">Logement</div><div class="syn-val">${f.l_adr||'—'} · ${r.tlog||'—'} · ${f.l_surf||'—'} m²</div></div>
+      <div class="syn-block"><div class="syn-label">Statut / GIR / Handicap</div><div class="syn-val">${r.stat||'—'} · GIR ${r.gir||'—'} · Handicap : ${r.handi||'—'}</div></div>
+      <div class="syn-block"><div class="syn-label">Date de visite</div><div class="syn-val">${f.v_date?new Date(f.v_date).toLocaleDateString('fr-FR'):'—'}</div></div>
     </div>
     <div class="card">
-      <div class="card-title">⚠️ Pièces non adaptées (${nonAdaptees.length})</div>
-      ${nonAdaptees.length ? nonAdaptees.map(p=>`
-        <div class="synthese-block">
-          <div class="synthese-label">${p}</div>
-          <div class="synthese-value">${D.pieces[p].circ ? '🚶 '+D.pieces[p].circ : ''} ${D.pieces[p].equip ? '🔌 '+D.pieces[p].equip : ''}</div>
-        </div>
-      `).join('') : '<p style="font-size:13px;color:var(--texte-sec);padding:8px">Aucune pièce non adaptée identifiée</p>'}
+      <div class="card-title">⚠️ Pièces non adaptées (${nok.length})</div>
+      ${nok.length?nok.map(p=>`
+        <div class="syn-block">
+          <div class="syn-label">${p}</div>
+          <div class="syn-val" style="font-size:12px;color:var(--texte2)">${[D.pieces[p].circ,D.pieces[p].equip].filter(Boolean).join(' — ')||'—'}</div>
+        </div>`).join(''):'<p style="font-size:12px;color:var(--texte2);padding:4px 0">Aucune pièce non adaptée identifiée</p>'}
     </div>
     <div class="card">
-      <div class="card-title">🔴 Travaux priorité HAUTE (${hautesPrio.length})</div>
-      ${hautesPrio.length ? hautesPrio.map(p=>`
-        <div class="synthese-block">
-          <div class="synthese-label">${p}</div>
-          <div class="synthese-value">${D.travaux[p].solutions||'—'}</div>
-        </div>
-      `).join('') : '<p style="font-size:13px;color:var(--texte-sec);padding:8px">Aucun travaux haute priorité</p>'}
-    </div>
-  `;
+      <div class="card-title">🔴 Travaux priorité haute (${haut.length})</div>
+      ${haut.length?haut.map(p=>`
+        <div class="syn-block">
+          <div class="syn-label">${p}</div>
+          <div class="syn-val" style="font-size:12px;color:var(--texte2)">${D.trav[p].sol||'—'}</div>
+        </div>`).join(''):'<p style="font-size:12px;color:var(--texte2);padding:4px 0">Aucun travaux haute priorité</p>'}
+    </div>`;
 }
 
-// ============================================================
-// EXPORT / IMPORT JSON
-// ============================================================
-function exportJSON() {
-  save();
-  const blob = new Blob([JSON.stringify({data:D, photos}, null, 2)], {type:'application/json'});
-  const a = document.createElement('a');
-  const f = D.fields;
-  const name = `dmaai_mpa_${f.dem_nom||'inconnu'}_${(f.visite_date||new Date().toISOString().split('T')[0])}.json`;
-  a.href = URL.createObjectURL(blob);
-  a.download = name;
-  a.click();
-  showToast('✅ Données exportées : '+name);
+// EXPORT / IMPORT
+function expJSON(){
+  sv();
+  const f=D.flds;
+  const name=`diag_mpa_${f.d_nom||'X'}_${f.v_date||new Date().toISOString().split('T')[0]}.json`;
+  const blob=new Blob([JSON.stringify(D,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=name; a.click();
+  toast('✅ Données exportées : '+name);
 }
+function impJSON(ev){
+  const file=ev.target.files[0]; if(!file)return;
+  const rd=new FileReader();
+  rd.onload=e=>{
+    try{
+      let obj=JSON.parse(e.target.result);
 
-function importJSON(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const r = new FileReader();
-  r.onload = e => {
-    try {
-      const obj = JSON.parse(e.target.result);
-      D = obj.data || obj;
-      if (obj.photos) photos = obj.photos;
-      localStorage.setItem('dmaai_mpa', JSON.stringify(D));
-      restoreData();
-      buildPieces();
-      buildTravaux();
-      // Restore photo grids
-      Object.keys(photos).forEach(k => renderPhotos(k));
-      showToast('✅ Données importées avec succès');
-    } catch { showToast('❌ Fichier JSON invalide'); }
+      // Format PWA GitHub : { data: { fields, radios, checks, pieces, trav } }
+      if(obj.data && obj.data.fields){
+        const src = obj.data;
+        const f = src.fields || {};
+        const r = src.radios || {};
+        const c = src.checks || {};
+        const p = src.pieces || {};
+        const t = src.trav   || {};
+
+        // Correspondance clés PWA → agent
+        D.flds = {
+          amo_rso:   f.amo_structure    || '',
+          amo_diag:  f.amo_diagnostiqueur|| '',
+          amo_fonc:  f.amo_fonction      || '',
+          v_date:    f.visite_date       || '',
+          d_nom:     f.dem_nom           || '',
+          d_prn:     f.dem_prenom        || '',
+          d_nais:    f.dem_naissance     || '',
+          d_ret:     f.dem_retraite      || '',
+          l_adr:     f.log_adresse       || '',
+          l_an:      f.log_annee         || '',
+          l_surf:    f.log_surface       || '',
+          l_pces:    f.log_nb_pieces     || '',
+          l_niv:     f.log_niveaux       || '',
+          l_etg:     f.log_etage         || '',
+          l_occ:     f.log_nb_occupants  || '',
+          fr_ct:     f.fr_coords         || '',
+          atec_autre:f.aides_tech_autre  || '',
+          conf_id:   f.confiance_identite|| '',
+          obs_aut:   f.obs_autonomie     || '',
+          e_sal:'', e_pen:'', e_alloc:'', e_autre:'', e_ep:'',
+          c_loy:'', c_pret:'', c_cred:'', c_mut:'', c_elec:'', c_ass:'', c_autre:'',
+          prec:      f.preconisations    || '',
+          crp:       f.creation_piece    || '',
+          rem_men:   f.remarques_menage  || '',
+        };
+
+        // Radios — correspondance noms
+        D.rad = {
+          tlog:  r.type_logement       || '',
+          stat:  r.statut_occupation   || '',
+          zone:  r.zone                || '',
+          fr:    r.fr_renov            || '',
+          handi: r.handicap            || '',
+          gir:   r.gir                 || '',
+          chute: r.chute               || '',
+          hosp:  r.hospit              || '',
+          paut:  r.perte_aut           || '',
+          ergo:  r.ergo                || '',
+          rergo: r.rapport_ergo        || '',
+          aid2:  r.aidant              || '',
+          conf:  r.confiance           || '',
+        };
+
+        // Checks — correspondance noms
+        D.chk = {
+          sit:   c.situation   || [],
+          aid:   c.aides       || [],
+          ori:   c.orientation || [],
+          atec:  c.aides_tech  || [],
+          eval:  c.eval_log    || [],
+        };
+
+        // Pièces — même structure
+        D.pieces = {};
+        D.trav   = {};
+        PIECES.forEach(pn=>{
+          const pd = p[pn] || {};
+          D.pieces[pn] = {
+            st:   pd.statut || pd.st || '',
+            circ: pd.circ   || '',
+            equip:pd.equip  || '',
+            etg:  pd.etage  || pd.etg || '',
+            rem:  pd.remarque|| pd.rem || '',
+          };
+          const td = t[pn] || {};
+          D.trav[pn] = {
+            prio: td.priorite || td.prio || '',
+            sol:  td.solutions|| td.sol  || '',
+            ret:  td.retenues || td.ret  || '',
+          };
+        });
+
+      // Format agent local : { flds, rad, chk, pieces, trav }
+      } else if(obj.flds || obj.rad){
+        D = obj;
+        PIECES.forEach(p=>{
+          if(!D.pieces[p]) D.pieces[p]={st:'',circ:'',equip:'',etg:'',rem:''};
+          if(!D.trav[p])   D.trav[p]={prio:'',sol:'',ret:''};
+        });
+        D.flds = D.flds || {};
+        D.chk  = D.chk  || {};
+        D.rad  = D.rad  || {};
+
+      } else {
+        toast('❌ Format JSON non reconnu'); return;
+      }
+
+      // Stocker les photos séparément (hors localStorage — trop lourd)
+      if(obj.photos) PHOTOS_PWA = obj.photos;
+      else if(obj.data && obj.data.photos) PHOTOS_PWA = obj.data.photos;
+      else PHOTOS_PWA = {};
+
+      localStorage.setItem('dmaai_mpa_agent', JSON.stringify(D));
+      restore();
+      buildEDL();
+      buildTrav();
+      calcRAV();
+      setTimeout(refreshAllPhotoGrids, 80);
+      const nbPhotos = Object.values(PHOTOS_PWA).reduce((a,v)=>a+(Array.isArray(v)?v.length:0),0);
+      toast('✅ Importé — ' + (D.flds.d_nom||'') + ' ' + (D.flds.d_prn||'') + (nbPhotos?' · '+nbPhotos+' photo(s)':''));
+    }catch(err){ toast('❌ Erreur JSON : '+err.message); }
   };
-  r.readAsText(file);
-  event.target.value = '';
+  rd.readAsText(file); ev.target.value='';
 }
 
-// ============================================================
-// GÉNÉRATION DOCX (via serveur Node ou téléchargement ZIP/XML basique)
-// ============================================================
-async function genererDocx() {
-  save();
-  showToast('⏳ Génération du rapport en cours…');
-  
-  // On envoie les données à l'API Claude pour qu'il génère le contenu structuré
-  // Puis on crée un docx minimal via Blob XML
-  
-  const f = D.fields;
-  const r = D.radios;
-  const pieces = D.pieces;
-  const travaux = D.travaux;
-  
-  // Build docx XML content
-  const dateVisite = f.visite_date ? new Date(f.visite_date).toLocaleDateString('fr-FR') : '—';
-  const demandeur = `${f.dem_nom||'—'} ${f.dem_prenom||''}`;
-  
-  const pieceRows = PIECES.map(p => {
-    const pd = pieces[p] || {};
-    const td = travaux[p] || {};
-    const statut = pd.statut === 'adapte' ? '✅' : pd.statut === 'non-adapte' ? '⚠️' : '—';
-    return `
-      <w:tr>
-        <w:tc><w:tcPr><w:tcW w:w="1600" w:type="dxa"/></w:tcPr><w:p><w:r><w:t>${escXml(p)}</w:t></w:r></w:p></w:tc>
-        <w:tc><w:tcPr><w:tcW w:w="800" w:type="dxa"/></w:tcPr><w:p><w:r><w:t>${statut}</w:t></w:r></w:p></w:tc>
-        <w:tc><w:tcPr><w:tcW w:w="2000" w:type="dxa"/></w:tcPr><w:p><w:r><w:t>${escXml(pd.circ||'')}</w:t></w:r></w:p></w:tc>
-        <w:tc><w:tcPr><w:tcW w:w="2000" w:type="dxa"/></w:tcPr><w:p><w:r><w:t>${escXml(pd.equip||'')}</w:t></w:r></w:p></w:tc>
-        <w:tc><w:tcPr><w:tcW w:w="800" w:type="dxa"/></w:tcPr><w:p><w:r><w:t>${escXml(pd.etage||'')}</w:t></w:r></w:p></w:tc>
-        <w:tc><w:tcPr><w:tcW w:w="2026" w:type="dxa"/></w:tcPr><w:p><w:r><w:t>${escXml(pd.remarque||'')}</w:t></w:r></w:p></w:tc>
-      </w:tr>`;
-  }).join('');
-
-  const travRows = PIECES.map(p => {
-    const td = travaux[p] || {};
-    const prio = td.priorite || '—';
-    return `
-      <w:tr>
-        <w:tc><w:tcPr><w:tcW w:w="1600" w:type="dxa"/></w:tcPr><w:p><w:r><w:t>${escXml(p)}</w:t></w:r></w:p></w:tc>
-        <w:tc><w:tcPr><w:tcW w:w="1000" w:type="dxa"/></w:tcPr><w:p><w:r><w:t>${escXml(prio)}</w:t></w:r></w:p></w:tc>
-        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:r><w:t>${escXml(td.solutions||'')}</w:t></w:r></w:p></w:tc>
-        <w:tc><w:tcPr><w:tcW w:w="3626" w:type="dxa"/></w:tcPr><w:p><w:r><w:t>${escXml(td.retenues||'')}</w:t></w:r></w:p></w:tc>
-      </w:tr>`;
-  }).join('');
-
-  const xml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"
-  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-  xmlns:o="urn:schemas-microsoft-com:office:office"
-  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-  xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"
-  xmlns:v="urn:schemas-microsoft-com:vml"
-  xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing"
-  xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
-  xmlns:w10="urn:schemas-microsoft-com:office:word"
-  xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-  xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml"
-  xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup"
-  xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk"
-  xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml"
-  xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape"
-  mc:Ignorable="w14 wp14">
-<w:body>
-
-<!-- TITRE -->
-<w:p><w:pPr><w:jc w:val="center"/><w:rPr><w:b/><w:sz w:val="36"/><w:color w:val="1F4E79"/></w:rPr></w:pPr>
-  <w:r><w:rPr><w:b/><w:sz w:val="36"/><w:color w:val="1F4E79"/></w:rPr><w:t>DIAGNOSTIC LOGEMENT AUTONOMIE</w:t></w:r></w:p>
-<w:p><w:pPr><w:jc w:val="center"/></w:pPr>
-  <w:r><w:rPr><w:sz w:val="24"/><w:color w:val="2E75B6"/></w:rPr><w:t>MaPrimeAdapt' — EI David MARIE-ANNE</w:t></w:r></w:p>
-<w:p><w:pPr><w:jc w:val="center"/></w:pPr>
-  <w:r><w:rPr><w:sz w:val="20"/><w:color w:val="666666"/></w:rPr><w:t>Architecte DPLG · Ingénieur TCE · N° Ordre 049576</w:t></w:r></w:p>
-<w:p><w:pPr><w:jc w:val="center"/></w:pPr>
-  <w:r><w:rPr><w:sz w:val="20"/></w:rPr><w:t>Date de visite : ${escXml(dateVisite)}</w:t></w:r></w:p>
-
-<!-- SEPARATEUR -->
-<w:p><w:pPr><w:pBdr><w:bottom w:val="single" w:sz="4" w:space="1" w:color="1F4E79"/></w:pBdr></w:pPr></w:p>
-
-<!-- PARTIE 1 -->
-<w:p><w:pPr><w:rPr><w:b/><w:sz w:val="28"/><w:color w:val="1F4E79"/></w:rPr></w:pPr>
-  <w:r><w:rPr><w:b/><w:sz w:val="28"/><w:color w:val="1F4E79"/></w:rPr><w:t>PARTIE 1 — INFORMATIONS GÉNÉRALES</w:t></w:r></w:p>
-
-<w:p><w:pPr><w:rPr><w:b/><w:color w:val="2E75B6"/></w:rPr></w:pPr>
-  <w:r><w:rPr><w:b/><w:color w:val="2E75B6"/></w:rPr><w:t>A. Structure AMO</w:t></w:r></w:p>
-<w:p><w:r><w:t>Raison sociale : ${escXml(f.amo_structure||'—')}</w:t></w:r></w:p>
-<w:p><w:r><w:t>Diagnostiqueur : ${escXml(f.amo_diagnostiqueur||'—')}</w:t></w:r></w:p>
-<w:p><w:r><w:t>Fonction : ${escXml(f.amo_fonction||'—')}</w:t></w:r></w:p>
-
-<w:p><w:pPr><w:rPr><w:b/><w:color w:val="2E75B6"/></w:rPr></w:pPr>
-  <w:r><w:rPr><w:b/><w:color w:val="2E75B6"/></w:rPr><w:t>B. Demandeur</w:t></w:r></w:p>
-<w:p><w:r><w:t>Identité : ${escXml(demandeur)}</w:t></w:r></w:p>
-<w:p><w:r><w:t>Date de naissance : ${escXml(f.dem_naissance||'—')}</w:t></w:r></w:p>
-<w:p><w:r><w:t>Statut occupation : ${escXml(r.statut_occupation||'—')}</w:t></w:r></w:p>
-<w:p><w:r><w:t>Type logement : ${escXml(r.type_logement||'—')}</w:t></w:r></w:p>
-<w:p><w:r><w:t>Adresse : ${escXml(f.log_adresse||'—')}</w:t></w:r></w:p>
-<w:p><w:r><w:t>Surface : ${escXml(f.log_surface||'—')} m² · ${escXml(f.log_nb_pieces||'—')} pièces · ${escXml(f.log_niveaux||'—')} niveau(x)</w:t></w:r></w:p>
-<w:p><w:r><w:t>Année construction : ${escXml(f.log_annee||'—')} · Étage : ${escXml(f.log_etage||'—')}</w:t></w:r></w:p>
-
-<w:p><w:pPr><w:rPr><w:b/><w:color w:val="2E75B6"/></w:rPr></w:pPr>
-  <w:r><w:rPr><w:b/><w:color w:val="2E75B6"/></w:rPr><w:t>C. Situation autonomie</w:t></w:r></w:p>
-<w:p><w:r><w:t>Handicap : ${escXml(r.handicap||'—')} · GIR : ${escXml(r.gir ? 'GIR '+r.gir : '—')}</w:t></w:r></w:p>
-<w:p><w:r><w:t>Chute (6 mois) : ${escXml(r.chute||'—')} · Hospitalisation : ${escXml(r.hospit||'—')}</w:t></w:r></w:p>
-<w:p><w:r><w:t>Suivi ergothérapeute : ${escXml(r.ergo||'—')} · Rapport disponible : ${escXml(r.rapport_ergo||'—')}</w:t></w:r></w:p>
-<w:p><w:r><w:t>Aides techniques : ${escXml((D.checks.aides_tech||[]).join(', ')||'—')}</w:t></w:r></w:p>
-
-<!-- PAGE BREAK -->
-<w:p><w:r><w:br w:type="page"/></w:r></w:p>
-
-<!-- PARTIE 2 — ÉTAT DES LIEUX -->
-<w:p><w:pPr><w:rPr><w:b/><w:sz w:val="28"/><w:color w:val="1F4E79"/></w:rPr></w:pPr>
-  <w:r><w:rPr><w:b/><w:sz w:val="28"/><w:color w:val="1F4E79"/></w:rPr><w:t>PARTIE 2 — ÉTAT DES LIEUX GLOBAL DU LOGEMENT</w:t></w:r></w:p>
-
-<w:tbl>
-  <w:tblPr>
-    <w:tblW w:w="9226" w:type="dxa"/>
-    <w:tblBorders>
-      <w:top w:val="single" w:sz="4" w:color="1F4E79"/>
-      <w:left w:val="single" w:sz="4" w:color="CCCCCC"/>
-      <w:bottom w:val="single" w:sz="4" w:color="1F4E79"/>
-      <w:right w:val="single" w:sz="4" w:color="CCCCCC"/>
-      <w:insideH w:val="single" w:sz="4" w:color="CCCCCC"/>
-      <w:insideV w:val="single" w:sz="4" w:color="CCCCCC"/>
-    </w:tblBorders>
-  </w:tblPr>
-  <w:tr>
-    <w:tc><w:tcPr><w:tcW w:w="1600" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="1F4E79"/></w:tcPr>
-      <w:p><w:r><w:rPr><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="18"/></w:rPr><w:t>Pièce</w:t></w:r></w:p></w:tc>
-    <w:tc><w:tcPr><w:tcW w:w="800" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="1F4E79"/></w:tcPr>
-      <w:p><w:r><w:rPr><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="18"/></w:rPr><w:t>Statut</w:t></w:r></w:p></w:tc>
-    <w:tc><w:tcPr><w:tcW w:w="2000" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="1F4E79"/></w:tcPr>
-      <w:p><w:r><w:rPr><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="18"/></w:rPr><w:t>Circulation</w:t></w:r></w:p></w:tc>
-    <w:tc><w:tcPr><w:tcW w:w="2000" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="1F4E79"/></w:tcPr>
-      <w:p><w:r><w:rPr><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="18"/></w:rPr><w:t>Équipements</w:t></w:r></w:p></w:tc>
-    <w:tc><w:tcPr><w:tcW w:w="800" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="1F4E79"/></w:tcPr>
-      <w:p><w:r><w:rPr><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="18"/></w:rPr><w:t>Étage</w:t></w:r></w:p></w:tc>
-    <w:tc><w:tcPr><w:tcW w:w="2026" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="1F4E79"/></w:tcPr>
-      <w:p><w:r><w:rPr><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="18"/></w:rPr><w:t>Remarques</w:t></w:r></w:p></w:tc>
-  </w:tr>
-  ${pieceRows}
-</w:tbl>
-
-<!-- PAGE BREAK -->
-<w:p><w:r><w:br w:type="page"/></w:r></w:p>
-
-<!-- TRAVAUX -->
-<w:p><w:pPr><w:rPr><w:b/><w:sz w:val="28"/><w:color w:val="1F4E79"/></w:rPr></w:pPr>
-  <w:r><w:rPr><w:b/><w:sz w:val="28"/><w:color w:val="1F4E79"/></w:rPr><w:t>PARTIE 3 — PROJET DE TRAVAUX</w:t></w:r></w:p>
-
-<w:tbl>
-  <w:tblPr>
-    <w:tblW w:w="9226" w:type="dxa"/>
-    <w:tblBorders>
-      <w:top w:val="single" w:sz="4" w:color="2E75B6"/>
-      <w:left w:val="single" w:sz="4" w:color="CCCCCC"/>
-      <w:bottom w:val="single" w:sz="4" w:color="2E75B6"/>
-      <w:right w:val="single" w:sz="4" w:color="CCCCCC"/>
-      <w:insideH w:val="single" w:sz="4" w:color="CCCCCC"/>
-      <w:insideV w:val="single" w:sz="4" w:color="CCCCCC"/>
-    </w:tblBorders>
-  </w:tblPr>
-  <w:tr>
-    <w:tc><w:tcPr><w:tcW w:w="1600" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="2E75B6"/></w:tcPr>
-      <w:p><w:r><w:rPr><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="18"/></w:rPr><w:t>Pièce</w:t></w:r></w:p></w:tc>
-    <w:tc><w:tcPr><w:tcW w:w="1000" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="2E75B6"/></w:tcPr>
-      <w:p><w:r><w:rPr><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="18"/></w:rPr><w:t>Priorité</w:t></w:r></w:p></w:tc>
-    <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="2E75B6"/></w:tcPr>
-      <w:p><w:r><w:rPr><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="18"/></w:rPr><w:t>Solutions proposées</w:t></w:r></w:p></w:tc>
-    <w:tc><w:tcPr><w:tcW w:w="3626" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="2E75B6"/></w:tcPr>
-      <w:p><w:r><w:rPr><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="18"/></w:rPr><w:t>Solutions retenues</w:t></w:r></w:p></w:tc>
-  </w:tr>
-  ${travRows}
-</w:tbl>
-
-<!-- PRÉCONISATIONS -->
-${f.preconisations ? `
-<w:p><w:pPr><w:rPr><w:b/><w:color w:val="2E75B6"/></w:rPr></w:pPr>
-  <w:r><w:rPr><w:b/><w:color w:val="2E75B6"/></w:rPr><w:t>Détail des recommandations AMO</w:t></w:r></w:p>
-<w:p><w:r><w:t>${escXml(f.preconisations)}</w:t></w:r></w:p>` : ''}
-
-${f.remarques_menage ? `
-<w:p><w:pPr><w:rPr><w:b/><w:color w:val="2E75B6"/></w:rPr></w:pPr>
-  <w:r><w:rPr><w:b/><w:color w:val="2E75B6"/></w:rPr><w:t>Remarques du ménage</w:t></w:r></w:p>
-<w:p><w:r><w:t>${escXml(f.remarques_menage)}</w:t></w:r></w:p>` : ''}
-
-<!-- PIED DE PAGE -->
-<w:p><w:pPr><w:pBdr><w:top w:val="single" w:sz="4" w:space="1" w:color="1F4E79"/></w:pBdr><w:jc w:val="center"/></w:pPr>
-  <w:r><w:rPr><w:sz w:val="18"/><w:color w:val="666666"/></w:rPr>
-    <w:t>EI David MARIE-ANNE · Architecte DPLG N°049576 · Ingénieur TCE OPQIBI 1905/1911 · Orléans · ei_dmaai@outlook.fr · 06 34 40 79 32</w:t></w:r></w:p>
-
-<w:sectPr>
-  <w:pgSz w:w="11906" w:h="16838"/>
-  <w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134"/>
-</w:sectPr>
-</w:body>
-</w:document>`;
-
-  // Build docx ZIP
-  buildDocxZip(xml, demandeur, f.visite_date);
-}
-
-function escXml(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-async function buildDocxZip(docXml, demandeur, dateVisite) {
-  // Use JSZip via CDN
-  if (!window.JSZip) {
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
-    script.onload = () => buildDocxZip(docXml, demandeur, dateVisite);
-    document.head.appendChild(script);
+// GÉNÉRATION DOCX via serveur
+async function genDocx(){
+  sv();
+  if(!serverOK){
+    toast('❌ Serveur non connecté — lancez serveur_diagnostic_mpa.py');
     return;
   }
-
-  const zip = new JSZip();
-  
-  zip.file('[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-  <Default Extension="xml" ContentType="application/xml"/>
-  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
-</Types>`);
-
-  zip.file('_rels/.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
-</Relationships>`);
-
-  zip.file('word/_rels/document.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-</Relationships>`);
-
-  zip.file('word/document.xml', docXml);
-
-  const blob = await zip.generateAsync({type:'blob'});
-  const a = document.createElement('a');
-  const name = `Diag_MPA_${demandeur.replace(/ /g,'_')}_${(dateVisite||new Date().toISOString().split('T')[0])}.docx`;
-  a.href = URL.createObjectURL(blob);
-  a.download = name;
-  a.click();
-  showToast('✅ Rapport généré : ' + name);
+  toast('⏳ Génération en cours…');
+  try{
+    const resp = await fetch(`${API}/generer`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({...D, photos: PHOTOS_PWA})
+    });
+    if(!resp.ok) throw new Error('Erreur serveur '+resp.status);
+    const blob = await resp.blob();
+    const f=D.flds;
+    const name=`Rapport_MPA_${f.d_nom||'X'}_${f.d_prn||''}_${f.v_date||new Date().toISOString().split('T')[0]}.docx`;
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download=name; a.click();
+    toast('✅ Rapport généré : '+name);
+  }catch(e){
+    toast('❌ Erreur : '+e.message);
+  }
 }
 
-// ============================================================
-// UTILITIES
-// ============================================================
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
+// STATUS CHECK
+async function checkServer(){
+  try{
+    const r=await fetch(`${API}/ping`,{signal:AbortSignal.timeout(2000)});
+    const d=await r.json();
+    if(d.status==='ok'){
+      serverOK=true;
+      document.getElementById('statusBar').className='status-bar online';
+      document.getElementById('statusText').textContent='Serveur connecté — Génération .docx disponible';
+    }
+  }catch{
+    serverOK=false;
+    document.getElementById('statusBar').className='status-bar offline';
+    document.getElementById('statusText').textContent='Serveur déconnecté — Lancez : python serveur_diagnostic_mpa.py';
+  }
 }
 
-function confirmReset() { document.getElementById('resetModal').classList.add('show'); }
-function closeModal() { document.getElementById('resetModal').classList.remove('show'); }
-function doReset() {
-  localStorage.removeItem('dmaai_mpa');
-  D = initData();
-  photos = {ext:[], trav:[]};
-  closeModal();
-  location.reload();
+function toast(msg){
+  const el=document.getElementById('toastEl');
+  el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),3000);
+}
+function resetAll(){
+  localStorage.removeItem('dmaai_mpa_agent');
+  D=initD(); location.reload();
 }
 
-// ============================================================
 // INIT
-// ============================================================
-document.addEventListener('DOMContentLoaded', () => {
-  // Set today's date as default
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('visite_date').value = D.fields.visite_date || today;
-  
-  buildPieces();
-  buildTravaux();
-  restoreData();
-  
-  // Auto-save on all input changes
-  document.addEventListener('input', () => save());
-  
-  updateCalcRAV();
+document.addEventListener('DOMContentLoaded',()=>{
+  const today=new Date().toISOString().split('T')[0];
+  const vd=document.getElementById('v_date');
+  if(vd&&!D.flds.v_date) vd.value=today;
+  restore();
+  buildEDL(); buildTrav();
+  setTimeout(refreshAllPhotoGrids, 80);
+  document.addEventListener('input',()=>sv());
+  checkServer();
+  setInterval(checkServer, 10000);
+  calcRAV();
 });
 </script>
 </body>

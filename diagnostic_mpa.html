@@ -366,13 +366,13 @@ body { font-family: 'DM Sans', sans-serif; background: var(--gris-bg); color: va
       <div class="card-title"><span class="ico">🏘</span> Logement</div>
       <div class="field"><label>Adresse</label><input type="text" id="l_adr" placeholder="N° rue, commune, code postal"></div>
       <div class="row2">
-        <div class="field"><label>Type</label>
+        <div class="field"><div class="field-label">Type</div>
           <div class="radios" id="rg_tlog">
             <span class="rdio" data-k="tlog" data-v="Maison individuelle" onclick="tRdio(this)"><span class="dot"></span>Maison</span>
             <span class="rdio" data-k="tlog" data-v="Bâtiment collectif" onclick="tRdio(this)"><span class="dot"></span>Collectif</span>
           </div>
         </div>
-        <div class="field"><label>Statut occupation</label>
+        <div class="field"><div class="field-label">Statut occupation</div>
           <div class="radios">
             <span class="rdio" data-k="stat" data-v="Propriétaire" onclick="tRdio(this)"><span class="dot"></span>Propriétaire</span>
             <span class="rdio" data-k="stat" data-v="Locataire" onclick="tRdio(this)"><span class="dot"></span>Locataire</span>
@@ -390,7 +390,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--gris-bg); color: va
         <div class="field"><label>Étage logement</label><input type="text" id="l_etg" placeholder="RDC…"></div>
         <div class="field"><label>Nb occupants</label><input type="number" id="l_occ" min="1"></div>
       </div>
-      <div class="field"><label>Zone géographique</label>
+      <div class="field"><div class="field-label">Zone géographique</div>
         <div class="radios">
           <span class="rdio" data-k="zone" data-v="Urbaine" onclick="tRdio(this)"><span class="dot"></span>Urbaine</span>
           <span class="rdio" data-k="zone" data-v="Rurale" onclick="tRdio(this)"><span class="dot"></span>Rurale</span>
@@ -412,7 +412,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--gris-bg); color: va
         </div>
       </div>
       <div class="row2">
-        <div class="field"><label>Accompagnement France Rénov' ?</label>
+        <div class="field"><div class="field-label">Accompagnement France Rénov' ?</div>
           <div class="radios">
             <span class="rdio" data-k="fr" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
             <span class="rdio" data-k="fr" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
@@ -445,13 +445,13 @@ body { font-family: 'DM Sans', sans-serif; background: var(--gris-bg); color: va
     <div class="card">
       <div class="card-title"><span class="ico">♿</span> Handicap & Niveau d'autonomie</div>
       <div class="row2">
-        <div class="field"><label>Situation de handicap ?</label>
+        <div class="field"><div class="field-label">Situation de handicap ?</div>
           <div class="radios">
             <span class="rdio" data-k="handi" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
             <span class="rdio" data-k="handi" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
           </div>
         </div>
-        <div class="field"><label>Niveau GIR</label>
+        <div class="field"><div class="field-label">Niveau GIR</div>
           <div class="radios">
             <span class="rdio" data-k="gir" data-v="1" onclick="tRdio(this)"><span class="dot"></span>1</span>
             <span class="rdio" data-k="gir" data-v="2" onclick="tRdio(this)"><span class="dot"></span>2</span>
@@ -478,19 +478,19 @@ body { font-family: 'DM Sans', sans-serif; background: var(--gris-bg); color: va
     <div class="card">
       <div class="card-title"><span class="ico">🏥</span> Chutes & Suivi médical</div>
       <div class="row3">
-        <div class="field"><label>Chute dans les 6 mois ?</label>
+        <div class="field"><div class="field-label">Chute dans les 6 mois ?</div>
           <div class="radios">
             <span class="rdio" data-k="chute" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
             <span class="rdio" data-k="chute" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
           </div>
         </div>
-        <div class="field"><label>Hospitalisation ?</label>
+        <div class="field"><div class="field-label">Hospitalisation ?</div>
           <div class="radios">
             <span class="rdio" data-k="hosp" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
             <span class="rdio" data-k="hosp" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
           </div>
         </div>
-        <div class="field"><label>Perte autonomie depuis ?</label>
+        <div class="field"><div class="field-label">Perte autonomie depuis ?</div>
           <div class="radios">
             <span class="rdio" data-k="paut" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
             <span class="rdio" data-k="paut" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
@@ -499,20 +499,20 @@ body { font-family: 'DM Sans', sans-serif; background: var(--gris-bg); color: va
       </div>
       <div class="divider"></div>
       <div class="row2">
-        <div class="field"><label>Suivi ergothérapeute (&lt;6 mois) ?</label>
+        <div class="field"><div class="field-label">Suivi ergothérapeute (&lt;6 mois) ?</div>
           <div class="radios">
             <span class="rdio" data-k="ergo" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
             <span class="rdio" data-k="ergo" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
           </div>
         </div>
-        <div class="field"><label>Rapport ergo disponible ?</label>
+        <div class="field"><div class="field-label">Rapport ergo disponible ?</div>
           <div class="radios">
             <span class="rdio" data-k="rergo" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
             <span class="rdio" data-k="rergo" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
           </div>
         </div>
       </div>
-      <div class="field"><label>Aide professionnelle régulière ou proche aidant ?</label>
+      <div class="field"><div class="field-label">Aide professionnelle régulière ou proche aidant ?</div>
         <div class="radios">
           <span class="rdio" data-k="aid2" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
           <span class="rdio" data-k="aid2" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>
@@ -522,7 +522,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--gris-bg); color: va
 
     <div class="card">
       <div class="card-title"><span class="ico">📝</span> Évaluations & Personne de confiance</div>
-      <div class="field"><label>Évaluations logement/autonomie récentes (&lt;6 mois)</label>
+      <div class="field"><div class="field-label">Évaluations logement/autonomie récentes (&lt;6 mois)</div>
         <div class="chips">
           <span class="chip" data-k="eval" data-v="Aucune" onclick="tChip(this)"><span class="ck"></span>Aucune</span>
           <span class="chip" data-k="eval" data-v="ANAH" onclick="tChip(this)"><span class="ck"></span>ANAH</span>
@@ -532,7 +532,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--gris-bg); color: va
         </div>
       </div>
       <div class="row2">
-        <div class="field"><label>Personne de confiance désignée ?</label>
+        <div class="field"><div class="field-label">Personne de confiance désignée ?</div>
           <div class="radios">
             <span class="rdio" data-k="conf" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</span>
             <span class="rdio" data-k="conf" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</span>

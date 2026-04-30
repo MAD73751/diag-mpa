@@ -674,7 +674,61 @@ const API = 'http://localhost:5052';
 
 let D = loadD();
 let serverOK = false;
-let PHOTOS_PWA = {}; // Photos du JSON PWA { ext:[], piece_0:[], ... }
+let PHOTOS_PWA = loadPhotos();
+
+function loadPhotos(){
+  try {
+    const s = localStorage.getItem('dmaai_mpa_photos');
+    return s ? JSON.parse(s) : {};
+  } catch(e) { return {}; }
+}
+
+function savePhotos(){
+  try {
+    localStorage.setItem('dmaai_mpa_photos', JSON.stringify(PHOTOS_PWA));
+  } catch(e) {
+    // localStorage plein — compresser et réessayer
+    console.warn('localStorage plein, compression photos...');
+    compressAndSavePhotos();
+  }
+}
+
+function compressAndSavePhotos(){
+  // Réduire chaque photo à max 800px et qualité 0.6
+  const keys = Object.keys(PHOTOS_PWA);
+  let idx = 0;
+  function processNext(){
+    if(idx >= keys.length){ 
+      try { localStorage.setItem('dmaai_mpa_photos', JSON.stringify(PHOTOS_PWA)); } catch(e){}
+      return;
+    }
+    const key = keys[idx++];
+    const photos = PHOTOS_PWA[key] || [];
+    let pi = 0;
+    function processPhoto(){
+      if(pi >= photos.length){ processNext(); return; }
+      const ph = photos[pi++];
+      if(!ph.data || ph.data.length < 50000){ processPhoto(); return; }
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const max = 800;
+        let w = img.width, h = img.height;
+        if(w > max || h > max){
+          if(w > h){ h = Math.round(h * max/w); w = max; }
+          else { w = Math.round(w * max/h); h = max; }
+        }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        ph.data = canvas.toDataURL('image/jpeg', 0.6);
+        processPhoto();
+      };
+      img.src = ph.data;
+    }
+    processPhoto();
+  }
+  processNext();
+}
 
 function loadD(){
   try{ const s=localStorage.getItem('dmaai_mpa_agent'); return s?JSON.parse(s):initD(); }
@@ -860,20 +914,36 @@ function togT(i){
 }
 
 // ── GESTION PHOTOS PC ────────────────────────────────────────────────────────
+function compressImage(file, maxPx, quality){
+  return new Promise((res) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height;
+        if(w > maxPx || h > maxPx){
+          if(w > h){ h = Math.round(h * maxPx/w); w = maxPx; }
+          else { w = Math.round(w * maxPx/h); h = maxPx; }
+        }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        res({ name: file.name, data: canvas.toDataURL('image/jpeg', quality) });
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 function addPiecePhotos(idx, files) {
   const key = 'piece_' + idx;
   if (!PHOTOS_PWA[key]) PHOTOS_PWA[key] = [];
-  const promises = Array.from(files).map(file => new Promise((res) => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      PHOTOS_PWA[key].push({ name: file.name, data: e.target.result });
-      res();
-    };
-    reader.readAsDataURL(file);
-  }));
-  Promise.all(promises).then(() => {
+  const promises = Array.from(files).map(file => compressImage(file, 1200, 0.75));
+  Promise.all(promises).then(compressed => {
+    compressed.forEach(ph => PHOTOS_PWA[key].push(ph));
+    savePhotos();
     renderPiecePhotos(idx);
-    // Aussi rafraîchir dans le tableau travaux si même index
     renderTravPhotos(idx);
   });
 }
@@ -922,6 +992,7 @@ function delPiecePhoto(idx, pi) {
   const key = 'piece_' + idx;
   if (PHOTOS_PWA[key]) {
     PHOTOS_PWA[key].splice(pi, 1);
+    savePhotos();
     renderPiecePhotos(idx);
     renderTravPhotos(idx);
   }
@@ -938,15 +1009,12 @@ function refreshAllPhotoGrids() {
 // Photos extérieures
 function addExtPhotos(files) {
   if (!PHOTOS_PWA['ext']) PHOTOS_PWA['ext'] = [];
-  const promises = Array.from(files).map(file => new Promise((res) => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      PHOTOS_PWA['ext'].push({ name: file.name, data: e.target.result });
-      res();
-    };
-    reader.readAsDataURL(file);
-  }));
-  Promise.all(promises).then(() => renderExtPhotos());
+  const promises = Array.from(files).map(file => compressImage(file, 1200, 0.75));
+  Promise.all(promises).then(compressed => {
+    compressed.forEach(ph => PHOTOS_PWA['ext'].push(ph));
+    savePhotos();
+    renderExtPhotos();
+  });
 }
 
 function renderExtPhotos() {
@@ -966,6 +1034,7 @@ function renderExtPhotos() {
 function delExtPhoto(pi) {
   if (PHOTOS_PWA['ext']) {
     PHOTOS_PWA['ext'].splice(pi, 1);
+    savePhotos();
     renderExtPhotos();
   }
 }
@@ -1138,6 +1207,7 @@ function impJSON(ev){
       if(obj.photos) PHOTOS_PWA = obj.photos;
       else if(obj.data && obj.data.photos) PHOTOS_PWA = obj.data.photos;
       else PHOTOS_PWA = {};
+      savePhotos();
 
       localStorage.setItem('dmaai_mpa_agent', JSON.stringify(D));
       restore();
@@ -1202,7 +1272,8 @@ function toast(msg){
 }
 function resetAll(){
   localStorage.removeItem('dmaai_mpa_agent');
-  D=initD(); location.reload();
+  localStorage.removeItem('dmaai_mpa_photos');
+  D=initD(); PHOTOS_PWA={}; location.reload();
 }
 
 // INIT

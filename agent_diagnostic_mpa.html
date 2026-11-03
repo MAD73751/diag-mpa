@@ -1,0 +1,2963 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Diagnostic MaPrimeAdapt' — DMAAI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bleu: #1F4E79;
+  --bleu2: #2E75B6;
+  --bleu-cl: #D6E4F0;
+  --bleu-pl: #EBF3FB;
+  --gris-bg: #F0F5FA;
+  --gris-card: #F8FAFC;
+  --texte: #1a1a2e;
+  --texte2: #5a6a7a;
+  --rouge: #C0392B;
+  --vert: #1E8449;
+  --orange: #D35400;
+  --border: #cdd8e3;
+  --radius: 10px;
+  --sh: 0 2px 12px rgba(31,78,121,0.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--gris-bg); color: var(--texte); min-height: 100vh; font-size: 14px; }
+
+/* LAYOUT */
+.layout { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 220px; flex-shrink: 0;
+  background: var(--bleu);
+  display: flex; flex-direction: column;
+  position: sticky; top: 0; height: 100vh;
+  overflow-y: auto;
+}
+.main { flex: 1; padding: 24px; max-width: 900px; }
+
+/* SIDEBAR */
+.sidebar-logo {
+  padding: 20px 16px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.sidebar-logo .brand { font-family: 'DM Serif Display', serif; color: #fff; font-size: 16px; line-height: 1.2; }
+.sidebar-logo .sub { font-size: 10px; color: rgba(255,255,255,0.55); margin-top: 3px; }
+.sidebar-logo .version { font-size: 9px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+
+.nav-section { padding: 12px 0 4px 14px; font-size: 9px; font-weight: 600; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; }
+.nav-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 16px; cursor: pointer;
+  font-size: 12.5px; color: rgba(255,255,255,0.65);
+  transition: all 0.15s; border-left: 3px solid transparent;
+  margin-bottom: 1px;
+}
+.nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.nav-item.active { background: rgba(255,255,255,0.12); color: #fff; border-left-color: #fff; font-weight: 500; }
+.nav-item .ico { font-size: 14px; width: 18px; text-align: center; }
+.nav-item .done-badge { margin-left: auto; font-size: 9px; background: rgba(30,132,73,0.4); color: #7dcea0; border-radius: 10px; padding: 1px 6px; }
+
+.sidebar-actions { padding: 12px; border-top: 1px solid rgba(255,255,255,0.1); margin-top: auto; }
+.sb-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.1); border: none;
+  color: rgba(255,255,255,0.8); border-radius: 7px;
+  padding: 8px 10px; font-family: 'DM Sans', sans-serif;
+  font-size: 12px; cursor: pointer; width: 100%;
+  margin-bottom: 6px; transition: all 0.15s;
+}
+.sb-btn:hover { background: rgba(255,255,255,0.18); color: #fff; }
+.sb-btn.primary { background: var(--bleu2); color: #fff; }
+.sb-btn.primary:hover { background: #1a5a9a; }
+.sb-btn.success { background: rgba(30,132,73,0.4); color: #7dcea0; }
+.sb-btn.success:hover { background: rgba(30,132,73,0.6); color: #fff; }
+
+/* STATUS BAR */
+.status-bar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 12px; border-radius: 6px; margin-bottom: 16px;
+  font-size: 11.5px; font-weight: 500;
+}
+.status-bar.offline { background: #fde8e8; color: var(--rouge); }
+.status-bar.online { background: #e8f5e9; color: var(--vert); }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+/* SECTIONS */
+.section { display: none; animation: fadeIn 0.2s ease; }
+.section.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+.page-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--bleu); margin-bottom: 4px; }
+.page-desc { font-size: 12.5px; color: var(--texte2); margin-bottom: 20px; }
+
+/* CARDS */
+.card {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px;
+  margin-bottom: 14px; box-shadow: var(--sh);
+}
+.card-title {
+  font-size: 11px; font-weight: 600; color: var(--bleu2);
+  text-transform: uppercase; letter-spacing: 0.8px;
+  margin-bottom: 14px; padding-bottom: 8px;
+  border-bottom: 2px solid var(--bleu-cl);
+  display: flex; align-items: center; gap: 6px;
+}
+.card-title .ico { font-size: 13px; }
+
+/* FIELDS */
+.field { margin-bottom: 12px; }
+.field label { display: block; font-size: 12px; font-weight: 500; color: var(--texte2); margin-bottom: 4px; }
+.field input[type=text], .field input[type=date], .field input[type=number],
+.field input[type=tel], .field input[type=email], .field select, .field textarea {
+  width: 100%; padding: 9px 11px;
+  border: 1.5px solid var(--border); border-radius: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 13px;
+  color: var(--texte); background: #fff;
+  transition: border 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none; appearance: none;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: none; border-color: var(--bleu2);
+  box-shadow: 0 0 0 3px rgba(46,117,182,0.12);
+}
+.field textarea { resize: vertical; min-height: 70px; }
+.field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 5 5-5' stroke='%235a6a7a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 11px center; padding-right: 30px;
+}
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+/* CHIPS / RADIOS */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 0;
+  background: var(--bleu-pl); border: 1.5px solid var(--border);
+  border-radius: 20px; padding: 8px 16px;
+  cursor: pointer; font-size: 13px; color: var(--texte);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  user-select: none; -webkit-appearance: none; appearance: none;
+  font-family: inherit; touch-action: manipulation;
+  min-height: 44px; font-weight: 500; line-height: 1.2;
+}
+.chip.on {
+  background: var(--bleu-cl); border-color: var(--bleu2);
+  color: var(--bleu); font-weight: 600;
+  padding-left: 12px;
+}
+.chip.on::before {
+  content: '✓ ';
+  font-weight: 700;
+  color: var(--bleu2);
+}
+
+
+
+.radios { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+.rdio {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--bleu-pl); border: 1.5px solid var(--border);
+  border-radius: 20px; padding: 7px 14px;
+  cursor: pointer; font-size: 13px; color: var(--texte);
+  transition: all 0.15s; user-select: none;
+  -webkit-appearance: none; appearance: none;
+  font-family: inherit; touch-action: manipulation;
+  min-height: 40px; font-weight: 500;
+}
+.rdio.on { background: var(--bleu-cl); border-color: var(--bleu2); color: var(--bleu); font-weight: 500; }
+.rdio .dot { width: 12px; height: 12px; border: 1.5px solid var(--border); border-radius: 50%; background: #fff; flex-shrink: 0; }
+.rdio.on .dot { background: var(--bleu2); border-color: var(--bleu2); box-shadow: inset 0 0 0 2.5px #fff; }
+
+/* PIÈCES */
+.piece-card { border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; overflow: hidden; }
+.piece-head { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; cursor: pointer; background: var(--gris-card); transition: background 0.15s; }
+.piece-head:hover { background: var(--bleu-pl); }
+.piece-name { font-size: 13px; font-weight: 500; color: var(--bleu); }
+.piece-meta { display: flex; align-items: center; gap: 8px; }
+.badge-statut { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
+.badge-ok { background: #e8f5e9; color: var(--vert); }
+.badge-nok { background: #fde8e8; color: var(--rouge); }
+.ptog { font-size: 14px; color: var(--texte2); transition: transform 0.2s; margin-left: 6px; }
+.ptog.open { transform: rotate(180deg); }
+.piece-body { display: none; padding: 12px 14px; border-top: 1px solid var(--border); background: #fff; }
+.piece-body.open { display: block; }
+
+.stat-btns { display: flex; gap: 6px; margin-bottom: 12px; }
+.stat-btn { flex: 1; padding: 8px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; font-size: 12px; font-weight: 500; font-family: 'DM Sans', sans-serif; transition: all 0.12s; text-align: center; color: var(--texte);   touch-action: manipulation;
+}
+.stat-btn.ok { background: #e8f5e9; border-color: var(--vert); color: var(--vert); }
+.stat-btn.nok { background: #fde8e8; border-color: var(--rouge); color: var(--rouge); }
+
+.prio-btns { display: flex; gap: 5px; margin-bottom: 10px; }
+.prio-btn { flex: 1; padding: 7px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; font-size: 11.5px; font-weight: 500; font-family: 'DM Sans', sans-serif; transition: all 0.12s; text-align: center; color: var(--texte);   touch-action: manipulation;
+}
+.prio-btn.h.on { background: #fde8e8; border-color: var(--rouge); color: var(--rouge); }
+.prio-btn.m.on { background: #fef3e2; border-color: var(--orange); color: var(--orange); }
+.prio-btn.b.on { background: #e8f5e9; border-color: var(--vert); color: var(--vert); }
+
+.etages { display: flex; gap: 4px; }
+.etg-btn { flex: 1; padding: 5px 4px; text-align: center; border: 1.5px solid var(--border); border-radius: 6px; background: #fff; cursor: pointer; font-size: 11px; font-family: 'DM Sans', sans-serif; color: var(--texte2); transition: all 0.12s;   touch-action: manipulation;
+}
+.etg-btn.on { background: var(--bleu-cl); border-color: var(--bleu2); color: var(--bleu); font-weight: 500; }
+
+.lbl { font-size: 11.5px; font-weight: 500; color: var(--texte2); margin-bottom: 5px; }
+.divider { height: 1px; background: var(--border); margin: 10px 0; }
+
+/* PHOTOS */
+.photo-zone { margin-top: 10px; }
+.photo-zone .lbl { margin-bottom: 6px; }
+.photo-add-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--bleu-pl); border: 1.5px dashed var(--bleu2);
+  border-radius: 8px; padding: 7px 14px;
+  cursor: pointer; font-size: 12px; font-weight: 500;
+  color: var(--bleu2); transition: all 0.15s;
+}
+.photo-add-btn:hover { background: var(--bleu-cl); }
+.photo-grid-pc {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;
+}
+.photo-thumb-pc {
+  position: relative; width: 80px; height: 80px;
+  border-radius: 8px; overflow: hidden;
+  border: 1.5px solid var(--border);
+}
+.photo-thumb-pc img { width: 100%; height: 100%; object-fit: cover; }
+.photo-del {
+  position: absolute; top: 2px; right: 2px;
+  background: rgba(0,0,0,0.6); color: white;
+  border: none; border-radius: 50%;
+  width: 18px; height: 18px; font-size: 10px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  line-height: 1;
+}
+.photo-count-badge {
+  display: inline-block; background: var(--bleu2); color: white;
+  border-radius: 10px; padding: 1px 7px; font-size: 10px;
+  font-weight: 600; margin-left: 6px;
+}
+
+/* BUTTONS */
+.btn { display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; padding: 10px 16px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
+.btn-primary { background: var(--bleu); color: #fff; }
+.btn-primary:hover { background: #173d61; }
+.btn-secondary { background: #fff; color: var(--bleu); border: 1.5px solid var(--bleu-cl); }
+.btn-secondary:hover { border-color: var(--bleu2); background: var(--bleu-pl); }
+.btn-success { background: var(--vert); color: #fff; }
+.btn-success:hover { background: #155a32; }
+.btn-danger { background: #fde8e8; color: var(--rouge); border: 1.5px solid #f5c6cb; }
+.btn-lg { padding: 12px 20px; font-size: 14px; width: 100%; justify-content: center; margin-bottom: 8px; }
+.btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+
+/* ÉCONOMIQUE */
+.rav-box { background: var(--bleu-pl); border: 1.5px solid var(--bleu-cl); border-radius: var(--radius); padding: 16px; text-align: center; }
+.rav-val { font-size: 28px; font-weight: 600; color: var(--bleu); margin: 6px 0; }
+.rav-label { font-size: 11px; color: var(--texte2); }
+
+/* SYNTHÈSE */
+.syn-block { background: var(--bleu-pl); border: 1px solid var(--bleu-cl); border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; }
+.syn-label { font-size: 10px; font-weight: 600; color: var(--bleu2); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 3px; }
+.syn-val { font-size: 13px; }
+
+/* TOAST */
+.toast { position: fixed; bottom: 20px; right: 20px; background: #1a1a2e; color: #fff; padding: 10px 18px; border-radius: 20px; font-size: 12.5px; font-weight: 500; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
+.toast.show { opacity: 1; }
+
+/* PROGRESS SIDEBAR */
+.nav-progress { padding: 8px 14px; }
+.prog-bar { height: 3px; background: rgba(255,255,255,0.15); border-radius: 2px; overflow: hidden; margin-top: 4px; }
+.prog-fill { height: 100%; background: rgba(255,255,255,0.7); border-radius: 2px; transition: width 0.4s; }
+.prog-text { font-size: 10px; color: rgba(255,255,255,0.45); }
+
+@media(max-width:700px) {
+  .layout { flex-direction: column; }
+  .sidebar { width: 100%; height: auto; position: static; flex-direction: row; flex-wrap: wrap; padding: 8px; gap: 4px; }
+  .sidebar-logo { display: none; }
+  .nav-item { padding: 6px 10px; border-left: none; border-radius: 6px; font-size: 11px; }
+  .nav-section, .sidebar-actions, .nav-progress { display: none; }
+  .main { padding: 12px; }
+}
+@media(max-width:480px) { .row2, .row3 { grid-template-columns: 1fr; } }
+.chip .ck, .rdio .dot { pointer-events: none; }
+
+/* CONFIG IA */
+.config-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  .config-card {
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color .2s;
+  }
+  .config-card:focus-within { border-color: var(--blue); }
+  .config-card label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+  .config-card .prime-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .badge-adapt { background: var(--green-light); color: var(--green); }
+  .badge-renov { background: var(--orange-light); color: var(--orange); }
+
+  input[type="number"], input[type="text"], textarea {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text);
+    background: var(--cream);
+    outline: none;
+    transition: border-color .2s;
+  }
+  input:focus, textarea:focus { border-color: var(--blue); background: #fff; }
+  textarea { resize: vertical; min-height: 60px; }
+
+  .tarif-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .tarif-row input { flex: 1; }
+  .tarif-row span { font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; }
+
+  /* MAIL INPUT */
+  .mail-area {
+    position: relative;
+  }
+  .mail-area textarea {
+    min-height: 200px;
+    font-size: 0.88rem;
+    line-height: 1.65;
+  }
+  .mail-area .char-hint {
+    position: absolute; bottom: 10px; right: 14px;
+    font-size: 0.72rem; color: var(--text-muted);
+  }
+
+  /* ANALYSE RESULT */
+  .analyse-result {
+    display: none;
+    margin-top: 24px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1.5px solid var(--border);
+  }
+  .analyse-result.show { display: block; animation: fadeIn .3s ease; }
+  .analyse-header {
+    padding: 14px 20px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .analyse-header.adapt { background: var(--green-light); color: var(--green); }
+  .analyse-header.renov { background: var(--orange-light); color: var(--orange); }
+  .analyse-header.unknown { background: var(--red-light); color: var(--red); }
+  .analyse-header.pc { background: #e8f0ff; color: #1a3a8f; }
+  .analyse-body { padding: 20px; }
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .info-item label {
+    display: block; font-size: 0.72rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--text-muted); margin-bottom: 4px;
+  }
+  .info-item .val {
+    font-size: 0.88rem;
+    color: var(--text);
+    background: var(--cream);
+    border-radius: 6px;
+    padding: 7px 12px;
+    border: 1px solid var(--border);
+    min-height: 34px;
+  }
+  .info-item .val.missing {
+    color: var(--red);
+    background: var(--red-light);
+    border-color: #f0b0b0;
+    font-style: italic;
+  }
+
+  .missing-banner {
+    background: var(--red-light);
+    border: 1.5px solid #f0b0b0;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    font-size: 0.88rem;
+    color: var(--red);
+    display: none;
+  }
+  .missing-banner.show { display: block; }
+  .missing-banner strong { display: block; margin-bottom: 6px; }
+
+  .complement-area { display: none; }
+  .complement-area.show { display: block; animation: fadeIn .3s; }
+
+  /* TARIF DISPLAY */
+  .tarif-display {
+    background: var(--navy);
+    border-radius: 10px;
+    padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 16px;
+  }
+  .tarif-display .label { font-size: 0.82rem; color: #8fa3cc; }
+  .tarif-display .amount {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    color: var(--gold-light);
+  }
+
+  /* PREVIEW */
+  .preview-box {
+    background: var(--cream);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 20px;
+    font-size: 0.88rem;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    max-height: 420px;
+    overflow-y: auto;
+  }
+  .preview-box h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+    color: var(--navy);
+    margin-bottom: 4px;
+  }
+  .preview-section {
+    margin-bottom: 28px;
+  }
+  .preview-section-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--blue);
+    border-bottom: 1.5px solid var(--border);
+    padding-bottom: 6px;
+    margin-bottom: 14px;
+  }
+  .preview-table {
+    width: 100%; border-collapse: collapse; margin-bottom: 12px;
+  }
+  .preview-table td, .preview-table th {
+    border: 1px solid var(--
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">Agent Diagnostic<br>MaPrimeAdapt'</div>
+    <div class="sub">EI David MARIE-ANNE</div>
+    <div class="version">v1.0 · DMAAI 2026</div>
+  </div>
+
+  <div class="nav-section">Navigation</div>
+  <div class="nav-item active" onclick="goSec(0)" id="ni0"><span class="ico">📋</span> Généralités</div>
+  <div class="nav-item" onclick="goSec(1)" id="ni1"><span class="ico">🧠</span> Autonomie</div>
+  <div class="nav-item" onclick="goSec(2)" id="ni2"><span class="ico">💰</span> Économique</div>
+  <div class="nav-item" onclick="goSec(3)" id="ni3"><span class="ico">🏠</span> État des lieux</div>
+  <div class="nav-item" onclick="goSec(4)" id="ni4"><span class="ico">🔧</span> Travaux</div>
+  <div class="nav-item" onclick="goSec(5)" id="ni5"><span class="ico">📊</span> Synthèse</div>
+  <div class="nav-item" onclick="goSec(6)" id="ni6"><span class="ico">💶</span> Devis & Financement</div>
+
+  <div class="nav-progress">
+    <div class="prog-text" id="progText">0 / 7 sections</div>
+    <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  </div>
+
+  <div class="nav-section">Configuration IA</div>
+  <div class="nav-item" onclick="openAIConfig()"><span class="ico">🤖</span> Configurer l'IA</div>
+  <div id="ia-header-badge" style="padding:2px 14px 8px;font-size:10px;color:rgba(255,255,255,0.45)">Non configuré</div>
+  <div class="nav-section">Données</div>
+  <div class="nav-item" onclick="expJSON()"><span class="ico">⬇</span> Exporter JSON</div>
+  <div class="nav-item" onclick="document.getElementById('impFile').click()"><span class="ico">⬆</span> Importer JSON</div>
+  <input type="file" id="impFile" accept=".json,.zip" style="display:none" onchange="impJSON(event)">
+
+  <div class="sidebar-actions">
+    <button class="sb-btn success" onclick="genDocx()">📄 Générer rapport .docx</button>
+    <button class="sb-btn" onclick="expJSON()">⬇ Exporter données</button>
+    <button class="sb-btn" style="color:rgba(255,100,100,0.8)" onclick="if(confirm('Tout effacer ?')){resetAll()}">🗑 Réinitialiser</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- STATUS -->
+  <div class="status-bar offline" id="statusBar">
+    <span class="status-dot"></span>
+    <span id="statusText">Serveur déconnecté — Export JSON uniquement (rapport .docx nécessite le serveur)</span>
+  </div>
+
+  <!-- SEC 0 : GÉNÉRALITÉS -->
+  <div class="section active" id="s0">
+    <p class="page-title">Informations générales</p>
+    <p class="page-desc">Structure AMO · demandeur · logement · orientation</p>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">🏢</span> Structure AMO</div>
+      <div class="row2">
+        <div class="field"><label>Raison sociale</label><input type="text" id="amo_rso" value="EI David MARIE-ANNE"></div>
+        <div class="field"><label>Diagnostiqueur</label><input type="text" id="amo_diag" value="David MARIE-ANNE"></div>
+      </div>
+      <div class="row3">
+        <div class="field"><label>Fonction</label><input type="text" id="amo_fonc" value="Architecte DPLG / Ingénieur TCE"></div>
+        <div class="field"><label>Date de visite</label><input type="date" id="v_date"></div>
+        <div class="field"><label>Référence dossier</label><input type="text" id="ref_dossier" placeholder="ex: MPA-2026-001"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">👤</span> Demandeur</div>
+      <div class="row3">
+        <div class="field"><label>Nom</label><input type="text" id="d_nom"></div>
+        <div class="field"><label>Prénom</label><input type="text" id="d_prn"></div>
+        <div class="field"><label>Date de naissance</label><input type="date" id="d_nais"></div>
+      </div>
+      <div class="field"><div class="field-label">Situation familiale</div>
+        <div class="chips">
+          <button type="button" class="chip" data-k="sit" data-v="Marié(e)" onclick="tChip(this)">Marié(e)</button>
+          <button type="button" class="chip" data-k="sit" data-v="Pacsé(e)" onclick="tChip(this)">Pacsé(e)</button>
+          <button type="button" class="chip" data-k="sit" data-v="Vie maritale" onclick="tChip(this)">Vie maritale</button>
+          <button type="button" class="chip" data-k="sit" data-v="Veuf(ve)" onclick="tChip(this)">Veuf(ve)</button>
+          <button type="button" class="chip" data-k="sit" data-v="Célibataire" onclick="tChip(this)">Célibataire</button>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field"><div class="field-label">Aides perçues</div>
+          <div class="chips">
+            <button type="button" class="chip" data-k="aid" data-v="APA" onclick="tChip(this)">APA</button>
+            <button type="button" class="chip" data-k="aid" data-v="PCH" onclick="tChip(this)">PCH</button>
+            <button type="button" class="chip" data-k="aid" data-v="FDC" onclick="tChip(this)">FDC</button>
+          </div>
+        </div>
+        <div class="field"><label>Régime retraite</label>
+          <select id="d_ret">
+            <option value="">--</option><option>Aucun</option><option>Régime général</option>
+            <option>MSA</option><option>Fonctionnaires</option><option>Prof. libérales</option><option>Autre</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">🏘</span> Logement</div>
+      <div class="field"><label>Adresse</label><input type="text" id="l_adr" placeholder="N° rue, commune, code postal"></div>
+      <div class="row2">
+        <div class="field"><div class="field-label">Type</div>
+          <div class="radios" id="rg_tlog">
+            <button type="button" class="rdio" data-k="tlog" data-v="Maison individuelle" onclick="tRdio(this)"><span class="dot"></span>Maison</button>
+            <button type="button" class="rdio" data-k="tlog" data-v="Bâtiment collectif" onclick="tRdio(this)"><span class="dot"></span>Collectif</button>
+          </div>
+        </div>
+        <div class="field"><div class="field-label">Statut occupation</div>
+          <div class="radios">
+            <button type="button" class="rdio" data-k="stat" data-v="Propriétaire" onclick="tRdio(this)"><span class="dot"></span>Propriétaire</button>
+            <button type="button" class="rdio" data-k="stat" data-v="Locataire" onclick="tRdio(this)"><span class="dot"></span>Locataire</button>
+            <button type="button" class="rdio" data-k="stat" data-v="Usufruitier" onclick="tRdio(this)"><span class="dot"></span>Usufruitier</button>
+          </div>
+        </div>
+      </div>
+      <div class="row3">
+        <div class="field"><label>Année constr.</label><input type="number" id="l_an" placeholder="1975"></div>
+        <div class="field"><label>Surface (m²)</label><input type="number" id="l_surf"></div>
+        <div class="field"><label>Nb pièces</label><input type="number" id="l_pces"></div>
+      </div>
+      <div class="row3">
+        <div class="field"><label>Nb niveaux</label><input type="number" id="l_niv" min="1"></div>
+        <div class="field"><label>Étage logement</label><input type="text" id="l_etg" placeholder="RDC…"></div>
+        <div class="field"><label>Nb occupants</label><input type="number" id="l_occ" min="1" oninput="sv();calcProfil()"></div>
+      </div>
+      <div class="field"><div class="field-label">Zone géographique</div>
+        <div class="radios">
+          <button type="button" class="rdio" data-k="zone" data-v="Urbaine" onclick="tRdio(this)"><span class="dot"></span>Urbaine</button>
+          <button type="button" class="rdio" data-k="zone" data-v="Rurale" onclick="tRdio(this)"><span class="dot"></span>Rurale</button>
+          <button type="button" class="rdio" data-k="zone" data-v="Mixte" onclick="tRdio(this)"><span class="dot"></span>Mixte</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">📡</span> Orientation MaPrimeAdapt'</div>
+      <div class="field"><div class="field-label">Canal d'orientation</div>
+        <div class="chips">
+          <button type="button" class="chip" data-k="ori" data-v="Prof. social" onclick="tChip(this)">Prof. social</button>
+          <button type="button" class="chip" data-k="ori" data-v="Prof. médical" onclick="tChip(this)">Prof. médical</button>
+          <button type="button" class="chip" data-k="ori" data-v="Internet" onclick="tChip(this)">Internet</button>
+          <button type="button" class="chip" data-k="ori" data-v="Bouche à oreille" onclick="tChip(this)">Bouche à oreille</button>
+          <button type="button" class="chip" data-k="ori" data-v="Prof. bâtiment" onclick="tChip(this)">Prof. bâtiment</button>
+          <button type="button" class="chip" data-k="ori" data-v="Presse/TV" onclick="tChip(this)">Presse/TV</button>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field"><div class="field-label">Accompagnement France Rénov' ?</div>
+          <div class="radios">
+            <button type="button" class="rdio" data-k="fr" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</button>
+            <button type="button" class="rdio" data-k="fr" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</button>
+          </div>
+        </div>
+        <div class="field"><label>Contact France Rénov' (si oui)</label><input type="text" id="fr_ct" placeholder="Nom / coordonnées"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">📷</span> Photos extérieures du bâtiment</div>
+      <label class="photo-add-btn">
+        📷 Ajouter photos façade / entrée
+        <input type="file" accept="image/*" multiple style="display:none" onchange="addExtPhotos(this.files)">
+      </label>
+      <div class="photo-grid-pc" id="photoGridExt" style="margin-top:8px"></div>
+    </div>
+
+    <div class="btn-row">
+      <div></div>
+      <button class="btn btn-primary" onclick="goSec(1)">Suivant — Autonomie →</button>
+    </div>
+  </div>
+
+  <!-- SEC 1 : AUTONOMIE -->
+  <div class="section" id="s1">
+    <p class="page-title">Situation d'autonomie</p>
+    <p class="page-desc">GIR · handicap · chutes · aidants · évaluations</p>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">♿</span> Handicap & Niveau d'autonomie</div>
+      <div class="row2">
+        <div class="field"><div class="field-label">Situation de handicap ?</div>
+          <div class="radios">
+            <button type="button" class="rdio" data-k="handi" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</button>
+            <button type="button" class="rdio" data-k="handi" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</button>
+          </div>
+        </div>
+        <div class="field"><div class="field-label">Niveau GIR</div>
+          <div class="radios">
+            <button type="button" class="rdio" data-k="gir" data-v="1" onclick="tRdio(this)"><span class="dot"></span>1</button>
+            <button type="button" class="rdio" data-k="gir" data-v="2" onclick="tRdio(this)"><span class="dot"></span>2</button>
+            <button type="button" class="rdio" data-k="gir" data-v="3" onclick="tRdio(this)"><span class="dot"></span>3</button>
+            <button type="button" class="rdio" data-k="gir" data-v="4" onclick="tRdio(this)"><span class="dot"></span>4</button>
+            <button type="button" class="rdio" data-k="gir" data-v="5" onclick="tRdio(this)"><span class="dot"></span>5</button>
+            <button type="button" class="rdio" data-k="gir" data-v="6" onclick="tRdio(this)"><span class="dot"></span>6</button>
+            <button type="button" class="rdio" data-k="gir" data-v="Non évalué" onclick="tRdio(this)"><span class="dot"></span>NE</button>
+          </div>
+        </div>
+      </div>
+      <div class="field"><div class="field-label">Aides techniques utilisées</div>
+        <div class="chips">
+          <button type="button" class="chip" data-k="atec" data-v="Fauteuil roulant" onclick="tChip(this)">Fauteuil roulant</button>
+          <button type="button" class="chip" data-k="atec" data-v="Déambulateur" onclick="tChip(this)">Déambulateur</button>
+          <button type="button" class="chip" data-k="atec" data-v="Canne" onclick="tChip(this)">Canne</button>
+          <button type="button" class="chip" data-k="atec" data-v="Banc bain" onclick="tChip(this)">Banc bain</button>
+          <button type="button" class="chip" data-k="atec" data-v="Barre appui" onclick="tChip(this)">Barre appui</button>
+        </div>
+      </div>
+      <div class="field"><label>Autre aide technique</label><input type="text" id="atec_autre" placeholder="Préciser…"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">🏥</span> Chutes & Suivi médical</div>
+      <div class="row3">
+        <div class="field"><div class="field-label">Chute dans les 6 mois ?</div>
+          <div class="radios">
+            <button type="button" class="rdio" data-k="chute" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</button>
+            <button type="button" class="rdio" data-k="chute" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</button>
+          </div>
+        </div>
+        <div class="field"><div class="field-label">Hospitalisation ?</div>
+          <div class="radios">
+            <button type="button" class="rdio" data-k="hosp" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</button>
+            <button type="button" class="rdio" data-k="hosp" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</button>
+          </div>
+        </div>
+        <div class="field"><div class="field-label">Perte autonomie depuis ?</div>
+          <div class="radios">
+            <button type="button" class="rdio" data-k="paut" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</button>
+            <button type="button" class="rdio" data-k="paut" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</button>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="row2">
+        <div class="field"><div class="field-label">Suivi ergothérapeute (&lt;6 mois) ?</div>
+          <div class="radios">
+            <button type="button" class="rdio" data-k="ergo" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</button>
+            <button type="button" class="rdio" data-k="ergo" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</button>
+          </div>
+        </div>
+        <div class="field"><div class="field-label">Rapport ergo disponible ?</div>
+          <div class="radios">
+            <button type="button" class="rdio" data-k="rergo" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</button>
+            <button type="button" class="rdio" data-k="rergo" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</button>
+          </div>
+        </div>
+      </div>
+      <div class="field"><div class="field-label">Aide professionnelle régulière ou proche aidant ?</div>
+        <div class="radios">
+          <button type="button" class="rdio" data-k="aid2" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</button>
+          <button type="button" class="rdio" data-k="aid2" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">📝</span> Évaluations & Personne de confiance</div>
+      <div class="field"><div class="field-label">Évaluations logement/autonomie récentes (&lt;6 mois)</div>
+        <div class="chips">
+          <button type="button" class="chip" data-k="eval" data-v="Aucune" onclick="tChip(this)">Aucune</button>
+          <button type="button" class="chip" data-k="eval" data-v="ANAH" onclick="tChip(this)">ANAH</button>
+          <button type="button" class="chip" data-k="eval" data-v="APA" onclick="tChip(this)">APA</button>
+          <button type="button" class="chip" data-k="eval" data-v="CNAV" onclick="tChip(this)">CNAV</button>
+          <button type="button" class="chip" data-k="eval" data-v="CCAS" onclick="tChip(this)">CCAS</button>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field"><div class="field-label">Personne de confiance désignée ?</div>
+          <div class="radios">
+            <button type="button" class="rdio" data-k="conf" data-v="Oui" onclick="tRdio(this)"><span class="dot"></span>Oui</button>
+            <button type="button" class="rdio" data-k="conf" data-v="Non" onclick="tRdio(this)"><span class="dot"></span>Non</button>
+          </div>
+        </div>
+        <div class="field"><label>Identité personne de confiance</label><input type="text" id="conf_id" placeholder="Nom, prénom, lien, téléphone"></div>
+      </div>
+      <div class="field"><label>Observations complémentaires</label><textarea id="obs_aut" placeholder="Notes libres sur la situation d'autonomie…"></textarea></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goSec(0)">← Retour</button>
+      <button class="btn btn-primary" onclick="goSec(2)">Suivant — Économique →</button>
+    </div>
+  </div>
+
+  <!-- SEC 2 : ÉCONOMIQUE -->
+  <div class="section" id="s2">
+    <p class="page-title">Situation économique</p>
+    <p class="page-desc">Revenu Fiscal de Référence — profil MaPrimeAdapt'</p>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">📋</span> Revenu Fiscal de Référence (RFR)</div>
+      <div style="padding:8px 0 12px;font-size:12px;color:var(--texte2)">
+        Le RFR figure sur l'avis d'imposition N-2 (ex. : avis 2024 pour une demande en 2026). 
+        Il prend en compte l'ensemble des revenus fiscaux de tous les membres du foyer.
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Revenu Fiscal de Référence annuel (€)</label>
+          <input type="number" id="e_rfr" min="0" placeholder="ex. 12 204" oninput="calcProfil()">
+          <div style="font-size:11px;color:var(--texte2);margin-top:4px">Avis d'imposition — case « Revenu fiscal de référence »</div>
+        </div>
+        <div class="field">
+          <label>Épargne mobilisable pour les travaux (€)</label>
+          <input type="number" id="e_ep" min="0" placeholder="0">
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFIL CALCULÉ -->
+    <div class="card" id="profilMPACard">
+      <div class="card-title"><span class="ico">🏷️</span> Profil MaPrimeAdapt' calculé</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px" id="profilMPAGrid">
+        <div class="syn-block">
+          <div class="syn-label">RFR annuel saisi</div>
+          <div class="syn-val" id="pm_rfr" style="font-size:15px;font-weight:600">—</div>
+        </div>
+        <div class="syn-block">
+          <div class="syn-label">Nb personnes foyer</div>
+          <div class="syn-val" id="pm_nb">—</div>
+        </div>
+        <div class="syn-block">
+          <div class="syn-label">Zone</div>
+          <div class="syn-val" id="pm_zone">—</div>
+        </div>
+        <div class="syn-block" style="grid-column:1/-1;background:var(--bleu-cl);border-color:var(--bleu2)">
+          <div class="syn-label">Profil ménage MaPrimeAdapt' 2026</div>
+          <div style="display:flex;align-items:center;gap:16px;margin-top:4px">
+            <div class="syn-val" id="pm_profil" style="font-size:18px;font-weight:700">—</div>
+            <div id="pm_taux" style="font-size:28px;font-weight:700;color:var(--vert)"></div>
+            <div id="pm_detail" style="font-size:12px;color:var(--texte2)"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Plafonds de référence -->
+      <div style="margin-top:12px;padding:10px;background:var(--gris-card);border-radius:8px;font-size:11.5px;color:var(--texte2)">
+        <strong>Plafonds 2026 (hors Île-de-France) :</strong>
+        <span id="pm_plafonds">—</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">📉</span> Charges fixes mensuelles (facultatif)</div>
+      <div class="row3">
+        <div class="field"><label>Loyer / charges (€/mois)</label><input type="number" id="c_loy" min="0" oninput="calcRAV()"></div>
+        <div class="field"><label>Prêt immobilier (€/mois)</label><input type="number" id="c_pret" min="0" oninput="calcRAV()"></div>
+        <div class="field"><label>Crédits (€/mois)</label><input type="number" id="c_cred" min="0" oninput="calcRAV()"></div>
+      </div>
+      <div class="row3">
+        <div class="field"><label>Mutuelle (€/mois)</label><input type="number" id="c_mut" min="0" oninput="calcRAV()"></div>
+        <div class="field"><label>Électricité (€/mois)</label><input type="number" id="c_elec" min="0" oninput="calcRAV()"></div>
+        <div class="field"><label>Assurances (€/mois)</label><input type="number" id="c_ass" min="0" oninput="calcRAV()"></div>
+      </div>
+      <div class="field"><label>Autres charges (€/mois)</label><input type="number" id="c_autre" min="0" oninput="calcRAV()"></div>
+    </div>
+
+    <div class="card">
+      <div class="rav-box">
+        <div class="rav-label">Reste à vivre mensuel estimé (charges uniquement)</div>
+        <div class="rav-val" id="ravVal">—</div>
+        <div class="rav-label">RFR/12 − charges fixes mensuelles</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">💬</span> Remarques du ménage</div>
+      <div class="field"><textarea id="rem_men" placeholder="Souhaits, contraintes, budget envisagé par le demandeur…" style="min-height:90px"></textarea></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goSec(1)">← Retour</button>
+      <button class="btn btn-primary" onclick="goSec(3)">Suivant — État des lieux →</button>
+    </div>
+  </div>
+
+  <!-- SEC 3 : ÉTAT DES LIEUX -->
+  <div class="section" id="s3">
+    <p class="page-title">État des lieux</p>
+    <p class="page-desc">Adapté / Non adapté · circulation · équipements · étage</p>
+    <div id="edlCont"></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goSec(2)">← Retour</button>
+      <button class="btn btn-primary" onclick="goSec(4)">Suivant — Travaux →</button>
+    </div>
+  </div>
+
+  <!-- SEC 4 : TRAVAUX -->
+  <div class="section" id="s4">
+    <p class="page-title">Projet de travaux</p>
+    <p class="page-desc">Priorité · solutions proposées · solutions retenues</p>
+    <div id="travCont"></div>
+    <div class="card">
+      <div class="card-title"><span class="ico">📋</span> Recommandations rédigées</div>
+      <div class="field"><label>Détail des préconisations AMO</label><textarea id="prec" placeholder="Expliciter les préconisations pour chaque zone concernée…" style="min-height:130px"></textarea></div>
+      <div class="field"><label>Création de pièce nouvelle (si adaptation impossible)</label><textarea id="crp" placeholder="Raison de la création, emplacement initial, nouvel emplacement, priorité…" style="min-height:70px"></textarea></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goSec(3)">← Retour</button>
+      <button class="btn btn-primary" onclick="goSec(5)">Synthèse →</button>
+    </div>
+  </div>
+
+  <!-- SEC 5 : SYNTHÈSE -->
+  <div class="section" id="s5">
+    <p class="page-title">Synthèse & Export</p>
+    <p class="page-desc">Récapitulatif du diagnostic · génération du rapport</p>
+    <div id="synCont"></div>
+    <div class="card">
+      <div class="card-title"><span class="ico">⚡</span> Actions</div>
+      <button class="btn btn-success btn-lg" onclick="genDocx()">📄 Générer le rapport Word (.docx)</button>
+      <button class="btn btn-primary btn-lg" style="background:var(--bleu2)" onclick="expJSON()">⬇ Sauvegarder les données (JSON)</button>
+      <button class="btn btn-secondary btn-lg" onclick="goSec(0)">← Revenir au début</button>
+      <button class="btn btn-danger btn-lg" onclick="if(confirm('Effacer toutes les données ?')){resetAll()}">🗑 Réinitialiser</button>
+    </div>
+  </div>
+
+
+  <!-- SEC 6 : DEVIS & FINANCEMENT -->
+  <div class="section" id="s6">
+    <p class="page-title">Devis & Plan de financement</p>
+    <p class="page-desc">Saisir les devis reçus — calcul automatique MaPrimeAdapt'</p>
+
+    <!-- PROFIL MÉNAGE AUTO -->
+    <div class="card" id="profilCard">
+      <div class="card-title"><span class="ico">📋</span> Profil du ménage (calculé automatiquement)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px" id="profilGrid">
+        <div class="syn-block"><div class="syn-label">Statut</div><div class="syn-val" id="pf_statut">—</div></div>
+        <div class="syn-block"><div class="syn-label">Nb personnes foyer</div><div class="syn-val" id="pf_nb">—</div></div>
+        <div class="syn-block"><div class="syn-label">Zone</div><div class="syn-val" id="pf_zone">—</div></div>
+        <div class="syn-block"><div class="syn-label">Revenus mensuels estimés</div><div class="syn-val" id="pf_rev">—</div></div>
+        <div class="syn-block"><div class="syn-label">Revenus annuels estimés</div><div class="syn-val" id="pf_rev_an">—</div></div>
+        <div class="syn-block" style="background:var(--bleu-cl)"><div class="syn-label">Profil MPA'</div><div class="syn-val" id="pf_profil" style="font-size:16px;font-weight:600">—</div></div>
+      </div>
+      <div style="margin-top:10px;padding:10px;background:#fff3cd;border-radius:8px;font-size:12px;color:#856404">
+        ⚠️ Le profil est calculé à partir des revenus mensuels saisis en section 3. Pour un calcul exact, l'ANAH prend en compte les revenus fiscaux de référence (avis d'imposition N-2).
+      </div>
+    </div>
+
+    <!-- TAUX SUBVENTION -->
+    <div class="card" id="tauxCard">
+      <div class="card-title"><span class="ico">💰</span> Taux et plafonds MaPrimeAdapt' 2026</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <div class="syn-block" style="background:#e8f5e9;border-color:#7dcea0">
+          <div class="syn-label">Taux de subvention</div>
+          <div class="syn-val" id="taux_val" style="font-size:22px;font-weight:700;color:var(--vert)">—</div>
+        </div>
+        <div class="syn-block">
+          <div class="syn-label">Plafond travaux subventionnables</div>
+          <div class="syn-val" id="mpa_plafond_txt" style="font-size:15px;font-weight:600">—</div>
+        </div>
+        <div class="syn-block">
+          <div class="syn-label">Forfait AMO pris en charge</div>
+          <div class="syn-val" id="mpa_forfait_txt" style="font-size:15px;font-weight:600">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABLEAU DEVIS -->
+    <div class="card">
+      <div class="card-title"><span class="ico">📄</span> Devis reçus</div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:12px" id="devisTable">
+          <thead>
+            <tr style="background:#1F4E79;color:white">
+              <th style="padding:8px;text-align:left;white-space:nowrap">N°</th>
+              <th style="padding:8px;text-align:left">SIRET</th>
+              <th style="padding:8px;text-align:left">Raison sociale</th>
+              <th style="padding:8px;text-align:left">Type de travaux</th>
+              <th style="padding:8px;text-align:right;white-space:nowrap">Montant HT (€)</th>
+              <th style="padding:8px;text-align:right;white-space:nowrap">Montant TTC (€)</th>
+              <th style="padding:8px;text-align:right;white-space:nowrap">Retenu</th>
+              <th style="padding:8px"></th>
+            </tr>
+          </thead>
+          <tbody id="devisBody"></tbody>
+        </table>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+        <label style="display:inline-flex;align-items:center;gap:8px;background:var(--bleu);color:white;
+          border-radius:8px;padding:10px 16px;cursor:pointer;font-size:13px;font-weight:500;
+          transition:background 0.15s" id="importDevisBtn">
+          📎 Importer un devis PDF (IA)
+          <input type="file" accept=".pdf,image/*" multiple style="display:none" onchange="importDevisPDF(this.files)">
+        </label>
+        <button class="btn btn-secondary" style="width:auto" onclick="addDevisRow()">
+          + Saisie manuelle
+        </button>
+      </div>
+      <!-- Statut extraction IA -->
+      <div id="extractStatus" style="display:none;margin-top:8px;padding:10px 12px;
+        border-radius:8px;font-size:12.5px;font-weight:500"></div>
+    </div>
+
+    <!-- PLAN DE FINANCEMENT -->
+    <div class="card" id="planCard">
+      <div class="card-title"><span class="ico">📊</span> Plan de financement MaPrimeAdapt'</div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:12.5px" id="planTable">
+          <thead>
+            <tr style="background:#2E75B6;color:white">
+              <th style="padding:8px;text-align:left">Poste</th>
+              <th style="padding:8px;text-align:right">Montant HT</th>
+              <th style="padding:8px;text-align:right">Montant TTC</th>
+              <th style="padding:8px;text-align:right">Taux aide</th>
+              <th style="padding:8px;text-align:right">Aide MPA'</th>
+              <th style="padding:8px;text-align:right">Reste à charge</th>
+            </tr>
+          </thead>
+          <tbody id="planBody"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:12px;padding:12px;background:var(--bleu-pl);border-radius:8px" id="planResume"></div>
+    </div>
+
+    <!-- HONORAIRES AMO -->
+    <div class="card">
+      <div class="card-title"><span class="ico">👷</span> Honoraires AMO (EI David MARIE-ANNE)</div>
+      <div class="row3">
+        <div class="field"><label>Honoraires HT (€)</label>
+          <input type="number" id="hono_ht" min="0" placeholder="ex: 800" oninput="D.flds.hono_ht=this.value;sv();calcFinancement()"></div>
+        <div class="field"><label>TVA (%)</label>
+          <select id="hono_tva" oninput="D.flds.hono_tva=this.value;sv();calcFinancement()">
+            <option value="20">20 %</option>
+            <option value="10">10 %</option>
+            <option value="0">0 % (exo.)</option>
+          </select>
+        </div>
+        <div class="field"><label>Prise en charge MPA' (€) <span id="mpa_forfait_max_txt" style="font-size:10px;color:var(--texte2)"></span></label>
+          <input type="number" id="hono_mpa" min="0" oninput="D.flds.hono_mpa=this.value;sv();calcFinancement()"></div>
+      </div>
+      <div style="font-size:11px;color:var(--texte2);margin-top:-6px">
+        MaPrimeAdapt' prend en charge <span id="mpa_forfait_info_txt"></span> de forfait AMO. Le reste est à votre charge.
+      </div>
+    </div>
+
+    <!-- AUTRES AIDES -->
+    <div class="card">
+      <div class="card-title"><span class="ico">🏛️</span> Autres aides complémentaires</div>
+      <div id="autresAidesCont"></div>
+      <button class="btn btn-secondary" style="width:auto;margin-top:8px" onclick="addAutreAide()">+ Ajouter une aide</button>
+      <div style="font-size:11px;color:var(--texte2);margin-top:8px">
+        Ex : aide communale, aide départementale (Loiret), Action Logement, Caf, fondation…
+      </div>
+    </div>
+
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn btn-secondary" onclick="goSec(5)">← Retour</button>
+      <button class="btn btn-success" onclick="expJSON()">⬇ Sauvegarder</button>
+    </div>
+    <button class="btn btn-primary btn-lg" style="margin-top:8px;background:#1E8449" onclick="genPlanFinancement()">
+      📄 Générer le plan de financement (.docx)
+    </button>
+  </div>
+
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<div class="toast" id="toastEl"></div>
+
+<!-- REGLES_ANAH:BEGIN (généré par inject_regles.py, ne pas modifier à la main) -->
+<script>
+// Fichier GÉNÉRÉ par build_regles.py : ne pas modifier à la main.
+// Inclure dans une page avec une balise script dont src vaut regles_anah.js, ou via inject_regles.py.
+// Puis utiliser REGLES_ANAH (données) et RA (fonctions de calcul).
+(function (root) {
+  var REGLES_ANAH = {
+  "meta": {
+    "nom": "Référentiel financier Anah 2026 - MaPrimeAdapt', Ma Prime Logement Décent, MaPrimeRénov'",
+    "version": "2026-10-14",
+    "perimetre": "France métropolitaine, propriétaires occupants (sauf mention contraire)",
+    "regle_d_usage": "Source unique des règles financières pour les agents (devis, facturation, diagnostic MPA, plan de financement). Ne jamais recopier ces valeurs dans un agent : les lire ici. Toute valeur a un champ source ; une valeur sans source ou marquée a_verifier ne doit pas être présentée au client comme certaine."
+  },
+  "sources": {
+    "S1": {
+      "titre": "Circulaire Anah du 1er décembre 2025 relative aux plafonds de ressources applicables en 2026 (NOR VLOL2534404C)",
+      "url": "https://www.bulletin-officiel.developpement-durable.gouv.fr/documents/Bulletinofficiel-0034327/VLOL2534404C.pdf",
+      "nature": "texte officiel",
+      "consulte": "2026-10-14"
+    },
+    "S2": {
+      "titre": "Anah, Les aides financières en 2026, édition septembre 2026",
+      "url": "https://www.hargassner.com/wp-content/uploads/2026/09/guide-aides-financieres-france-septembre-2026.pdf",
+      "nature": "guide officiel Anah, copie hébergée par un tiers (l'original sur anah.gouv.fr n'a pas été consulté)",
+      "consulte": "2026-10-14"
+    },
+    "S3": {
+      "titre": "ANIL, analyse juridique n°2024-08 Ma Prime Logement Décent, à jour au 3 septembre 2026 (délibérations Anah 2026-23 du 26.6.26, 2025-32 du 16.12.25, 2025-06, 2023-51)",
+      "url": "https://www.anil.org/aj-prime-logement-decent/",
+      "nature": "analyse juridique d'un organisme public, cite les délibérations Anah article par article",
+      "consulte": "2026-10-14"
+    },
+    "S4": {
+      "titre": "France Rénov', page Ma Prime Logement Décent (extrait de recherche, page non lue en entier)",
+      "url": "https://france-renov.gouv.fr/aides/ma-prime-logement-decent",
+      "nature": "site officiel, extrait partiel",
+      "consulte": "2026-10-14"
+    },
+    "U1": {
+      "titre": "Échange de David Marie-Anne avec le Conseil départemental du Loiret (Astrid Crevel), tel que rapporté dans une conversation du 8 octobre 2026",
+      "url": null,
+      "nature": "information rapportée par l'utilisateur, non vérifiée sur un texte",
+      "consulte": "2026-10-14"
+    }
+  },
+  "plafonds_ressources": {
+    "annee": 2026,
+    "unite": "euros, revenu fiscal de référence cumulé des personnes du ménage",
+    "source": "S1",
+    "confirme_par": "S2",
+    "ile_de_france": {
+      "tres_modeste": {
+        "1_a_5_personnes": [
+          24031,
+          35270,
+          42357,
+          49455,
+          56580
+        ],
+        "par_personne_supplementaire": 7116
+      },
+      "modeste": {
+        "1_a_5_personnes": [
+          29253,
+          42933,
+          51564,
+          60208,
+          68877
+        ],
+        "par_personne_supplementaire": 8663
+      },
+      "intermediaire": {
+        "1_a_5_personnes": [
+          40851,
+          60051,
+          71846,
+          84562,
+          96817
+        ],
+        "par_personne_supplementaire": 12257
+      }
+    },
+    "hors_ile_de_france": {
+      "tres_modeste": {
+        "1_a_5_personnes": [
+          17363,
+          25393,
+          30540,
+          35676,
+          40835
+        ],
+        "par_personne_supplementaire": 5151
+      },
+      "modeste": {
+        "1_a_5_personnes": [
+          22259,
+          32553,
+          39148,
+          45735,
+          52348
+        ],
+        "par_personne_supplementaire": 6598
+      },
+      "intermediaire": {
+        "1_a_5_personnes": [
+          31185,
+          45842,
+          55196,
+          64550,
+          73907
+        ],
+        "par_personne_supplementaire": 9357
+      }
+    },
+    "note": "Au-dessus du plafond intermédiaire : revenus supérieurs. MaPrimeAdapt' et Ma Prime Logement Décent ne concernent que très modestes et modestes. Le Loiret est hors Île-de-France."
+  },
+  "mpa": {
+    "nom": "MaPrimeAdapt'",
+    "source": "S2",
+    "taux": {
+      "tres_modeste": 0.7,
+      "modeste": 0.5
+    },
+    "plafond_travaux_ht": 22000,
+    "aide_maximale": {
+      "tres_modeste": 15400,
+      "modeste": 11000
+    },
+    "eligibilite_personne": [
+      "70 ans ou plus",
+      "60 à 69 ans sous condition de GIR",
+      "situation de handicap avec taux d'incapacité d'au moins 50 % ou bénéficiaire de la PCH"
+    ],
+    "reliquat": "Si le plafond de 22 000 € HT n'a pas été atteint, une deuxième demande est possible dans les 5 ans, dans la limite du plafond restant.",
+    "travaux_induits": "Les travaux induits sont éligibles s'ils figurent clairement dans le diagnostic logement autonomie (exemple : carrelage lié à une douche de plain-pied), dans la limite du plafond.",
+    "exclusions": [
+      "équipements non attachés à perpétuelle demeure",
+      "installations entraînant un abonnement mensuel (exemple : visiophone connecté)"
+    ],
+    "amo": {
+      "obligatoire": true,
+      "forfait_complet_ttc": 600,
+      "forfait_complet_avec_ergotherapeute_ttc": 800,
+      "pris_en_charge_par": "Anah en secteur diffus ; 100 % collectivité en opération programmée",
+      "socle": "Supprimé : plus possible de proposer un accompagnement socle depuis le 1er janvier 2026",
+      "source": "S2"
+    },
+    "avance": {
+      "max_part_de_l_aide": 0.3,
+      "conditions": [
+        "demandée avant le début des travaux",
+        "devis signé d'une entreprise exigeant un acompte",
+        "pas d'avance si mandataire financier"
+      ],
+      "source": "S2"
+    },
+    "cumul": "Peut être couplée avec les autres aides de l'Anah ; les plafonds de travaux sont alors dissociés (S2). Cumulable avec APA, PCH, AEEH, AAH, aides des collectivités et caisses de retraite (S2).",
+    "tva_travaux_adaptation": {
+      "taux": 0.1,
+      "source": "S2",
+      "note": "Taux réduit de 10 % pour les travaux d'amélioration dans un logement achevé depuis plus de 2 ans ; 5,5 % réservé à la rénovation énergétique listée."
+    }
+  },
+  "mpld": {
+    "nom": "Ma Prime Logement Décent",
+    "source": "S3",
+    "beneficiaires": "Propriétaires occupants très modestes et modestes (ou personnes assurant la charge effective des travaux pour un ascendant/descendant propriétaire occupant)",
+    "taux_et_plafonds": {
+      "classe_E_atteinte": {
+        "tres_modeste": 0.8,
+        "modeste": 0.6,
+        "plafond_travaux_ht": 70000
+      },
+      "classe_E_non_atteinte": {
+        "tres_modeste": 0.5,
+        "modeste": 0.5,
+        "plafond_travaux_ht": 50000
+      },
+      "source": "S3 (délibération 2026-23 art. 5.1.1, 5.1.2, 5.1.3, 6.1)"
+    },
+    "bonification_sortie_passoire": {
+      "condition": "Logement passant de F ou G à D ou mieux après travaux",
+      "taux": {
+        "tres_modeste": 0.9,
+        "modeste": 0.7
+      },
+      "source": "S3 (délibération 2026-23 art. 5.2) ; S4 indique +10 points"
+    },
+    "ecretement_ttc": {
+      "tres_modeste": 1.0,
+      "modeste": 0.9,
+      "source": "S4",
+      "a_verifier": true
+    },
+    "hors_plafond_de_travaux": [
+      "Maîtrise d'œuvre et autres prestations intellectuelles subventionnables (SPS, diagnostics techniques) : prises en compte dans la dépense subventionnée, hors plafond de travaux, au prorata des travaux subventionnés",
+      "Missions d'AMO donnant lieu à subvention complémentaire : hors plafonds de travaux"
+    ],
+    "amo_complement_subvention": {
+      "indissociable_de_l_aide_principale": true,
+      "versement": "subordonné à l'achèvement des travaux",
+      "habitat_indigne_ou_degrade_seul_ttc_par_logement": 2000,
+      "habitat_indigne_ou_degrade_plus_renovation_energetique_ttc_par_logement": 4000,
+      "prime_reservation_publics_prioritaires": 520,
+      "prestataire": "Mission de maîtrise d'œuvre complète, OU prestation d'AMO par un organisme agréé (L.365-3 CCH) ou habilité par l'Anah. Assurance RC pro et indépendance vis-à-vis de l'exécution des travaux exigées.",
+      "source": "S3 (délibération 2025-32)"
+    },
+    "conditions": [
+      "occupation du logement pendant au moins 3 ans",
+      "valorisation des CEE réservée à l'Anah le cas échéant",
+      "audit énergétique indiquant la classe avant et après travaux",
+      "accompagnement obligatoire (MOE complète ou AMO)"
+    ],
+    "travaux_renovation_energetique_eligibles": [
+      "isolation des murs",
+      "isolation des planchers bas",
+      "isolation de la toiture",
+      "menuiseries extérieures",
+      "ventilation",
+      "production de chauffage ou d'eau chaude"
+    ],
+    "cumul": {
+      "avec_mpa": "Les plafonds de travaux MPLD et MPA se cumulent (S3).",
+      "interdit_pour_memes_travaux": [
+        "MaPrimeRénov'",
+        "crédit d'impôt autonomie"
+      ],
+      "nouvelle_demande_sous_5_ans": "Possible dans la limite du reliquat du plafond le plus élevé (S3)."
+    },
+    "mandataire_financier": "Un mandataire financier ne peut pas percevoir d'avance, sauf pour les propriétaires occupants modestes et très modestes au titre de MPLD (S2)."
+  },
+  "mpr_ampleur": {
+    "nom": "MaPrimeRénov' rénovation d'ampleur (parcours accompagné)",
+    "source": "S2",
+    "taux": {
+      "tres_modeste": 0.8,
+      "modeste": 0.6,
+      "intermediaire": 0.45,
+      "superieur": 0.1
+    },
+    "plafond_travaux_ht": {
+      "gain_2_classes": 30000,
+      "gain_3_classes_ou_plus": 40000
+    },
+    "ecretement_ttc": {
+      "tres_modeste": 1.0,
+      "modeste": 0.9,
+      "intermediaire": 0.8,
+      "superieur": 0.5
+    },
+    "conditions": [
+      "logement construit depuis au moins 15 ans, classé E, F ou G avant travaux, résidence principale (8 mois par an)",
+      "gain d'au moins 2 classes sur l'audit énergétique",
+      "au moins 2 gestes d'isolation",
+      "Mon Accompagnateur Rénov' obligatoire",
+      "à partir du 1er septembre 2026 : plus de chauffage ou ECS au gaz ou fioul en maison individuelle"
+    ],
+    "cumul": "Non cumulable avec les CEE. Cumulable avec les aides des collectivités et caisses de retraite, dans la limite de l'écrêtement.",
+    "avance": {
+      "max_part_de_l_aide": 0.3,
+      "pour": "propriétaires occupants modestes et très modestes",
+      "delai": "demandée avant le début des travaux et dans les 6 mois après l'accord",
+      "source": "S2"
+    }
+  },
+  "mpr_geste": {
+    "nom": "MaPrimeRénov' par geste",
+    "source": "S2",
+    "reserve_a": "ménages très modestes, modestes, intermédiaires",
+    "forfaits_depuis_1er_septembre_2026": "Recentrés sur les pompes à chaleur ; les forfaits isolation, ventilation et autres systèmes de chauffage ne sont plus disponibles (hors réseau de chaleur).",
+    "forfaits": {
+      "pac_air_eau": {
+        "tres_modeste": 5000,
+        "modeste": 4000,
+        "intermediaire": 3000,
+        "plafond_depense": 12000
+      },
+      "pac_geothermique_ou_solaire": {
+        "tres_modeste": 11000,
+        "modeste": 9000,
+        "intermediaire": 6000,
+        "plafond_depense": 18000
+      },
+      "reseau_de_chaleur": {
+        "tres_modeste": 1200,
+        "modeste": 800,
+        "intermediaire": 400,
+        "plafond_depense": 1800
+      },
+      "audit_hors_obligation": {
+        "tres_modeste": 500,
+        "modeste": 400,
+        "intermediaire": 300,
+        "plafond_depense": 800
+      },
+      "depose_cuve_fioul": {
+        "tres_modeste": 1200,
+        "modeste": 800,
+        "intermediaire": 400,
+        "plafond_depense": 4000
+      }
+    },
+    "ecretement_avec_cee": {
+      "tres_modeste": 0.9,
+      "modeste": 0.75,
+      "intermediaire": 0.6
+    },
+    "ecretement_toutes_aides": 1.0,
+    "plafond_cumule_sur_5_ans": 20000,
+    "avance": {
+      "max_part_de_l_aide": 0.5,
+      "pour": "ménages très modestes"
+    }
+  },
+  "mar": {
+    "nom": "Mon Accompagnateur Rénov' - prise en charge de la prestation (rénovation d'ampleur)",
+    "source": "S2",
+    "plafond_prestation_ttc": 2000,
+    "plafond_prestation_renforcee_ttc": 4000,
+    "plafond_renforce_condition": "Prestation renforcée pour traiter en plus une situation d'habitat indigne",
+    "taux_de_prise_en_charge": {
+      "tres_modeste": 1.0,
+      "modeste": 0.8,
+      "intermediaire": 0.4,
+      "superieur": 0.2
+    },
+    "interdit": "L'accompagnateur ne peut pas réaliser les travaux ; neutralité exigée sur le choix des travaux et des entreprises"
+  },
+  "tva": {
+    "source": "S2",
+    "taux_reduit_10": "Travaux d'amélioration, transformation, aménagement, entretien dans un logement achevé depuis plus de 2 ans",
+    "taux_reduit_5_5": "Prestations de rénovation énergétique listées (isolation, chauffage, ventilation, eau chaude) ; PAC air-air à 5,5 % depuis le 1er septembre 2026",
+    "taux_20": "Chaudière susceptible d'utiliser des combustibles fossiles (dont gaz)"
+  },
+  "aides_locales": [
+    {
+      "nom": "Conseil départemental du Loiret - aide propre à l'autonomie adossée à MaPrimeAdapt'",
+      "regle": "Majoration de 20 % plafonnée à 2 000 € pour les ménages très modestes, 10 % plafonnée à 1 500 € pour les modestes. Adoptée le 10 juillet 2026. Les dossiers déjà validés ne peuvent pas la réclamer rétroactivement.",
+      "source": "U1",
+      "a_verifier": true
+    }
+  ],
+  "points_a_verifier": [
+    "Année de l'avis d'imposition à retenir pour le revenu fiscal de référence (N-1 ou N-2) : non précisée dans les extraits lus du guide Anah, et les sources secondaires se contredisent. À confirmer sur le guide original ou auprès de la délégation.",
+    "Ma Prime Logement Décent, avance et acomptes : le pourcentage n'a pas été trouvé dans les sources lues. Les 30 % d'avance puis acomptes jusqu'à 70 % évoqués dans une conversation précédente ne sont pas confirmés ici.",
+    "Ma Prime Logement Décent, MOE complète et complément AMO : selon l'ANIL, l'accompagnement obligatoire repose sur une MOE complète OU une AMO. Si la MOE complète ouvre aussi droit au complément AMO de 2 000 à 4 000 € TTC, le texte lu ne le dit pas clairement. À confirmer par écrit auprès de la délégation Anah.",
+    "Ma Prime Logement Décent, honoraires de MOE : la source lue (ANIL, délibération 2026-23) les place hors plafond de travaux, au prorata des travaux subventionnés. Cela répond à la question laissée ouverte sur le dossier de Villemandeur, mais la formule exacte du prorata doit être confirmée.",
+    "Ma Prime Logement Décent, écrêtement 100 % / 90 % TTC : relevé dans un extrait partiel de France Rénov', pas dans le texte de la délibération.",
+    "Seuil minimal de 1 000 € HT de travaux subventionnables : mentionné sur la page ANIL de MPLD mais avec le sigle MPA. À confirmer pour chaque dispositif.",
+    "Cumul MaPrimeAdapt' avec MaPrimeRénov' parcours accompagné : le guide Anah dit que les plafonds de travaux sont dissociés ; un site tiers affirme qu'ils ne sont pas cumulables. Le guide Anah prévaut, à vérifier sur un cas concret.",
+    "Prise en charge de Mon Accompagnateur Rénov' : le guide parle d'un plafond de financement de 2 000 € TTC avec un taux par catégorie, sans préciser si le plafond porte sur le prix de la prestation ou sur l'aide. Pour une catégorie modeste, les deux lectures donnent des montants différents (1 600 € ou 2 000 € au maximum) : la fonction de calcul renvoie les deux.",
+    "Le guide Anah de septembre 2026 a été lu via une copie hébergée par un tiers. Contrôler les valeurs critiques sur anah.gouv.fr avant de les graver dans un contrat ou un devis.",
+    "Les forfaits MPR par geste sont ceux du guide de septembre 2026 ; ils changent souvent, à relire à chaque nouvelle édition."
+  ]
+};
+
+  // ---- Fonctions de calcul (utilisent uniquement REGLES_ANAH, aucune valeur en dur) ----
+  var R = REGLES_ANAH;
+
+  function arrondi(x) { return Math.round(x * 100) / 100; }
+
+  // Plafond de ressources pour une catégorie, une taille de ménage et une zone.
+  function plafondRessources(categorie, personnes, idf) {
+    var zone = idf ? R.plafonds_ressources.ile_de_france : R.plafonds_ressources.hors_ile_de_france;
+    var t = zone[categorie];
+    var n = Math.max(1, Math.floor(personnes));
+    var base = t["1_a_5_personnes"];
+    if (n <= 5) return base[n - 1];
+    return base[4] + (n - 5) * t.par_personne_supplementaire;
+  }
+
+  // rfr = somme des revenus fiscaux de référence des personnes du ménage.
+  // L'année de l'avis d'imposition à retenir est à vérifier (voir points_a_verifier).
+  function categorieMenage(personnes, rfr, idf) {
+    var ordre = ["tres_modeste", "modeste", "intermediaire"];
+    for (var i = 0; i < ordre.length; i++) {
+      if (rfr <= plafondRessources(ordre[i], personnes, idf)) return ordre[i];
+    }
+    return "superieur";
+  }
+
+  // MaPrimeAdapt' : taux x travaux HT plafonnés.
+  function aideMPA(travauxHT, categorie) {
+    var taux = R.mpa.taux[categorie];
+    if (taux === undefined) {
+      return { eligible: false, subvention: 0, raison: "MaPrimeAdapt' est réservée aux ménages très modestes et modestes." };
+    }
+    var base = Math.min(travauxHT, R.mpa.plafond_travaux_ht);
+    return {
+      eligible: true,
+      taux: taux,
+      base_subventionnable_ht: arrondi(base),
+      depasse_plafond: travauxHT > R.mpa.plafond_travaux_ht,
+      subvention: arrondi(base * taux),
+      reste_a_charge_ht: arrondi(travauxHT - base * taux)
+    };
+  }
+
+  // Forfait AMO MaPrimeAdapt' (secteur diffus), TTC.
+  function forfaitAmoMPA(avecErgotherapeute) {
+    return avecErgotherapeute ? R.mpa.amo.forfait_complet_avec_ergotherapeute_ttc : R.mpa.amo.forfait_complet_ttc;
+  }
+
+  // Ma Prime Logement Décent.
+  // classeAvant, classeApres : lettres "A" à "G" (classeAvant sert à la bonification passoire).
+  function aideMPLD(travauxHT, categorie, classeAvant, classeApres) {
+    if (categorie !== "tres_modeste" && categorie !== "modeste") {
+      return { eligible: false, subvention: 0, raison: "Ma Prime Logement Décent est réservée aux propriétaires occupants très modestes et modestes." };
+    }
+    var ordreClasses = "ABCDEFG";
+    var apres = ordreClasses.indexOf(String(classeApres).toUpperCase());
+    var avant = ordreClasses.indexOf(String(classeAvant).toUpperCase());
+    var eAtteinte = apres >= 0 && apres <= ordreClasses.indexOf("E");
+    var bloc = eAtteinte ? R.mpld.taux_et_plafonds.classe_E_atteinte : R.mpld.taux_et_plafonds.classe_E_non_atteinte;
+    var taux = bloc[categorie];
+    var bonifie = false;
+    if (avant >= ordreClasses.indexOf("F") && apres >= 0 && apres <= ordreClasses.indexOf("D")) {
+      taux = R.mpld.bonification_sortie_passoire.taux[categorie];
+      bonifie = true;
+    }
+    var base = Math.min(travauxHT, bloc.plafond_travaux_ht);
+    return {
+      eligible: true,
+      classe_E_atteinte: eAtteinte,
+      bonification_passoire: bonifie,
+      taux: taux,
+      plafond_travaux_ht: bloc.plafond_travaux_ht,
+      base_subventionnable_ht: arrondi(base),
+      depasse_plafond: travauxHT > bloc.plafond_travaux_ht,
+      subvention: arrondi(base * taux),
+      note: "Honoraires de MOE et prestations intellectuelles : hors plafond au prorata (formule à confirmer), non inclus dans ce calcul."
+    };
+  }
+
+  // Complément de subvention AMO pour MPLD (montant maximal, TTC par logement).
+  function plafondAmoMPLD(avecRenovationEnergetique) {
+    var a = R.mpld.amo_complement_subvention;
+    return avecRenovationEnergetique
+      ? a.habitat_indigne_ou_degrade_plus_renovation_energetique_ttc_par_logement
+      : a.habitat_indigne_ou_degrade_seul_ttc_par_logement;
+  }
+
+  // MaPrimeRénov' rénovation d'ampleur, avec écrêtement si travauxTTC est fourni.
+  // autresAides : somme des autres aides perçues pour les mêmes travaux (collectivités, caisse de retraite...).
+  function aideMPRAmpleur(travauxHT, categorie, gainClasses, travauxTTC, autresAides) {
+    var a = R.mpr_ampleur;
+    var plafond = gainClasses >= 3 ? a.plafond_travaux_ht.gain_3_classes_ou_plus
+                : gainClasses === 2 ? a.plafond_travaux_ht.gain_2_classes : null;
+    if (plafond === null) {
+      return { eligible: false, subvention: 0, raison: "Gain de 2 classes minimum requis." };
+    }
+    var taux = a.taux[categorie];
+    var base = Math.min(travauxHT, plafond);
+    var aide = base * taux;
+    var ecretee = false;
+    if (typeof travauxTTC === "number") {
+      var limite = a.ecretement_ttc[categorie] * travauxTTC - (autresAides || 0);
+      var plafonnee = Math.max(0, limite);
+      if (plafonnee < aide) { aide = plafonnee; ecretee = true; }
+    }
+    return {
+      eligible: true,
+      taux: taux,
+      plafond_travaux_ht: plafond,
+      base_subventionnable_ht: arrondi(base),
+      ecretee: ecretee,
+      subvention: arrondi(aide)
+    };
+  }
+
+  // Prise en charge de la prestation Mon Accompagnateur Rénov'.
+  // L'Anah indique un "plafond de financement de 2 000 € TTC" avec un taux par catégorie : le texte ne dit pas
+  // si le plafond porte sur le prix de la prestation ou sur l'aide. On renvoie les deux lectures.
+  function priseEnChargeMAR(prixPrestationTTC, categorie, renforcee) {
+    var m = R.mar;
+    var plafond = renforcee ? m.plafond_prestation_renforcee_ttc : m.plafond_prestation_ttc;
+    var taux = m.taux_de_prise_en_charge[categorie];
+    return {
+      taux: taux,
+      plafond_ttc: plafond,
+      si_plafond_sur_le_prix: arrondi(taux * Math.min(prixPrestationTTC, plafond)),
+      si_plafond_sur_l_aide: arrondi(Math.min(taux * prixPrestationTTC, plafond)),
+      a_verifier: true
+    };
+  }
+
+  var RA = {
+    plafondRessources: plafondRessources,
+    categorieMenage: categorieMenage,
+    aideMPA: aideMPA,
+    forfaitAmoMPA: forfaitAmoMPA,
+    aideMPLD: aideMPLD,
+    plafondAmoMPLD: plafondAmoMPLD,
+    aideMPRAmpleur: aideMPRAmpleur,
+    priseEnChargeMAR: priseEnChargeMAR
+  };
+
+  root.REGLES_ANAH = REGLES_ANAH;
+  root.RA = RA;
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { REGLES_ANAH: REGLES_ANAH, RA: RA };
+  }
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+<!-- REGLES_ANAH:END -->
+<script>
+
+const PIECES=['Cheminement extérieur','Parties communes','Garage / stationnement',
+  'Entrée','Salon','Salle à manger','Salle de bain','Sanitaires',
+  'Chambre 1 (usager)','Chambre 2','Cuisine','Escalier','Couloirs','Autre'];
+const API = 'http://localhost:5052';
+
+let D = loadD();
+let serverOK = false;
+let PHOTOS_PWA = loadPhotos();
+
+function loadPhotos(){
+  try {
+    const s = localStorage.getItem('dmaai_mpa_photos');
+    return s ? JSON.parse(s) : {};
+  } catch(e) { return {}; }
+}
+
+function savePhotos(){
+  try {
+    localStorage.setItem('dmaai_mpa_photos', JSON.stringify(PHOTOS_PWA));
+  } catch(e) {
+    // localStorage plein — compresser et réessayer
+    console.warn('localStorage plein, compression photos...');
+    compressAndSavePhotos();
+  }
+}
+
+function compressAndSavePhotos(){
+  // Réduire chaque photo à max 800px et qualité 0.6
+  const keys = Object.keys(PHOTOS_PWA);
+  let idx = 0;
+  function processNext(){
+    if(idx >= keys.length){ 
+      try { localStorage.setItem('dmaai_mpa_photos', JSON.stringify(PHOTOS_PWA)); } catch(e){}
+      return;
+    }
+    const key = keys[idx++];
+    const photos = PHOTOS_PWA[key] || [];
+    let pi = 0;
+    function processPhoto(){
+      if(pi >= photos.length){ processNext(); return; }
+      const ph = photos[pi++];
+      if(!ph.data || ph.data.length < 50000){ processPhoto(); return; }
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const max = 800;
+        let w = img.width, h = img.height;
+        if(w > max || h > max){
+          if(w > h){ h = Math.round(h * max/w); w = max; }
+          else { w = Math.round(w * max/h); h = max; }
+        }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        ph.data = canvas.toDataURL('image/jpeg', 0.6);
+        processPhoto();
+      };
+      img.src = ph.data;
+    }
+    processPhoto();
+  }
+  processNext();
+}
+
+function loadD(){
+  try{ const s=localStorage.getItem('dmaai_mpa_agent'); return s?JSON.parse(s):initD(); }
+  catch{ return initD(); }
+}
+function initD(){
+  const d={flds:{},chk:{},rad:{},pieces:{},trav:{},devis:[],autres_aides:[]};
+  PIECES.forEach(p=>{
+    d.pieces[p]={st:'',circ:'',equip:'',etg:'',rem:''};
+    d.trav[p]={prio:'',sol:'',ret:''};
+  });
+  return d;
+}
+function sv(){
+  document.querySelectorAll('input:not([type=file]),textarea,select').forEach(el=>{
+    if(el.id) D.flds[el.id]=el.value;
+  });
+  localStorage.setItem('dmaai_mpa_agent',JSON.stringify(D));
+}
+function restore(){
+  Object.entries(D.flds||{}).forEach(([k,v])=>{
+    const el=document.getElementById(k);
+    if(el&&!['file','checkbox','radio'].includes(el.type))el.value=v;
+  });
+  document.querySelectorAll('.chip').forEach(el=>{
+    const k=el.dataset.k,v=el.dataset.v;
+    if((D.chk[k]||[]).includes(v)) el.classList.add('on');
+  });
+  document.querySelectorAll('.rdio').forEach(el=>{
+    const k=el.dataset.k,v=el.dataset.v;
+    if(D.rad[k]===v)el.classList.add('on');
+  });
+}
+
+// NAV
+function goSec(n){
+  sv();
+  document.querySelectorAll('.section').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('[id^="ni"]').forEach((t,i)=>t.classList.toggle('active',i===n));
+  document.getElementById('progFill').style.width=((n+1)/7*100)+'%';
+  document.getElementById('progText').textContent=`${n+1} / 7 sections`;
+  window.scrollTo(0,0);
+  if(n===3){buildEDL(); setTimeout(refreshAllPhotoGrids,30);}
+  if(n===4){buildTrav(); setTimeout(refreshAllPhotoGrids,30);}
+  if(n===5)buildSyn();
+  if(n===6){buildDevis(); calcProfil(); calcFinancement(); setTimeout(renderAutresAides,50);}
+  calcRAV();
+}
+
+// CONTROLS
+function tChip(el){
+  const btn = el.closest('.chip') || el;
+  const k=btn.dataset.k, v=btn.dataset.v;
+  if(!k || !v) return;
+  btn.classList.toggle('on');
+  const on=btn.classList.contains('on');
+  if(!D.chk[k])D.chk[k]=[];
+  if(on){if(!D.chk[k].includes(v))D.chk[k].push(v);}
+  else D.chk[k]=D.chk[k].filter(x=>x!==v);
+  sv();
+}
+function tRdio(el){
+  const btn = el.closest('.rdio') || el;
+  const k=btn.dataset.k, v=btn.dataset.v;
+  if(!k || !v) return;
+  btn.closest('.radios').querySelectorAll('.rdio').forEach(r=>r.classList.remove('on'));
+  btn.classList.add('on');
+  D.rad[k]=v; sv();
+}
+
+// ÉTAT DES LIEUX
+function buildEDL(){
+  const c=document.getElementById('edlCont'); c.innerHTML='';
+  PIECES.forEach((p,i)=>{
+    const pd=D.pieces[p]||{};
+    const statLabel=pd.st==='ok'?'Adapté':pd.st==='nok'?'Non adapté':'';
+    const statClass=pd.st==='ok'?'badge-ok':pd.st==='nok'?'badge-nok':'';
+    const div=document.createElement('div'); div.className='piece-card';
+    div.innerHTML=`
+      <div class="piece-head" onclick="togP(${i})">
+        <span class="piece-name">${p}</span>
+        <span class="piece-meta">
+          ${statLabel?`<span class="badge-statut ${statClass}">${statLabel}</span>`:''}
+          <span class="ptog" id="ptog${i}">▼</span>
+        </span>
+      </div>
+      <div class="piece-body" id="pb${i}">
+        <div class="lbl" style="margin-bottom:6px">Statut d'adaptation</div>
+        <div class="stat-btns">
+          <button class="stat-btn ${pd.st==='ok'?'ok':''}" onclick="setPS('${p}','ok',this)">✅ Adapté</button>
+          <button class="stat-btn ${pd.st==='nok'?'nok':''}" onclick="setPS('${p}','nok',this)">⚠️ Non adapté</button>
+        </div>
+        <div class="divider"></div>
+        <div class="lbl">Problèmes de circulation (si non adapté)</div>
+        <textarea rows="2" placeholder="Dimensions insuffisantes, sol non plane, obstacles, risque glisse…" oninput="D.pieces['${p}'].circ=this.value;sv()" style="width:100%;margin-bottom:10px">${pd.circ||''}</textarea>
+        <div class="lbl">Problèmes d'équipements (si non adapté)</div>
+        <textarea rows="2" placeholder="Éclairage, sanitaires non adaptés, commandes inaccessibles…" oninput="D.pieces['${p}'].equip=this.value;sv()" style="width:100%;margin-bottom:10px">${pd.equip||''}</textarea>
+        <div class="divider"></div>
+        <div class="lbl" style="margin-bottom:6px">Étage</div>
+        <div class="etages" style="margin-bottom:10px">
+          ${['RDC','1er','2ème','3ème'].map(e=>`<button class="etg-btn ${pd.etg===e?'on':''}" onclick="setPE('${p}','${e}',this)">${e}</button>`).join('')}
+        </div>
+        <div class="lbl">Remarques sur l'état général de la pièce</div>
+        <textarea rows="2" placeholder="Murs, sols, plomberie, ventilation, chauffage…" oninput="D.pieces['${p}'].rem=this.value;sv()" style="width:100%;margin-bottom:10px">${pd.rem||''}</textarea>
+        <div class="divider"></div>
+        <div class="photo-zone">
+          <div class="lbl">Photos de la pièce <span class="photo-count-badge" id="photoCnt${i}" style="display:none"></span></div>
+          <label class="photo-add-btn">
+            📷 Ajouter des photos
+            <input type="file" accept="image/*" multiple style="display:none" onchange="addPiecePhotos(${i}, this.files)">
+          </label>
+          <div class="photo-grid-pc" id="photoGrid${i}"></div>
+        </div>
+      </div>`;
+    c.appendChild(div);
+  });
+}
+function togP(i){
+  const b=document.getElementById('pb'+i),t=document.getElementById('ptog'+i);
+  const o=b.classList.toggle('open'); t.classList.toggle('open',o);
+}
+function setPS(p,v,btn){
+  btn.closest('.stat-btns').querySelectorAll('.stat-btn').forEach(b=>b.className='stat-btn');
+  btn.classList.add(v==='ok'?'ok':'nok');
+  D.pieces[p].st=v; sv();
+  // Mettre à jour le badge statut SANS reconstruire tout le DOM
+  const i = PIECES.indexOf(p);
+  const head = document.getElementById('pb'+i)?.closest('.piece-card')?.querySelector('.piece-meta');
+  if(head){
+    const existing = head.querySelector('.badge-statut');
+    if(existing) existing.remove();
+    const badge = document.createElement('span');
+    badge.className = 'badge-statut ' + (v==='ok'?'badge-ok':'badge-nok');
+    badge.textContent = v==='ok'?'Adapté':'Non adapté';
+    head.insertBefore(badge, head.querySelector('.ptog'));
+  }
+}
+function setPE(p,v,btn){
+  btn.closest('.etages').querySelectorAll('.etg-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); D.pieces[p].etg=v; sv();
+}
+
+// TRAVAUX
+function buildTrav(){
+  const c=document.getElementById('travCont'); c.innerHTML='';
+  PIECES.forEach((p,i)=>{
+    const td=D.trav[p]||{};
+    const div=document.createElement('div'); div.className='piece-card';
+    div.innerHTML=`
+      <div class="piece-head" onclick="togT(${i})">
+        <span class="piece-name">${p}</span>
+        <span class="piece-meta">
+          ${td.prio?`<span class="badge-statut ${td.prio==='Haute'?'badge-nok':td.prio==='Basse'?'badge-ok':'badge-statut'}" style="${td.prio==='Moyenne'?'background:#fef3e2;color:var(--orange)':''}">${td.prio}</span>`:''}
+          <span class="ptog" id="ttog${i}">▼</span>
+        </span>
+      </div>
+      <div class="piece-body" id="tb${i}">
+        <div class="lbl" style="margin-bottom:6px">Priorité des travaux</div>
+        <div class="prio-btns">
+          <button class="prio-btn h ${td.prio==='Haute'?'on':''}" onclick="setTP('${p}','Haute',this)">Haute</button>
+          <button class="prio-btn m ${td.prio==='Moyenne'?'on':''}" onclick="setTP('${p}','Moyenne',this)">Moyenne</button>
+          <button class="prio-btn b ${td.prio==='Basse'?'on':''}" onclick="setTP('${p}','Basse',this)">Basse</button>
+        </div>
+        <div class="lbl" style="margin-top:10px">Solutions proposées par l'AMO</div>
+        <textarea rows="3" placeholder="Travaux préconisés — nomenclature SEL si possible…" oninput="D.trav['${p}'].sol=this.value;sv()" style="width:100%;margin-bottom:8px">${td.sol||''}</textarea>
+        <div class="lbl">Solutions retenues par le demandeur</div>
+        <textarea rows="2" placeholder="Travaux validés, observations…" oninput="D.trav['${p}'].ret=this.value;sv()" style="width:100%;margin-bottom:10px">${td.ret||''}</textarea>
+        <div class="divider"></div>
+        <div class="photo-zone">
+          <div class="lbl">Photos avant travaux <span class="photo-count-badge" id="travPhotoCnt${i}" style="display:none"></span></div>
+          <label class="photo-add-btn">
+            📷 Ajouter des photos
+            <input type="file" accept="image/*" multiple style="display:none" onchange="addPiecePhotos(${i}, this.files)">
+          </label>
+          <div class="photo-grid-pc" id="travPhotoGrid${i}"></div>
+        </div>
+      </div>`;
+    c.appendChild(div);
+  });
+}
+function togT(i){
+  const b=document.getElementById('tb'+i),t=document.getElementById('ttog'+i);
+  const o=b.classList.toggle('open'); t.classList.toggle('open',o);
+}
+
+// ── GESTION PHOTOS PC ────────────────────────────────────────────────────────
+function compressImage(file, maxPx, quality){
+  return new Promise((res) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height;
+        if(w > maxPx || h > maxPx){
+          if(w > h){ h = Math.round(h * maxPx/w); w = maxPx; }
+          else { w = Math.round(w * maxPx/h); h = maxPx; }
+        }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        res({ name: file.name, data: canvas.toDataURL('image/jpeg', quality) });
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function addPiecePhotos(idx, files) {
+  const key = 'piece_' + idx;
+  if (!PHOTOS_PWA[key]) PHOTOS_PWA[key] = [];
+  const promises = Array.from(files).map(file => compressImage(file, 1200, 0.75));
+  Promise.all(promises).then(compressed => {
+    compressed.forEach(ph => PHOTOS_PWA[key].push(ph));
+    savePhotos();
+    renderPiecePhotos(idx);
+    renderTravPhotos(idx);
+  });
+}
+
+function renderPiecePhotos(idx) {
+  const key = 'piece_' + idx;
+  const photos = PHOTOS_PWA[key] || [];
+  const grid = document.getElementById('photoGrid' + idx);
+  const cnt  = document.getElementById('photoCnt' + idx);
+  if (!grid) return;
+  grid.innerHTML = '';
+  photos.forEach((ph, pi) => {
+    const div = document.createElement('div');
+    div.className = 'photo-thumb-pc';
+    div.innerHTML = `<img src="${ph.data}" alt="${ph.name}">
+      <button class="photo-del" onclick="delPiecePhoto(${idx},${pi})" title="Supprimer">×</button>`;
+    grid.appendChild(div);
+  });
+  if (cnt) {
+    cnt.textContent = photos.length;
+    cnt.style.display = photos.length ? 'inline-block' : 'none';
+  }
+}
+
+function renderTravPhotos(idx) {
+  const key = 'piece_' + idx;
+  const photos = PHOTOS_PWA[key] || [];
+  const grid = document.getElementById('travPhotoGrid' + idx);
+  const cnt  = document.getElementById('travPhotoCnt' + idx);
+  if (!grid) return;
+  grid.innerHTML = '';
+  photos.forEach((ph, pi) => {
+    const div = document.createElement('div');
+    div.className = 'photo-thumb-pc';
+    div.innerHTML = `<img src="${ph.data}" alt="${ph.name}">
+      <button class="photo-del" onclick="delPiecePhoto(${idx},${pi})" title="Supprimer">×</button>`;
+    grid.appendChild(div);
+  });
+  if (cnt) {
+    cnt.textContent = photos.length;
+    cnt.style.display = photos.length ? 'inline-block' : 'none';
+  }
+}
+
+function delPiecePhoto(idx, pi) {
+  const key = 'piece_' + idx;
+  if (PHOTOS_PWA[key]) {
+    PHOTOS_PWA[key].splice(pi, 1);
+    savePhotos();
+    renderPiecePhotos(idx);
+    renderTravPhotos(idx);
+  }
+}
+
+function refreshAllPhotoGrids() {
+  PIECES.forEach((p, i) => {
+    renderPiecePhotos(i);
+    renderTravPhotos(i);
+  });
+  renderExtPhotos();
+}
+
+// Photos extérieures
+function addExtPhotos(files) {
+  if (!PHOTOS_PWA['ext']) PHOTOS_PWA['ext'] = [];
+  const promises = Array.from(files).map(file => compressImage(file, 1200, 0.75));
+  Promise.all(promises).then(compressed => {
+    compressed.forEach(ph => PHOTOS_PWA['ext'].push(ph));
+    savePhotos();
+    renderExtPhotos();
+  });
+}
+
+function renderExtPhotos() {
+  const photos = PHOTOS_PWA['ext'] || [];
+  const grid = document.getElementById('photoGridExt');
+  if (!grid) return;
+  grid.innerHTML = '';
+  photos.forEach((ph, pi) => {
+    const div = document.createElement('div');
+    div.className = 'photo-thumb-pc';
+    div.innerHTML = `<img src="${ph.data}" alt="${ph.name}">
+      <button class="photo-del" onclick="delExtPhoto(${pi})" title="Supprimer">×</button>`;
+    grid.appendChild(div);
+  });
+}
+
+function delExtPhoto(pi) {
+  if (PHOTOS_PWA['ext']) {
+    PHOTOS_PWA['ext'].splice(pi, 1);
+    savePhotos();
+    renderExtPhotos();
+  }
+}
+function setTP(p,v,btn){
+  btn.closest('.prio-btns').querySelectorAll('.prio-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); D.trav[p].prio=v; sv();
+}
+
+// RÈGLES ANAH : valeurs lues dans le référentiel partagé (bloc REGLES_ANAH injecté plus haut), aucune valeur en dur
+const REGLES_OK = (typeof RA !== 'undefined' && typeof REGLES_ANAH !== 'undefined');
+const MPA_PLAFOND_HT = REGLES_OK ? REGLES_ANAH.mpa.plafond_travaux_ht : 0;
+const MPA_FORFAIT_AMO = REGLES_OK ? RA.forfaitAmoMPA(false) : 0;
+const MPA_TVA_TRAVAUX = REGLES_OK ? REGLES_ANAH.mpa.tva_travaux_adaptation.taux : 0;
+const fmtEur = n => n.toLocaleString('fr-FR') + ' €';
+
+function getPlafonds(nb, isIdf) {
+  return { tmo: RA.plafondRessources('tres_modeste', nb, isIdf), mo: RA.plafondRessources('modeste', nb, isIdf) };
+}
+
+function initRegles() {
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  if (!REGLES_OK) {
+    const b = document.createElement('div');
+    b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#c0392b;color:#fff;padding:10px 16px;font:600 13px sans-serif;text-align:center';
+    b.textContent = "Référentiel des règles Anah introuvable : les calculs d'aide sont désactivés. Relancer inject_regles.py sur ce fichier.";
+    document.body.appendChild(b);
+    return;
+  }
+  set('mpa_plafond_txt', fmtEur(MPA_PLAFOND_HT) + ' HT');
+  set('mpa_forfait_txt', fmtEur(MPA_FORFAIT_AMO));
+  set('mpa_forfait_max_txt', 'forfait fixe, max ' + fmtEur(MPA_FORFAIT_AMO));
+  set('mpa_forfait_info_txt', fmtEur(MPA_FORFAIT_AMO));
+  const h = document.getElementById('hono_mpa');
+  if (h) {
+    h.max = MPA_FORFAIT_AMO; h.placeholder = MPA_FORFAIT_AMO;
+    if (D.flds.hono_mpa === undefined || D.flds.hono_mpa === '') h.value = MPA_FORFAIT_AMO;
+  }
+}
+if (document.body) initRegles(); else document.addEventListener('DOMContentLoaded', initRegles);
+
+function calcProfil() {
+  const rfr  = parseFloat(document.getElementById('e_rfr')?.value) || 0;
+  const nb   = parseInt(document.getElementById('l_occ')?.value || D.flds.l_occ) || 1;
+  const adr  = (D.flds.l_adr || '').toLowerCase();
+  const isIdf = ['75','77','78','91','92','93','94','95'].some(c => adr.includes(c));
+  const zone = isIdf ? 'Île-de-France' : 'Hors Île-de-France';
+  const pl   = REGLES_OK ? getPlafonds(nb, isIdf) : {tmo:0, mo:0};
+
+  let profil = '—', taux = 0, couleur = 'var(--texte2)';
+  if (rfr > 0 && REGLES_OK) {
+    const cat = RA.categorieMenage(nb, rfr, isIdf);
+    if      (cat === 'tres_modeste') { profil = 'Très modeste (TMO)'; taux = Math.round(REGLES_ANAH.mpa.taux.tres_modeste*100); couleur = 'var(--vert)'; }
+    else if (cat === 'modeste')      { profil = 'Modeste (MO)';       taux = Math.round(REGLES_ANAH.mpa.taux.modeste*100);       couleur = 'var(--orange)'; }
+    else                             { profil = 'Non éligible';       taux = 0;                                                  couleur = 'var(--rouge)'; }
+  }
+
+  const set = (id,val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
+  set('pm_rfr',  rfr > 0 ? rfr.toLocaleString('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}) : '—');
+  set('pm_nb',   nb + ' personne(s)');
+  set('pm_zone', zone);
+  set('pm_profil', profil);
+
+  const tauxEl = document.getElementById('pm_taux');
+  if(tauxEl) { tauxEl.textContent = taux > 0 ? taux+'%' : ''; tauxEl.style.color = couleur; }
+
+  const detEl = document.getElementById('pm_detail');
+  if(detEl && taux > 0) {
+    detEl.innerHTML = `Plafond travaux : <strong>${fmtEur(MPA_PLAFOND_HT)} HT</strong><br>Aide max : <strong>${fmtEur(Math.round(MPA_PLAFOND_HT*taux/100))}</strong><br>Forfait AMO : <strong>${fmtEur(MPA_FORFAIT_AMO)}</strong>`;
+  } else if(detEl) {
+    detEl.innerHTML = rfr > 0 ? `RFR ${rfr.toLocaleString('fr-FR')} € > plafond MO (${pl.mo.toLocaleString('fr-FR')} €)` : '';
+  }
+
+  const plEl = document.getElementById('pm_plafonds');
+  if(plEl) plEl.textContent = `${nb} pers. — TMO < ${pl.tmo.toLocaleString('fr-FR')} € / MO < ${pl.mo.toLocaleString('fr-FR')} € (${zone})`;
+
+  // Sauvegarder le profil dans D pour l'export
+  D.flds.e_rfr = document.getElementById('e_rfr')?.value || '';
+  D.flds.profil_mpa = profil;
+  D.flds.taux_mpa = String(taux);
+  sv();
+  calcRAV();
+  return { profil, taux, statut: D.rad?.stat||'—',
+           nbOcc: nb, zoneLabel: zone, revAn: rfr, revMens: rfr>0?rfr/12:0 };
+}
+
+function calcRAV(){
+  const rfr  = parseFloat(document.getElementById('e_rfr')?.value) || 0;
+  const revMens = rfr / 12;
+  const ch   = ['c_loy','c_pret','c_cred','c_mut','c_elec','c_ass','c_autre']
+    .reduce((a,id) => a + (parseFloat(document.getElementById(id)?.value)||0), 0);
+  const el   = document.getElementById('ravVal');
+  if(el && (rfr || ch)){
+    const rav = revMens - ch;
+    el.textContent = rav.toLocaleString('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}) + '/mois';
+    el.style.color = rav >= 0 ? 'var(--vert)' : 'var(--rouge)';
+  }
+}
+
+// SYNTHÈSE
+function buildSyn(){
+  sv();
+  const f=D.flds,r=D.rad;
+  const nok=PIECES.filter(p=>D.pieces[p]?.st==='nok');
+  const haut=PIECES.filter(p=>D.trav[p]?.prio==='Haute');
+  const c=document.getElementById('synCont');
+  c.innerHTML=`
+    <div class="card">
+      <div class="card-title">📋 Récapitulatif</div>
+      <div class="syn-block"><div class="syn-label">Demandeur</div><div class="syn-val">${f.d_nom||'—'} ${f.d_prn||''} · Né(e) le ${f.d_nais||'—'}</div></div>
+      <div class="syn-block"><div class="syn-label">Logement</div><div class="syn-val">${f.l_adr||'—'} · ${r.tlog||'—'} · ${f.l_surf||'—'} m²</div></div>
+      <div class="syn-block"><div class="syn-label">Statut / GIR / Handicap</div><div class="syn-val">${r.stat||'—'} · GIR ${r.gir||'—'} · Handicap : ${r.handi||'—'}</div></div>
+      <div class="syn-block"><div class="syn-label">Date de visite</div><div class="syn-val">${f.v_date?new Date(f.v_date).toLocaleDateString('fr-FR'):'—'}</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚠️ Pièces non adaptées (${nok.length})</div>
+      ${nok.length?nok.map(p=>`
+        <div class="syn-block">
+          <div class="syn-label">${p}</div>
+          <div class="syn-val" style="font-size:12px;color:var(--texte2)">${[D.pieces[p].circ,D.pieces[p].equip].filter(Boolean).join(' — ')||'—'}</div>
+        </div>`).join(''):'<p style="font-size:12px;color:var(--texte2);padding:4px 0">Aucune pièce non adaptée identifiée</p>'}
+    </div>
+    <div class="card">
+      <div class="card-title">🔴 Travaux priorité haute (${haut.length})</div>
+      ${haut.length?haut.map(p=>`
+        <div class="syn-block">
+          <div class="syn-label">${p}</div>
+          <div class="syn-val" style="font-size:12px;color:var(--texte2)">${D.trav[p].sol||'—'}</div>
+        </div>`).join(''):'<p style="font-size:12px;color:var(--texte2);padding:4px 0">Aucun travaux haute priorité</p>'}
+    </div>`;
+}
+
+// EXPORT / IMPORT
+async function expJSON(){
+  sv();
+  const f = D.flds;
+  const baseName = `diag_mpa_${f.d_nom||'X'}_${f.v_date||new Date().toISOString().split('T')[0]}`;
+  const nbPhotos = Object.values(PHOTOS_PWA).reduce((a,v)=>a+(Array.isArray(v)?v.length:0),0);
+
+  if (nbPhotos === 0 || typeof JSZip === 'undefined') {
+    const blob = new Blob([JSON.stringify(D,null,2)],{type:'application/json'});
+    const a = document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download=baseName+'.json'; a.click();
+    toast('✅ Exporté : '+baseName+'.json');
+    return;
+  }
+  try {
+    const zip = new JSZip();
+    zip.file('donnees.json', JSON.stringify(D,null,2));
+    const photoIndex = {};
+    let n = 0;
+    for (const [key, list] of Object.entries(PHOTOS_PWA)) {
+      if (!Array.isArray(list)||!list.length) continue;
+      photoIndex[key] = [];
+      for (const ph of list) {
+        if (!ph.data) continue;
+        const b64 = ph.data.includes(',') ? ph.data.split(',')[1] : ph.data;
+        const ext = ph.data.startsWith('data:image/png') ? 'png' : 'jpg';
+        const fname = `photos/${key}_${n++}.${ext}`;
+        zip.file(fname, b64, {base64:true});
+        photoIndex[key].push({name:ph.name||fname, file:fname});
+      }
+    }
+    zip.file('photos_index.json', JSON.stringify(photoIndex,null,2));
+    const blob = await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
+    const a = document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download=baseName+'.zip'; a.click();
+    toast(`✅ ${baseName}.zip · ${nbPhotos} photo(s) qualité originale`);
+  } catch(e) {
+    console.error(e);
+    const blob=new Blob([JSON.stringify(D,null,2)],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download=baseName+'.json'; a.click();
+    toast('⚠️ Export JSON sans photos');
+  }
+}
+async function impJSON(ev){
+  const file=ev.target.files[0]; if(!file) return; ev.target.value='';
+  if(file.name.endsWith('.zip')) await importFromZip(file);
+  else await importFromJSON(file);
+}
+
+async function importFromZip(file){
+  try{
+    toast('⏳ Lecture du ZIP…');
+    const zip = await JSZip.loadAsync(file);
+    const donneesFile = zip.file('donnees.json');
+    if(!donneesFile){toast('❌ donnees.json manquant');return;}
+    const obj = JSON.parse(await donneesFile.async('string'));
+    applyImportedData(obj);
+    const indexFile = zip.file('photos_index.json');
+    if(indexFile){
+      const photoIndex = JSON.parse(await indexFile.async('string'));
+      PHOTOS_PWA={};
+      for(const [key,entries] of Object.entries(photoIndex)){
+        PHOTOS_PWA[key]=[];
+        for(const entry of entries){
+          const pf=zip.file(entry.file); if(!pf) continue;
+          const b64=await pf.async('base64');
+          const ext=entry.file.endsWith('.png')?'png':'jpeg';
+          PHOTOS_PWA[key].push({name:entry.name,data:`data:image/${ext};base64,${b64}`});
+        }
+      }
+      savePhotos();
+    }
+    finishImport();
+  }catch(e){toast('❌ Erreur ZIP : '+e.message);console.error(e);}
+}
+
+async function importFromJSON(file){
+  const rd=new FileReader();
+  rd.onload=async e=>{
+    try{
+      const obj=JSON.parse(e.target.result);
+      applyImportedData(obj);
+      const rawPhotos=obj.photos||(obj.data&&obj.data.photos)||{};
+      if(Object.keys(rawPhotos).length>0){
+        toast('⏳ Compression photos…');
+        PHOTOS_PWA=await compressPhotosObject(rawPhotos,900,0.70);
+      }else{PHOTOS_PWA={};}
+      savePhotos();
+      finishImport();
+    }catch(err){toast('❌ Erreur JSON : '+err.message);}
+  };
+  rd.readAsText(file);
+}
+
+function finishImport(){
+  localStorage.setItem('dmaai_mpa_agent',JSON.stringify(D));
+  restore(); buildEDL(); buildTrav(); calcRAV();
+  setTimeout(refreshAllPhotoGrids,80);
+  const nb=Object.values(PHOTOS_PWA).reduce((a,v)=>a+(Array.isArray(v)?v.length:0),0);
+  toast(`✅ Importé — ${D.flds.d_nom||''} ${D.flds.d_prn||''}${nb?' · '+nb+' photo(s)':''}`);
+}
+
+function applyImportedData(obj){
+  if(obj.data&&obj.data.fields){
+    const src=obj.data,f=src.fields||{},r=src.radios||{},c=src.checks||{},p=src.pieces||{},t=src.trav||{};
+    D.flds={amo_rso:f.amo_structure||'',amo_diag:f.amo_diagnostiqueur||'',amo_fonc:f.amo_fonction||'',
+      v_date:f.visite_date||'',d_nom:f.dem_nom||'',d_prn:f.dem_prenom||'',d_nais:f.dem_naissance||'',
+      d_ret:f.dem_retraite||'',l_adr:f.log_adresse||'',l_an:f.log_annee||'',l_surf:f.log_surface||'',
+      l_pces:f.log_nb_pieces||'',l_niv:f.log_niveaux||'',l_etg:f.log_etage||'',l_occ:f.log_nb_occupants||'',
+      fr_ct:f.fr_coords||'',atec_autre:f.aides_tech_autre||'',conf_id:f.confiance_identite||'',
+      obs_aut:f.obs_autonomie||'',prec:f.preconisations||'',crp:f.creation_piece||'',rem_men:f.remarques_menage||'',
+      e_sal:'',e_pen:'',e_alloc:'',e_autre:'',e_ep:'',c_loy:'',c_pret:'',c_cred:'',c_mut:'',c_elec:'',c_ass:'',c_autre:''};
+    D.rad={tlog:r.type_logement||'',stat:r.statut_occupation||'',zone:r.zone||'',fr:r.fr_renov||'',
+      handi:r.handicap||'',gir:r.gir||'',chute:r.chute||'',hosp:r.hospit||'',paut:r.perte_aut||'',
+      ergo:r.ergo||'',rergo:r.rapport_ergo||'',aid2:r.aidant||'',conf:r.confiance||''};
+    D.chk={sit:c.situation||[],aid:c.aides||[],ori:c.orientation||[],atec:c.aides_tech||[],eval:c.eval_log||[]};
+    D.pieces={}; D.trav={};
+    PIECES.forEach(pn=>{
+      const pd=p[pn]||{};
+      D.pieces[pn]={st:pd.statut||pd.st||'',circ:pd.circ||'',equip:pd.equip||'',etg:pd.etage||pd.etg||'',rem:pd.remarque||pd.rem||''};
+      const td=t[pn]||{};
+      D.trav[pn]={prio:td.priorite||td.prio||'',sol:td.solutions||td.sol||'',ret:td.retenues||td.ret||''};
+    });
+  }else if(obj.flds||obj.rad){
+    D=obj; PIECES.forEach(p=>{
+      if(!D.pieces[p])D.pieces[p]={st:'',circ:'',equip:'',etg:'',rem:''};
+      if(!D.trav[p])D.trav[p]={prio:'',sol:'',ret:''};
+    });
+    D.flds=D.flds||{}; D.chk=D.chk||{}; D.rad=D.rad||{}; if(!D.devis)D.devis=[];
+  }
+}
+
+// GÉNÉRATION DOCX via serveur
+async function genDocx(){
+  sv();
+  if(!serverOK){
+    toast('❌ Serveur non connecté — lancez serveur_diagnostic_mpa.py');
+    return;
+  }
+  toast('⏳ Génération en cours…');
+  try{
+    const apiBase = window.location.port==='5052' ? '' : API;
+    const resp = await fetch(`${apiBase}/generer`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({...D, photos: PHOTOS_PWA})
+    });
+    if(!resp.ok) throw new Error('Erreur serveur '+resp.status);
+    const blob = await resp.blob();
+    const f=D.flds;
+    const name=`Rapport_MPA_${f.d_nom||'X'}_${f.d_prn||''}_${f.v_date||new Date().toISOString().split('T')[0]}.docx`;
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download=name; a.click();
+    toast('✅ Rapport généré : '+name);
+  }catch(e){
+    toast('❌ Erreur : '+e.message);
+  }
+}
+
+// STATUS CHECK
+async function checkServer(){
+  try{
+    const ctrl=new AbortController();
+    const tid=setTimeout(()=>ctrl.abort(),3000);
+    const pingUrl = (window.location.hostname==='localhost' && window.location.port==='5052') ? '/ping' : `${API}/ping`;
+    const r=await fetch(pingUrl,{signal:ctrl.signal});
+    clearTimeout(tid);
+    const d=await r.json();
+    if(d.status==='ok'){
+      serverOK=true;
+      document.getElementById('statusBar').className='status-bar online';
+      document.getElementById('statusText').textContent='Serveur connecté — Génération .docx disponible';
+    }
+  }catch(e){
+    console.log('ping failed:',e.message);
+    serverOK=false;
+    document.getElementById('statusBar').className='status-bar offline';
+    document.getElementById('statusText').textContent='Serveur déconnecté — Lancez : python serveur_diagnostic_mpa.py';
+  }
+}
+
+function toast(msg){
+  const el=document.getElementById('toastEl');
+  el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),3000);
+}
+async function genPlanFinancement(){
+  sv();
+  if(!serverOK){
+    toast('❌ Serveur non connecté — lancez serveur_diagnostic_mpa.py');
+    return;
+  }
+  toast('⏳ Génération du plan de financement…');
+  try{
+    const payload = {...D, devis: D.devis||[], photos: {}};
+    const apiBase2 = window.location.port==='5052' ? '' : API;
+    const resp = await fetch(`${apiBase2}/plan_financement`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    if(!resp.ok) throw new Error('Erreur serveur '+resp.status);
+    const blob = await resp.blob();
+    const f = D.flds;
+    const name = `Plan_Financement_MPA_${f.d_nom||'X'}_${f.d_prn||''}_${f.v_date||'2026'}.docx`;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = name; a.click();
+    toast('✅ Plan de financement généré : '+name);
+  }catch(e){
+    toast('❌ Erreur : '+e.message);
+  }
+}
+
+const WRITE_PROVIDERS = {
+  anthropic:  { models: ['claude-sonnet-4-20250514', 'claude-opus-4-20250514', 'claude-haiku-4-5-20251001'] },
+  openrouter: { models: ['anthropic/claude-3.5-sonnet', 'openai/gpt-4o', 'mistralai/mistral-large', 'google/gemini-pro-1.5', 'deepseek/deepseek-chat'] },
+  openai:     { models: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo'] },
+  '1minai':   { models: ['claude-3-5-sonnet', 'claude-3-opus', 'gpt-4o', 'gpt-4o-mini', 'mistral-large-latest', 'gemini-1.5-pro', 'gemini-1.5-flash'] }
+};
+
+let aiConfig = {
+  provider: 'anthropic',
+  model: 'claude-sonnet-4-20250514',
+  apiKey: '',
+  connected: false
+};
+
+function openAIConfig() {
+  const m = document.getElementById('ai-modal'); m.style.display = 'flex';
+  // Use setTimeout to ensure modal is rendered before populating
+  setTimeout(() => {
+    selectWriteProvider(aiConfig.provider || 'anthropic');
+    if (aiConfig.apiKey) {
+      const k = document.getElementById('write-api-key');
+      if (k) k.value = aiConfig.apiKey;
+    }
+    const sel = document.getElementById('write-model-select');
+    if (sel && aiConfig.model) sel.value = aiConfig.model;
+  }, 10);
+}
+
+function closeAIConfig() {
+  document.getElementById('ai-modal').style.display = 'none';
+}
+
+function selectWriteProvider(prov) {
+  aiConfig.provider = prov;
+  ['anthropic','openrouter','openai','1minai'].forEach(p => {
+    const c = document.getElementById('wprov-' + p);
+    if (!c) return;
+    if (p === prov) {
+      c.style.borderColor = '#2a5fd6'; c.style.background = '#eef3ff';
+    } else {
+      c.style.borderColor = '#ddd8cf'; c.style.background = '#fff';
+    }
+  });
+  const sel = document.getElementById('write-model-select');
+  if (!sel) return;
+  const models = WRITE_PROVIDERS[prov] ? WRITE_PROVIDERS[prov].models : [];
+  sel.innerHTML = models.map(m => '<option value="' + m + '"' + (m === aiConfig.model ? ' selected' : '') + '>' + m + '</option>').join('');
+  const keyInp = document.getElementById('write-api-key');
+  if (keyInp) keyInp.placeholder = prov === 'anthropic' ? 'sk-ant-api03-…' : prov === 'openrouter' ? 'sk-or-v1-…' : prov === '1minai' ? 'Votre clé 1min.ai…' : 'sk-…';
+}
+
+function toggleKey(inputId) {
+  const inp = document.getElementById(inputId);
+  if (inp) inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+function setConnStatus(msg, type) {
+  const el = document.getElementById('write-conn-status');
+  if (el) { el.className = 'connection-status ' + type; el.innerHTML = msg; }
+}
+
+async function testConfigConnection() {
+  const key  = document.getElementById('write-api-key').value.trim();
+  const prov = aiConfig.provider;
+  const model = document.getElementById('write-model-select').value;
+  const btn  = document.getElementById('btn-test-write');
+  if (!key) { setConnStatus('✗  Clé vide', 'err'); return; }
+  btn.disabled = true; btn.textContent = '⏳…';
+  setConnStatus('◌  Test en cours…', 'idle');
+  try {
+    await callAI('Tu es un assistant.', 'Réponds OK', key, prov, model);
+    setConnStatus('✓  ' + prov + ' connecté — prêt !', 'ok');
+    aiConfig.connected = true;
+    aiConfig.apiKey = key;
+    aiConfig.model = model;
+    updateHeaderBadge();
+  } catch(e) {
+    setConnStatus('✗  ' + e.message.substring(0, 80), 'err');
+    aiConfig.connected = false;
+  }
+  btn.disabled = false; btn.textContent = '🔌 Tester la connexion';
+}
+
+function saveConfig() {
+  const key = document.getElementById('write-api-key').value.trim();
+  if (!key) { setConnStatus('✗  Clé vide', 'err'); return; }
+  aiConfig.apiKey    = key;
+  aiConfig.model     = document.getElementById('write-model-select').value;
+  aiConfig.connected = true;
+  // Persist to localStorage
+  localStorage.setItem('dmaai_ia_config', JSON.stringify({
+    provider: aiConfig.provider, model: aiConfig.model, apiKey: aiConfig.apiKey
+  }));
+  setConnStatus('✓  Configuration sauvegardée !', 'ok');
+  updateHeaderBadge();
+}
+
+function updateHeaderBadge() {
+  const label = document.getElementById('ai-provider-label');
+  const dot   = document.getElementById('ai-status-dot');
+  if (label) label.textContent = aiConfig.connected ? aiConfig.provider + ' ✓' : "Configurer l'IA";
+  if (dot) { if (aiConfig.connected) dot.classList.add('connected'); else dot.classList.remove('connected'); }
+}
+
+function initAIConfig() {
+  const saved = localStorage.getItem('dmaai_ia_config');
+  if (saved) {
+    try {
+      const cfg = JSON.parse(saved);
+      aiConfig.provider  = cfg.provider || 'anthropic';
+      aiConfig.model     = cfg.model    || 'claude-sonnet-4-20250514';
+      aiConfig.apiKey    = cfg.apiKey   || '';
+      aiConfig.connected = !!cfg.apiKey;
+      updateHeaderBadge();
+    } catch(e) {}
+  }
+}
+
+initAIConfig();
+
+
+
+// Steps navigation - non applicable dans cet agent
+
+// ─── CHAR COUNTER ─────────────────────────────────────────────────────────────
+// mail_input - non applicable dans cet agent
+
+
+// ─── UNIFIED AI CALL (multi-provider) ────────────────────────────────────────
+async function callAI(systemPrompt, userPrompt, keyOverride, provOverride, modelOverride, extraContent) {
+  const key   = keyOverride   || aiConfig.apiKey;
+  const prov  = provOverride  || aiConfig.provider;
+  const model = modelOverride || aiConfig.model;
+
+  if (!key) {
+    document.getElementById('ai-modal').style.display = 'flex';
+    throw new Error('Clé API non configurée. Veuillez cliquer sur 🤖 pour configurer.');
+  }
+
+  if (prov === 'anthropic') {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 2000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: extraContent && extraContent.length ? [...extraContent, {type:'text',text:userPrompt}] : userPrompt }]
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || 'Erreur Anthropic');
+    return data.content[0].text;
+
+  } else if (prov === 'openrouter') {
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${key}`,
+        'HTTP-Referer': 'https://agent-devis.app',
+        'X-Title': 'Agent Devis AMO'
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 2000,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ]
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || 'Erreur OpenRouter');
+    return data.choices[0].message.content;
+
+  } else if (prov === 'openai') {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+      body: JSON.stringify({
+        model,
+        max_tokens: 2000,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ]
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || 'Erreur OpenAI');
+    return data.choices[0].message.content;
+
+  } else if (prov === '1minai') {
+    if (extraContent && extraContent.length > 0) {
+      throw new Error('1min.ai ne supporte pas les fichiers PDF. Utilisez Anthropic ou OpenRouter.');
+    }
+    const res = await fetch('https://api.1min.ai/api/chat-with-ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'API-KEY': key },
+      body: JSON.stringify({
+        type: 'UNIFY_CHAT_WITH_AI',
+        model: model,
+        promptObject: { prompt: systemPrompt + '\n\n---\n\n' + userPrompt }
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error ? data.error.message : 'Erreur 1min.ai');
+    if (data.aiRecord && data.aiRecord.aiRecordDetail && data.aiRecord.aiRecordDetail.resultObject) {
+      return data.aiRecord.aiRecordDetail.resultObject[0] || '';
+    }
+    if (data.content) return data.content;
+    throw new Error('Format de reponse 1min.ai inattendu');
+  }
+
+  throw new Error('Fournisseur inconnu : ' + prov);
+}
+
+function resetAll(){
+  localStorage.removeItem('dmaai_mpa_agent');
+  localStorage.removeItem('dmaai_mpa_photos');
+  D=initD(); PHOTOS_PWA={}; location.reload();
+}
+
+function buildDevis() {
+  if (!D.devis) D.devis = [];
+  if (!D.autres_aides) D.autres_aides = [];
+  // Restaurer honoraires AVANT renderDevisTable (qui appelle calcFinancement)
+  if (D.flds.hono_ht)  { const el=document.getElementById('hono_ht');  if(el) el.value=D.flds.hono_ht; }
+  if (D.flds.hono_tva) { const el=document.getElementById('hono_tva'); if(el) el.value=D.flds.hono_tva; }
+  renderDevisTable();
+  renderAutresAides();
+  const el_hmpa = document.getElementById('hono_mpa');
+  if (el_hmpa) el_hmpa.value = D.flds.hono_mpa !== undefined ? D.flds.hono_mpa : MPA_FORFAIT_AMO;
+}
+
+function addAutreAide() {
+  if (!D.autres_aides) D.autres_aides = [];
+  D.autres_aides.push({ label:'', montant:'', source:'' });
+  sv(); renderAutresAides(); calcFinancement();
+}
+
+function delAutreAide(i) {
+  D.autres_aides.splice(i,1); sv(); renderAutresAides(); calcFinancement();
+}
+
+function renderAutresAides() {
+  const cont = document.getElementById('autresAidesCont'); if(!cont) return;
+  const aides = D.autres_aides || [];
+  cont.innerHTML = '';
+  if (aides.length === 0) {
+    cont.innerHTML = '<p style="font-size:12px;color:var(--texte2);padding:4px 0">Aucune aide complémentaire saisie.</p>';
+    return;
+  }
+  aides.forEach((a,i) => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;margin-bottom:8px;align-items:end';
+    row.innerHTML = `
+      <div class="field" style="margin:0"><label>Organisme / libellé</label>
+        <input type="text" value="${a.label||''}" placeholder="ex: Aide Département du Loiret"
+          oninput="D.autres_aides[${i}].label=this.value;sv();calcFinancement()"
+          style="padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;width:100%"></div>
+      <div class="field" style="margin:0"><label>Montant (€)</label>
+        <input type="number" value="${a.montant||''}" placeholder="0"
+          oninput="D.autres_aides[${i}].montant=this.value;sv();calcFinancement()"
+          style="padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;width:100%"></div>
+      <div class="field" style="margin:0"><label>Type</label>
+        <select oninput="D.autres_aides[${i}].source=this.value;sv()"
+          style="padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;width:100%">
+          ${['Subvention','Prêt à taux 0','Avance remboursable','Don / Fondation','Autre']
+            .map(t=>`<option value="${t}" ${a.source===t?'selected':''}>${t}</option>`).join('')}
+        </select></div>
+      <button onclick="delAutreAide(${i})" style="background:#fde8e8;border:none;border-radius:8px;padding:8px;cursor:pointer;color:var(--rouge);font-size:13px;height:37px">🗑</button>`;
+    cont.appendChild(row);
+  });
+}
+
+// ─── IMPORT DEVIS PDF PAR IA ─────────────────────────────────────────────────
+async function importDevisPDF(files) {
+  if (!files || files.length === 0) return;
+  
+  const statusEl = document.getElementById('extractStatus');
+  
+  for (let fi = 0; fi < files.length; fi++) {
+    const file = files[fi];
+    statusEl.style.display = 'block';
+    statusEl.style.background = '#EBF3FB';
+    statusEl.style.color = '#1F4E79';
+    statusEl.innerHTML = `⏳ Analyse du devis "${file.name}" en cours…`;
+
+    try {
+      // Lire le fichier en base64
+      const base64 = await new Promise((res, rej) => {
+        const reader = new FileReader();
+        reader.onload = e => res(e.target.result.split(',')[1]);
+        reader.onerror = rej;
+        reader.readAsDataURL(file);
+      });
+
+      // Détecter le type
+      const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+      const mediaType = isPDF ? 'application/pdf' : (file.type || 'image/jpeg');
+
+      // Construire le message pour Claude
+      const content = [
+        {
+          type: isPDF ? 'document' : 'image',
+          source: { type: 'base64', media_type: mediaType, data: base64 }
+        },
+        {
+          type: 'text',
+          text: `Analyse ce devis et extrais les informations suivantes au format JSON strict.
+Réponds UNIQUEMENT avec le JSON, rien d'autre, pas de markdown, pas d'explication.
+
+Format attendu (un objet JSON) :
+{
+  "siret": "numéro SIRET de l'entreprise (14 chiffres, ou vide si absent)",
+  "raison": "raison sociale / nom de l'entreprise",
+  "type": "type de travaux principal parmi : Salle de bain, Sanitaires / WC, Entrée / Cheminement, Escalier / Monte-escalier, Cuisine, Chambre, Salon, Couloirs / Portes, Extérieur, Électricité, Autre",
+  "ht": "montant total HT en chiffres uniquement (ex: 4250.00), ou vide si absent",
+  "ttc": "montant total TTC en chiffres uniquement (ex: 4675.00), ou vide si absent",
+  "description": "courte description des travaux en 1-2 phrases"
+}
+
+Si une information est absente, mets une chaîne vide "".
+Ne mets pas de symbole € ni d'espace dans les montants.`
+        }
+      ];
+
+      if (!aiConfig.apiKey) { openAIConfig(); throw new Error('Clé API non configurée'); }
+      const sysP = 'Tu es un expert en devis du bâtiment français. Tu extrais les données au format JSON.';
+      const usrP = content.find(c=>c.type==='text')?.text || '';
+      const extra = content.filter(c=>c.type!=='text');
+      const raw = await callAI(sysP, usrP, null, null, null, extra);
+
+      // Parser le JSON
+      let extracted;
+      try {
+        const clean = raw.replace(/```json|```/g, '').trim();
+        extracted = JSON.parse(clean);
+      } catch (e) {
+        throw new Error('Impossible de parser la réponse IA : ' + raw.substring(0, 100));
+      }
+
+      // Ajouter le devis extrait
+      if (!D.devis) D.devis = [];
+      D.devis.push({
+        siret:   extracted.siret   || '',
+        raison:  extracted.raison  || '',
+        type:    extracted.type    || 'Autre',
+        ht:      extracted.ht      || '',
+        ttc:     extracted.ttc     || '',
+        retenu:  true,
+        source:  file.name,
+        desc:    extracted.description || ''
+      });
+      sv();
+      renderDevisTable();
+      calcFinancement();
+
+      statusEl.style.background = '#e8f5e9';
+      statusEl.style.color = '#1E8449';
+      statusEl.innerHTML = `✅ Devis "${file.name}" extrait : <strong>${extracted.raison}</strong> — ${extracted.ht ? extracted.ht+' € HT' : 'montant à vérifier'}
+        ${extracted.description ? '<br><span style="font-weight:400;color:#555">'+extracted.description+'</span>' : ''}`;
+
+    } catch (err) {
+      statusEl.style.background = '#fde8e8';
+      statusEl.style.color = '#C0392B';
+      statusEl.innerHTML = `❌ Erreur sur "${file.name}" : ${err.message}<br>
+        <span style="font-size:11px">Vérifiez votre connexion ou saisissez manuellement.</span>`;
+    }
+  }
+
+  // Reset input file pour permettre re-upload du même fichier
+  document.querySelector('input[onchange="importDevisPDF(this.files)"]').value = '';
+}
+
+function addDevisRow() {
+  if (!D.devis) D.devis = [];
+  D.devis.push({ siret:'', raison:'', type:'', ht:'', ttc:'', retenu: true });
+  sv();
+  renderDevisTable();
+}
+
+function delDevisRow(i) {
+  D.devis.splice(i, 1);
+  sv();
+  renderDevisTable();
+  calcFinancement();
+}
+
+function renderDevisTable() {
+  const tbody = document.getElementById('devisBody');
+  if (!tbody) return;
+  const devis = D.devis || [];
+  tbody.innerHTML = '';
+  devis.forEach((d, i) => {
+    const tr = document.createElement('tr');
+    tr.style.background = i % 2 === 0 ? '#f8fafc' : '#ffffff';
+    tr.innerHTML = `
+      <td style="padding:6px 8px;font-weight:600;color:var(--bleu)">${i+1}</td>
+      <td style="padding:4px"><input type="text" value="${d.siret||''}" placeholder="000 000 000 00000"
+        oninput="D.devis[${i}].siret=this.value;sv()"
+        style="width:120px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px"></td>
+      <td style="padding:4px"><input type="text" value="${d.raison||''}" placeholder="Nom de l'entreprise"
+        oninput="D.devis[${i}].raison=this.value;sv()"
+        style="width:160px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px"></td>
+      <td style="padding:4px">
+        <select oninput="D.devis[${i}].type=this.value;sv();calcFinancement()"
+          style="width:160px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px">
+          ${['','Salle de bain','Sanitaires / WC','Entrée / Cheminement','Escalier / Monte-escalier',
+             'Cuisine','Chambre','Salon','Couloirs / Portes','Extérieur','Électricité','Autre']
+            .map(t=>`<option value="${t}" ${d.type===t?'selected':''}>${t||'-- Type de travaux --'}</option>`).join('')}
+        </select>
+      </td>
+      <td style="padding:4px;text-align:right">
+        <input type="number" value="${d.ht||''}" placeholder="0"
+          oninput="D.devis[${i}].ht=this.value;autoTTC(${i});sv();calcFinancement()"
+          style="width:90px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;text-align:right">
+      </td>
+      <td style="padding:4px;text-align:right">
+        <input type="number" value="${d.ttc||''}" placeholder="0"
+          oninput="D.devis[${i}].ttc=this.value;sv();calcFinancement()"
+          style="width:90px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;text-align:right">
+      </td>
+      <td style="padding:4px;text-align:center">
+        <input type="checkbox" ${d.retenu?'checked':''} 
+          onchange="D.devis[${i}].retenu=this.checked;sv();calcFinancement()"
+          style="width:18px;height:18px;cursor:pointer">
+      </td>
+      <td style="padding:4px;text-align:center">
+        <button onclick="delDevisRow(${i})" style="background:#fde8e8;border:none;border-radius:6px;
+          padding:5px 8px;cursor:pointer;color:var(--rouge);font-size:13px">🗑</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  calcFinancement();
+}
+
+function autoTTC(i) {
+  const ht = parseFloat(D.devis[i].ht) || 0;
+  if (ht && !D.devis[i].ttc) {
+    D.devis[i].ttc = (ht * (1 + MPA_TVA_TRAVAUX)).toFixed(2); // TVA travaux d'adaptation (référentiel)
+    renderDevisTable();
+  }
+}
+
+function calcFinancement() {
+  if (!D.devis) D.devis = [];
+  const profil = calcProfil();
+
+  // Mettre à jour profil affiché
+  const set = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+  set('pf_statut', profil.statut);
+  set('pf_nb', profil.nbOcc + ' personne(s)');
+  set('pf_zone', profil.zoneLabel);
+  set('pf_rev', profil.revMens > 0 ? profil.revMens.toLocaleString('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}) + '/mois' : 'Non renseigné');
+  set('pf_rev_an', profil.revAn > 0 ? profil.revAn.toLocaleString('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}) + '/an (estimé)' : 'Non renseigné');
+
+  const pEl = document.getElementById('pf_profil');
+  if (pEl) {
+    pEl.textContent = profil.profil;
+    pEl.style.color = profil.taux>0 && profil.profil.startsWith('Très') ? 'var(--vert)' : profil.taux>0 ? 'var(--orange)' : 'var(--rouge)';
+  }
+  set('taux_val', profil.taux > 0 ? profil.taux + ' %' : '—');
+
+  // Calcul plan financement
+  const devisRetenus = (D.devis || []).filter(d => d.retenu && (parseFloat(d.ht)||0) > 0);
+  const totalHT  = devisRetenus.reduce((a,d) => a + (parseFloat(d.ht)||0), 0);
+  const totalTTC = devisRetenus.reduce((a,d) => a + (parseFloat(d.ttc)||0), 0);
+
+  // Plafond subventionnable
+  const PLAFOND_HT = MPA_PLAFOND_HT;
+  const htSubv = Math.min(totalHT, PLAFOND_HT);
+  const aide = profil.taux > 0 ? Math.round(htSubv * profil.taux / 100) : 0;
+  const forfaitAMO = profil.taux > 0 ? MPA_FORFAIT_AMO : 0;
+  const aideTotal = aide + forfaitAMO;
+  const resteCharge = Math.max(0, totalTTC - aide);
+
+  // Honoraires AMO (défini ici pour être disponible partout dans la fonction)
+  const honoHT  = parseFloat(document.getElementById('hono_ht')?.value  || D.flds.hono_ht  || 0)  || 0;
+  const _tvaSel = document.getElementById('hono_tva');
+  const honoTva = _tvaSel ? parseFloat(_tvaSel.value) : parseFloat(D.flds.hono_tva || 0) || 0;
+  const honoTTC = honoHT * (1 + honoTva / 100);
+  const honoMPA = profil.taux > 0 ? Math.min(parseFloat(document.getElementById('hono_mpa')?.value || D.flds.hono_mpa || MPA_FORFAIT_AMO) || MPA_FORFAIT_AMO, MPA_FORFAIT_AMO) : 0; // pas de forfait AMO si ménage non éligible
+  const honoRC  = Math.max(0, honoTTC - honoMPA);
+
+  // Autres aides
+  if (!D.autres_aides) D.autres_aides = [];
+  const autresAides = D.autres_aides;
+  const totalAutresAides = autresAides.reduce((a,x) => a + (parseFloat(x.montant)||0), 0);
+
+  // Totaux avec honoraires
+  const totalHTavecHono2  = totalHT  + honoHT;
+  const totalTTCavecHono2 = totalTTC + honoTTC;
+  const aideAMO2   = honoMPA;
+  const aideTotal3 = aide + aideAMO2;
+  const resteTotal2 = Math.max(0, totalTTCavecHono2 - aideTotal3);
+
+  const tbody = document.getElementById('planBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  // Lignes par devis retenu
+  devisRetenus.forEach((d, i) => {
+    const ht = parseFloat(d.ht)||0;
+    const ttc = parseFloat(d.ttc)||0;
+    const htS = Math.min(ht, PLAFOND_HT);
+    const aideD = profil.taux > 0 ? Math.round(htS * profil.taux / 100) : 0;
+    const rc = Math.max(0, ttc - aideD);
+    const tr = document.createElement('tr');
+    tr.style.background = i%2===0 ? '#f8fafc' : '#fff';
+    tr.innerHTML = `
+      <td style="padding:7px 10px;font-size:12px">${d.raison||'Devis '+(i+1)} — ${d.type||''}</td>
+      <td style="padding:7px 10px;text-align:right;font-size:12px">${ht.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</td>
+      <td style="padding:7px 10px;text-align:right;font-size:12px">${ttc.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</td>
+      <td style="padding:7px 10px;text-align:right;font-size:12px;color:var(--bleu2)">${profil.taux > 0 ? profil.taux+'%' : '—'}</td>
+      <td style="padding:7px 10px;text-align:right;font-size:12px;color:var(--vert);font-weight:600">${aideD > 0 ? aideD.toLocaleString('fr-FR')+ ' €' : '—'}</td>
+      <td style="padding:7px 10px;text-align:right;font-size:12px;color:var(--rouge);font-weight:600">${rc.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</td>`;
+    tbody.appendChild(tr);
+  });
+
+  // Ligne Forfait AMO MPA' (toujours affichée si éligible)
+  if (forfaitAMO > 0) {
+    const trF = document.createElement('tr');
+    trF.style.background = '#EBF3FB';
+    trF.innerHTML = `
+      <td style="padding:7px 10px;font-size:12px;font-style:italic">Forfait AMO (pris en charge par MPA')</td>
+      <td colspan="3" style="padding:7px 10px;text-align:right;font-size:12px;color:var(--texte2)">${honoHT > 0 ? honoHT.toLocaleString('fr-FR',{minimumFractionDigits:2})+' € HT' : fmtEur(MPA_FORFAIT_AMO)+' min'}</td>
+      <td style="padding:7px 10px;text-align:right;font-size:12px;color:var(--vert);font-weight:600">${honoMPA.toLocaleString('fr-FR')} €</td>
+      <td style="padding:7px 10px;text-align:right;font-size:12px;color:${honoRC>0?'var(--rouge)':'var(--texte2)'}">${honoRC > 0 ? honoRC.toLocaleString('fr-FR',{minimumFractionDigits:2})+' €' : '0 €'}</td>`;
+    tbody.appendChild(trF);
+  }
+
+  // Calcul totaux avec honoraires
+  // totalHTavecHono calculé plus haut
+  // totalTTCavecHono calculé plus haut
+  const aideAMO   = honoMPA;
+  // aideTotal2 calculé plus haut
+  // resteTotal calculé plus haut
+
+  const trTotal = document.createElement('tr');
+  trTotal.style.background = '#1F4E79';
+  trTotal.innerHTML = `
+    <td style="padding:8px 10px;font-size:13px;font-weight:700;color:white">TOTAL</td>
+    <td style="padding:8px 10px;text-align:right;font-size:13px;font-weight:700;color:white">${totalHTavecHono2.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</td>
+    <td style="padding:8px 10px;text-align:right;font-size:13px;font-weight:700;color:white">${totalTTCavecHono2.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</td>
+    <td style="padding:8px 10px;text-align:right;font-size:13px;color:#FAD7A0">${profil.taux > 0 ? profil.taux+'%' : '—'}</td>
+    <td style="padding:8px 10px;text-align:right;font-size:13px;font-weight:700;color:#7dcea0">${aideTotal3.toLocaleString('fr-FR')} €</td>
+    <td style="padding:8px 10px;text-align:right;font-size:13px;font-weight:700;color:#F1948A">${resteTotal2.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</td>`;
+  tbody.appendChild(trTotal);
+
+  // Ligne honoraires dans le tableau
+  if (honoHT > 0 && tbody) {
+    const trHono = document.createElement('tr');
+    trHono.style.background = '#f0f8ff';
+    trHono.innerHTML = `
+      <td style="padding:7px 10px;font-size:12px;font-style:italic">Honoraires AMO — EI David MARIE-ANNE (TVA ${honoTva}%)</td>
+      <td style="padding:7px 10px;text-align:right;font-size:12px">${honoHT.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</td>
+      <td style="padding:7px 10px;text-align:right;font-size:12px">${honoTTC.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</td>
+      <td style="padding:7px 10px;text-align:right;font-size:12px;color:var(--bleu2)">Forfait</td>
+      <td style="padding:7px 10px;text-align:right;font-size:12px;color:var(--vert);font-weight:600">${honoMPA > 0 ? honoMPA.toLocaleString('fr-FR')+ ' € (forfait)' : '—'}</td>
+      <td style="padding:7px 10px;text-align:right;font-size:12px;color:var(--rouge);font-weight:600">${honoRC.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</td>`;
+    tbody.appendChild(trHono);
+  }
+
+  // Résumé
+  const resume = document.getElementById('planResume');
+  if (resume) {
+    if (totalHT > PLAFOND_HT) {
+      resume.innerHTML += `<p style="color:var(--orange);font-size:12px;margin-top:6px">⚠️ Le montant HT total (${totalHT.toLocaleString('fr-FR')} €) dépasse le plafond subventionnable de ${fmtEur(MPA_PLAFOND_HT)} HT. Seuls ${fmtEur(MPA_PLAFOND_HT)} HT sont pris en compte pour le calcul de l'aide.</p>`;
+    }
+    resume.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <div><div style="font-size:10px;color:var(--texte2);text-transform:uppercase;font-weight:600;margin-bottom:3px">Coût total travaux TTC</div>
+          <div style="font-size:18px;font-weight:700;color:var(--bleu)">${totalTTCavecHono2.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</div></div>
+        <div><div style="font-size:10px;color:var(--texte2);text-transform:uppercase;font-weight:600;margin-bottom:3px">Aide MPA' (travaux + AMO)</div>
+          <div style="font-size:18px;font-weight:700;color:var(--vert)">${aideTotal3.toLocaleString('fr-FR')} €</div></div>
+        <div><div style="font-size:10px;color:var(--texte2);text-transform:uppercase;font-weight:600;margin-bottom:3px">Reste à charge</div>
+          <div style="font-size:18px;font-weight:700;color:var(--rouge)">${resteTotal2.toLocaleString('fr-FR',{minimumFractionDigits:2})} €</div></div>
+      </div>
+      ${totalHT > PLAFOND_HT ? `<p style="color:var(--orange);font-size:11px;margin-top:8px">⚠️ Plafond de ${fmtEur(MPA_PLAFOND_HT)} HT dépassé — seule la partie dans le plafond est subventionnée.</p>` : ''}
+      <p style="font-size:11px;color:var(--texte2);margin-top:8px">Profil retenu : <strong>${profil.profil}</strong> · Taux travaux : <strong>${profil.taux}%</strong> · Forfait AMO : <strong>${honoMPA.toLocaleString('fr-FR')} €</strong> · Honoraires DMAAI : <strong>${honoTTC.toLocaleString('fr-FR',{minimumFractionDigits:2})} € TTC</strong></p>
+      <div style="margin-top:14px;padding:12px 14px;background:#1F4E79;border-radius:10px;color:white">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;opacity:0.7;margin-bottom:10px">Récapitulatif de toutes les aides</div>
+        <div style="display:grid;grid-template-columns:1fr auto;gap:4px 16px;font-size:12.5px">
+          <span style="opacity:0.8">MPA' travaux (${profil.taux}% × ${Math.min(totalHT,MPA_PLAFOND_HT).toLocaleString('fr-FR',{minimumFractionDigits:2})} € HT)</span>
+          <span style="font-weight:600;text-align:right">${aide.toLocaleString('fr-FR')} €</span>
+          <span style="opacity:0.8">Forfait AMO MPA'</span>
+          <span style="font-weight:600;text-align:right">${aideAMO.toLocaleString('fr-FR')} €</span>
+          ${autresAides.filter(a=>parseFloat(a.montant||0)>0).map(a=>'<span style="opacity:0.8">'+( a.label||'Aide complémentaire')+'</span><span style="font-weight:600;text-align:right;grid-column:2">'+parseFloat(a.montant||0).toLocaleString('fr-FR')+' €</span>').join('')}
+          <span style="border-top:1px solid rgba(255,255,255,0.3);padding-top:6px;margin-top:2px;font-weight:700">TOTAL AIDES</span>
+          <span style="border-top:1px solid rgba(255,255,255,0.3);padding-top:6px;margin-top:2px;font-weight:700;text-align:right;font-size:15px;color:#7dcea0">${(aideTotal3+totalAutresAides).toLocaleString('fr-FR')} €</span>
+          <span style="padding-top:4px;opacity:0.8">Reste à charge final</span>
+          <span style="padding-top:4px;font-weight:700;text-align:right;font-size:15px;color:#F1948A">${Math.max(0,resteTotal2-totalAutresAides).toLocaleString('fr-FR',{minimumFractionDigits:2})} €</span>
+        </div>
+      </div>
+      ${autresAides.length > 0 ? `<div style="margin-top:10px;padding:8px;background:#e8f5e9;border-radius:6px;font-size:12px">
+        <strong>Autres aides complémentaires :</strong> ${autresAides.map(a=>`${a.label||'?'} : ${parseFloat(a.montant||0).toLocaleString('fr-FR')} €`).join(' · ')}
+        <br>Total autres aides : <strong>${totalAutresAides.toLocaleString('fr-FR')} €</strong>
+        <br>Reste à charge final (après toutes aides) : <strong>${Math.max(0,resteCharge+honoRC-totalAutresAides).toLocaleString('fr-FR',{minimumFractionDigits:2})} €</strong>
+      </div>` : ''}`;
+  }
+}
+
+// INIT
+document.addEventListener('DOMContentLoaded',()=>{
+  const today=new Date().toISOString().split('T')[0];
+  const vd=document.getElementById('v_date');
+  if(vd&&!D.flds.v_date) vd.value=today;
+  restore();
+  buildEDL(); buildTrav();
+  if(typeof initAIConfig==='function') initAIConfig();
+  setTimeout(refreshAllPhotoGrids, 80);
+  document.addEventListener('input',()=>sv());
+  setTimeout(checkServer, 1000);
+  setInterval(checkServer, 10000);
+  calcRAV();
+  calcProfil();
+});
+
+</script>
+
+<div id="ai-modal" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(15,31,61,0.75); backdrop-filter:blur(5px); align-items:center; justify-content:center; padding:24px;">
+  <div style="background:#fff; border-radius:20px; padding:36px; max-width:520px; width:100%; box-shadow:0 24px 80px rgba(0,0,0,0.35); animation:fadeIn .25s ease;">
+    <div style="font-family:'DM Serif Display',serif; font-size:1.4rem; color:#0f1f3d; margin-bottom:4px;">🤖 Configuration IA</div>
+    <div style="font-size:0.82rem; color:#6b7280; margin-bottom:20px; line-height:1.5;">Choisissez votre fournisseur, sélectionnez le modèle, entrez votre clé API et testez la connexion.</div>
+
+    <!-- PROVIDER CARDS -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+      <div id="wprov-anthropic" onclick="selectWriteProvider('anthropic')" style="border:2px solid #2a5fd6; border-radius:10px; padding:11px 10px; cursor:pointer; display:flex; align-items:center; gap:8px; background:#eef3ff; transition:all .2s;">
+        <span style="font-size:1.1rem;">🟣</span>
+        <div><div style="font-weight:600; color:#0f1f3d; font-size:0.82rem;">Anthropic</div><div style="font-size:0.72rem; color:#6b7280;">Claude Sonnet / Opus</div></div>
+      </div>
+      <div id="wprov-openrouter" onclick="selectWriteProvider('openrouter')" style="border:2px solid #ddd8cf; border-radius:10px; padding:11px 10px; cursor:pointer; display:flex; align-items:center; gap:8px; transition:all .2s;">
+        <span style="font-size:1.1rem;">🔀</span>
+        <div><div style="font-weight:600; color:#0f1f3d; font-size:0.82rem;">OpenRouter</div><div style="font-size:0.72rem; color:#6b7280;">200+ modèles</div></div>
+      </div>
+      <div id="wprov-openai" onclick="selectWriteProvider('openai')" style="border:2px solid #ddd8cf; border-radius:10px; padding:11px 10px; cursor:pointer; display:flex; align-items:center; gap:8px; transition:all .2s;">
+        <span style="font-size:1.1rem;">🟢</span>
+        <div><div style="font-weight:600; color:#0f1f3d; font-size:0.82rem;">OpenAI</div><div style="font-size:0.72rem; color:#6b7280;">GPT-4o / GPT-4 Turbo</div></div>
+      </div>
+      <div id="wprov-1minai" onclick="selectWriteProvider('1minai')" style="border:2px solid #ddd8cf; border-radius:10px; padding:11px 10px; cursor:pointer; display:flex; align-items:center; gap:8px; transition:all .2s;">
+        <span style="font-size:1.1rem;">⚡</span>
+        <div><div style="font-weight:600; color:#0f1f3d; font-size:0.82rem;">1min.ai</div><div style="font-size:0.72rem; color:#6b7280;">Claude · GPT · Mistral</div></div>
+      </div>
+    </div>
+    <div id="hint-1minai" style="display:none; background:#fffbe6; border:1px solid #f0d060; border-radius:8px; padding:8px 13px; font-size:0.78rem; color:#6b5000; margin-bottom:10px;">
+      ⚡ Obtenez votre clé sur <a href="https://app.1min.ai" target="_blank" style="color:#2a5fd6;">app.1min.ai</a> → Settings → API Keys
+    </div>
+
+    <!-- MODEL -->
+    <div style="margin-bottom:14px;">
+      <label style="display:block; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:#6b7280; margin-bottom:6px;">Modèle</label>
+      <select id="write-model-select" style="width:100%; border:1.5px solid #ddd8cf; border-radius:8px; padding:10px 14px; font-family:'DM Sans',sans-serif; font-size:0.88rem; color:#1a1a2e; background:#f7f4ef; outline:none;"></select>
+    </div>
+
+    <!-- API KEY -->
+    <div style="margin-bottom:12px;">
+      <label style="display:block; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:#6b7280; margin-bottom:6px;">Clé API</label>
+      <div style="display:flex; gap:8px;">
+        <input type="password" id="write-api-key" placeholder="sk-ant-api03-…"
+          onkeydown="if(event.key==='Enter') testConfigConnection()"
+          style="flex:1; border:1.5px solid #ddd8cf; border-radius:8px; padding:10px 14px; font-family:'DM Sans',sans-serif; font-size:0.88rem; color:#1a1a2e; background:#f7f4ef; outline:none;"/>
+        <button onclick="toggleKey('write-api-key')" style="background:#ede8df; border:1.5px solid #ddd8cf; border-radius:8px; padding:0 14px; cursor:pointer; font-size:0.9rem;">👁</button>
+      </div>
+    </div>
+
+    <!-- STATUS -->
+    <div id="write-conn-status" style="font-size:0.82rem; padding:9px 13px; border-radius:8px; margin-bottom:14px; background:#ede8df; color:#6b7280; font-weight:500;">
+      ○ &nbsp;Entrez votre clé puis testez
+    </div>
+
+    <!-- ACTIONS -->
+    <div style="display:flex; gap:10px; margin-bottom:20px;">
+      <button id="btn-test-write" onclick="testConfigConnection()"
+        style="flex:1; padding:11px; border-radius:10px; border:1.5px solid #ddd8cf; background:#ede8df; font-family:'DM Sans',sans-serif; font-size:0.88rem; font-weight:600; cursor:pointer;">
+        🔌 Tester
+      </button>
+      <button onclick="saveConfig()"
+        style="flex:1; padding:11px; border-radius:10px; border:none; background:#1a6b42; color:#fff; font-family:'DM Sans',sans-serif; font-size:0.88rem; font-weight:600; cursor:pointer;">
+        💾 Sauvegarder
+      </button>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="padding-top:16px; border-top:1px solid #ddd8cf; display:flex; justify-content:space-between; align-items:center;">
+      <div style="font-size:0.72rem; color:#6b7280; line-height:1.6;">
+        Clés sauvegardées dans votre navigateur uniquement<br/>
+        <a href="https://console.anthropic.com/keys" target="_blank" style="color:#2a5fd6;">console.anthropic.com</a> &nbsp;·&nbsp;
+        <a href="https://openrouter.ai/keys" target="_blank" style="color:#2a5fd6;">openrouter.ai/keys</a> &nbsp;·&nbsp;
+        <a href="https://platform.openai.com/api-keys" target="_blank" style="color:#2a5fd6;">platform.openai.com</a> &nbsp;·&nbsp;
+        <a href="https://app.1min.ai" target="_blank" style="color:#2a5fd6;">app.1min.ai</a>
+      </div>
+      <button onclick="closeAIConfig()"
+        style="padding:9px 18px; border-radius:8px; border:1.5px solid #ddd8cf; background:#fff; font-family:'DM Sans',sans-serif; font-size:0.85rem; font-weight:600; cursor:pointer; color:#1a1a2e;">
+        Fermer
+      </button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

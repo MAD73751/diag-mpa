@@ -1,0 +1,1922 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Réception MaPrimeAdapt' — DMAAI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bleu:#1F4E79;--bleu2:#2E75B6;--bleu3:#BDD7EE;--bleu4:#DEEAF1;
+  --vert:#1B7A3C;--vert2:#E2F0E8;
+  --orange:#C55A11;--orange2:#FCE4D6;
+  --gris:#6B7280;--gris2:#F3F4F6;--gris3:#E5E7EB;
+  --radius:10px;--shadow:0 2px 12px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#F0F4F8;color:#1a1a1a;min-height:100vh;display:flex;flex-direction:column}
+/* HEADER */
+header{background:var(--bleu);color:#fff;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+header .logo{font-family:'DM Serif Display',serif;font-size:1.1rem;letter-spacing:.02em}
+header .logo span{opacity:.6;font-size:.8rem;font-family:'DM Sans',sans-serif;margin-left:8px}
+header .hdr-btns{display:flex;gap:10px;align-items:center}
+header button{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:6px;padding:5px 13px;font-size:.82rem;cursor:pointer;font-family:inherit;transition:.15s}
+header button:hover{background:rgba(255,255,255,.22)}
+/* LAYOUT */
+.app{display:flex;flex:1}
+/* SIDEBAR */
+.sidebar{width:220px;background:#fff;border-right:1px solid var(--gris3);padding:20px 0;display:flex;flex-direction:column;gap:4px;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto}
+.sidebar .s-section{padding:0 12px}
+.sidebar .s-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gris);padding:10px 8px 4px}
+.sidebar a{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;text-decoration:none;color:#374151;font-size:.87rem;font-weight:500;transition:.12s;cursor:pointer}
+.sidebar a .num{width:22px;height:22px;border-radius:50%;background:var(--gris3);color:var(--gris);font-size:.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sidebar a.active{background:var(--bleu4);color:var(--bleu)}
+.sidebar a.active .num{background:var(--bleu);color:#fff}
+.sidebar a.done .num{background:var(--vert);color:#fff}
+.sidebar a.done{color:var(--vert)}
+.sidebar .s-divider{height:1px;background:var(--gris3);margin:8px 12px}
+.sidebar .s-action{margin:8px 12px}
+.sidebar .s-action button{width:100%;padding:9px;border-radius:8px;font-family:inherit;font-size:.83rem;font-weight:600;border:none;cursor:pointer;transition:.15s}
+.btn-gen{background:var(--bleu);color:#fff}
+.btn-gen:hover{background:var(--bleu2)}
+.btn-sec{background:var(--gris2);color:#374151;border:1px solid var(--gris3)!important}
+.btn-sec:hover{background:var(--gris3)}
+/* MAIN */
+.main{flex:1;padding:28px;max-width:960px;margin:0 auto;width:100%}
+.section{display:none}
+.section.active{display:block}
+/* STATUS BAR */
+.status-bar{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:8px;font-size:.82rem;font-weight:500;margin-bottom:20px}
+.status-bar.ok{background:#E2F0E8;color:var(--vert)}
+.status-bar.ko{background:#FEE2E2;color:#B91C1C}
+.status-bar.loading{background:var(--bleu4);color:var(--bleu2)}
+/* CARDS */
+.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;margin-bottom:18px}
+.card-title{font-family:'DM Serif Display',serif;font-size:1.05rem;color:var(--bleu);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card-title svg{flex-shrink:0}
+/* FORM */
+label{display:block;font-size:.82rem;font-weight:600;color:#374151;margin-bottom:4px}
+input[type=text],input[type=number],input[type=date],select,textarea{width:100%;border:1.5px solid var(--gris3);border-radius:7px;padding:8px 11px;font-family:inherit;font-size:.88rem;color:#1a1a1a;outline:none;transition:.15s}
+input:focus,select:focus,textarea:focus{border-color:var(--bleu2);box-shadow:0 0 0 3px rgba(46,117,182,.12)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.form-row.trio{grid-template-columns:1fr 1fr 1fr}
+.form-group{margin-bottom:14px}
+/* DROP ZONE */
+.drop-zone{border:2.5px dashed var(--bleu3);border-radius:10px;padding:36px;text-align:center;cursor:pointer;transition:.2s;background:var(--bleu4)}
+.drop-zone:hover,.drop-zone.over{border-color:var(--bleu2);background:#D6E8F5}
+.drop-zone .dz-icon{font-size:2.8rem;margin-bottom:8px}
+.drop-zone .dz-text{font-size:.9rem;color:var(--gris);margin-bottom:6px}
+.drop-zone .dz-hint{font-size:.78rem;color:var(--bleu2);font-weight:600}
+/* PHOTO GRID */
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:10px}
+.photo-thumb{position:relative;border-radius:8px;overflow:hidden;aspect-ratio:4/3;background:var(--gris2);cursor:pointer}
+.photo-thumb img{width:100%;height:100%;object-fit:cover}
+.photo-thumb .del-btn{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.5);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.photo-thumb .del-btn:hover{background:rgba(180,0,0,.8)}
+.add-photo-btn{border:2px dashed var(--gris3);border-radius:8px;aspect-ratio:4/3;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:var(--gris);font-size:.78rem;font-weight:600;transition:.15s;background:#fff}
+.add-photo-btn:hover{border-color:var(--bleu2);color:var(--bleu2);background:var(--bleu4)}
+/* TABLES */
+.tbl{width:100%;border-collapse:collapse;font-size:.85rem}
+.tbl th{background:var(--bleu);color:#fff;padding:8px 10px;text-align:left;font-weight:600}
+.tbl td{padding:8px 10px;border-bottom:1px solid var(--gris3);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr.total-row td{font-weight:700;background:var(--gris2)}
+.tbl tr.hono-row td{background:#E8F4FD;font-style:italic}
+.tbl input[type=text],.tbl input[type=number]{padding:5px 8px;font-size:.83rem}
+/* PLAN FINANCEMENT */
+.plan-recap{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+.plan-box{border-radius:8px;padding:14px}
+.plan-box.charges{background:var(--bleu4);border:1px solid var(--bleu3)}
+.plan-box.aides{background:var(--vert2);border:1px solid #A7D4B5}
+.plan-box.reste{background:var(--orange2);border:1px solid #F4BDA0}
+.plan-box .pb-title{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;opacity:.7;margin-bottom:6px}
+.plan-box .pb-val{font-size:1.4rem;font-weight:700}
+.plan-box.aides .pb-val{color:var(--vert)}
+.plan-box.reste .pb-val{color:var(--orange)}
+/* POSTE ACCORDION */
+.poste-item{border:1px solid var(--gris3);border-radius:8px;margin-bottom:8px;overflow:hidden}
+.poste-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--gris2);cursor:pointer;user-select:none}
+.poste-header:hover{background:#E9EEF3}
+.poste-header .ph-left{display:flex;align-items:center;gap:10px;font-weight:600;font-size:.9rem}
+.poste-header .ph-badge{font-size:.72rem;background:var(--bleu3);color:var(--bleu);border-radius:4px;padding:2px 7px;font-weight:700}
+.poste-header .ph-check{color:var(--vert);font-size:1rem}
+.poste-body{padding:14px;background:#fff;display:none}
+.poste-body.open{display:block}
+/* BADGE STATUS */
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.72rem;font-weight:700}
+.badge.ok{background:var(--vert2);color:var(--vert)}
+.badge.ko{background:#FEE2E2;color:#B91C1C}
+.badge.pending{background:#FEF3C7;color:#92400E}
+/* IA MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:12px;padding:28px;width:480px;max-width:94vw;box-shadow:0 8px 40px rgba(0,0,0,.18)}
+.modal h3{font-family:'DM Serif Display',serif;color:var(--bleu);margin-bottom:18px}
+.modal-foot{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+/* ALERTS */
+.alert{border-radius:8px;padding:12px 14px;font-size:.85rem;margin-bottom:12px}
+.alert.info{background:var(--bleu4);color:var(--bleu);border-left:3px solid var(--bleu2)}
+.alert.success{background:var(--vert2);color:var(--vert);border-left:3px solid var(--vert)}
+.alert.warn{background:#FEF3C7;color:#92400E;border-left:3px solid #F59E0B}
+/* EXTRACTION RESULT */
+.extract-result{background:var(--gris2);border-radius:8px;padding:14px;font-size:.82rem;margin-top:10px;max-height:280px;overflow-y:auto;white-space:pre-wrap;font-family:monospace;line-height:1.5}
+/* PROGRESS */
+.progress-bar{height:6px;background:var(--gris3);border-radius:3px;overflow:hidden;margin-top:8px}
+.progress-bar .fill{height:100%;background:var(--bleu2);transition:width .4s}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:7px;font-family:inherit;font-size:.85rem;font-weight:600;border:none;cursor:pointer;transition:.15s}
+.btn-primary{background:var(--bleu);color:#fff}
+.btn-primary:hover{background:var(--bleu2)}
+.btn-outline{background:#fff;color:var(--bleu);border:1.5px solid var(--bleu)}
+.btn-outline:hover{background:var(--bleu4)}
+.btn-danger{background:#FEE2E2;color:#B91C1C;border:1px solid #FECACA}
+.btn-danger:hover{background:#FECACA}
+.btn-green{background:var(--vert);color:#fff}
+.btn-green:hover{background:#155D2E}
+.btn-sm{padding:6px 12px;font-size:.78rem}
+/* IMPORT STATE */
+.import-info{background:var(--bleu4);border:1px solid var(--bleu3);border-radius:8px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.import-info .ii-name{font-weight:600;font-size:.88rem;color:var(--bleu)}
+.import-info .ii-status{font-size:.78rem;color:var(--gris)}
+/* ATTESTATION PREVIEW */
+.attest-preview{background:var(--gris2);border-radius:8px;padding:20px;font-size:.85rem;line-height:1.8;border:1px solid var(--gris3)}
+.attest-preview h4{font-family:'DM Serif Display',serif;color:var(--bleu);margin-bottom:10px}
+/* UTIL */
+.flex{display:flex}
+.gap-2{gap:8px}
+.gap-3{gap:12px}
+.mt-1{margin-top:6px}
+.mt-2{margin-top:12px}
+.mt-3{margin-top:18px}
+.mb-2{margin-bottom:12px}
+.text-sm{font-size:.82rem}
+.text-gris{color:var(--gris)}
+.text-right{text-align:right}
+.font-bold{font-weight:700}
+.w-full{width:100%}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    DMAAI <span>Réception MaPrimeAdapt'</span>
+  </div>
+  <div class="hdr-btns">
+    <div id="srvStatus" class="status-bar loading" style="margin:0;padding:5px 10px;font-size:.78rem">⏳ Connexion…</div>
+    <button onclick="openIAModal()">⚙️ Config IA</button>
+    <button onclick="window.location='/'">← Diagnostic</button>
+  </div>
+</header>
+
+<!-- APP -->
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="s-label">Étapes</div>
+    <a id="nav0" class="active" onclick="goSec(0)">
+      <span class="num">1</span> Import Diagnostic
+    </a>
+    <a id="nav1" onclick="goSec(1)">
+      <span class="num">2</span> Photos après travaux
+    </a>
+    <a id="nav2" onclick="goSec(2)">
+      <span class="num">3</span> Plan définitif
+    </a>
+    <a id="nav3" onclick="goSec(3)">
+      <span class="num">4</span> Génération
+    </a>
+    <div class="s-divider"></div>
+    <div class="s-action">
+      <button class="s-action btn-gen" onclick="genAttestation()">📄 Attestation .docx</button>
+    </div>
+    <div class="s-action" style="margin-top:4px">
+      <button class="s-action btn-gen" onclick="genPlanDefinitif()" style="background:var(--vert)">📊 Plan définitif .docx</button>
+    </div>
+    <div class="s-action" style="margin-top:4px">
+      <button class="s-action btn-sec" onclick="saveData()">💾 Sauvegarder</button>
+    </div>
+    <div class="s-action" style="margin-top:4px">
+      <button class="s-action btn-sec" onclick="exportZip()">📦 Exporter ZIP</button>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- SECTION 0 : IMPORT DIAGNOSTIC -->
+    <div id="sec0" class="section active">
+      <h2 style="font-family:'DM Serif Display',serif;color:var(--bleu);margin-bottom:18px">Import du diagnostic</h2>
+
+      <div class="card" id="cardImport">
+        <div class="card-title">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Importer le rapport de diagnostic PDF ou JSON
+        </div>
+        <p class="text-sm text-gris mb-2">Déposez le PDF du diagnostic transmis ou un export JSON de l'agent diagnostic. L'IA extraira automatiquement les informations.</p>
+
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()"
+             ondrop="handleFileDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+          <div class="dz-icon">📋</div>
+          <div class="dz-text">Glissez-déposez le PDF ou JSON ici</div>
+          <div class="dz-hint">ou cliquez pour parcourir</div>
+        </div>
+        <input type="file" id="fileInput" style="display:none" accept=".pdf,.json,.zip" onchange="handleFileSelect(event)">
+
+        <div id="importStatus" style="display:none" class="mt-2">
+          <div class="progress-bar"><div class="fill" id="progressFill" style="width:0%"></div></div>
+          <div id="importMsg" class="text-sm text-gris mt-1"></div>
+        </div>
+
+        <div id="extractResult" style="display:none" class="mt-2">
+          <div class="alert info">✅ Données extraites avec succès. Vérifiez ci-dessous puis passez à l'étape suivante.</div>
+          <div class="extract-result" id="extractContent"></div>
+        </div>
+      </div>
+
+      <!-- FICHE BÉNÉFICIAIRE (pré-remplie ou saisie manuelle) -->
+      <div class="card">
+        <div class="card-title">👤 Bénéficiaire &amp; mission</div>
+        <div class="form-row">
+          <div class="form-group"><label>Nom complet</label><input type="text" id="f_nom" placeholder="Dupont Jean"></div>
+          <div class="form-group"><label>Date de naissance</label><input type="date" id="f_ddn"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Adresse des travaux</label><input type="text" id="f_adresse" placeholder="12 rue de la Paix, 45000 Orléans"></div>
+          <div class="form-group"><label>N° dossier ANAH</label><input type="text" id="f_dossier" placeholder="MPA-2024-XXXXX"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Date début mission AMO</label><input type="date" id="f_deb"></div>
+          <div class="form-group"><label>Date réception travaux</label><input type="date" id="f_recep"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Entreprise(s) intervenante(s)</label><input type="text" id="f_entreprises" placeholder="Entreprise A, Entreprise B"></div>
+          <div class="form-group"><label>N° permis de construire / déclaration</label><input type="text" id="f_permis" placeholder="(si applicable)"></div>
+        </div>
+        <div class="form-group">
+          <label>Postes de travaux réalisés</label>
+          <textarea id="f_postes" rows="3" placeholder="Ex : Douche PMR, WC suspendu, Barre d'appui, Rampe d'accès…"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Observations / réserves</label>
+          <textarea id="f_reserves" rows="2" placeholder="Aucune réserve / Liste des réserves levées…"></textarea>
+        </div>
+        <div class="flex gap-2 mt-2">
+          <button class="btn btn-primary" onclick="goSec(1)">Étape suivante →</button>
+          <button class="btn btn-outline" onclick="manualEntry()">✏️ Saisie manuelle</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 1 : PHOTOS APRÈS TRAVAUX -->
+    <div id="sec1" class="section">
+      <h2 style="font-family:'DM Serif Display',serif;color:var(--bleu);margin-bottom:18px">Photos après travaux</h2>
+
+      <!-- Photos générales -->
+      <div class="card">
+        <div class="card-title">📷 Photos générales de réception</div>
+        <p class="text-sm text-gris mb-2">Ajoutez des photos générales du chantier après travaux (vue d'ensemble, accès, etc.)</p>
+        <div class="photo-grid" id="photosGenerales"></div>
+        <input type="file" id="pgInput" style="display:none" accept="image/*" multiple onchange="addPhotos('generales',event)">
+      </div>
+
+      <!-- Photos par poste -->
+      <div class="card">
+        <div class="card-title">🔧 Photos par poste de travaux</div>
+        <p class="text-sm text-gris mb-2">Cliquez sur un poste pour ajouter les photos correspondantes.</p>
+
+        <div id="postesContainer"></div>
+
+        <div class="flex gap-2 mt-3">
+          <button class="btn btn-outline btn-sm" onclick="addPoste()">+ Ajouter un poste</button>
+        </div>
+      </div>
+
+      <div class="flex gap-2">
+        <button class="btn btn-outline" onclick="goSec(0)">← Retour</button>
+        <button class="btn btn-primary" onclick="goSec(2)">Plan définitif →</button>
+      </div>
+    </div>
+
+    <!-- SECTION 2 : PLAN DE FINANCEMENT DÉFINITIF -->
+    <div id="sec2" class="section">
+      <h2 style="font-family:'DM Serif Display',serif;color:var(--bleu);margin-bottom:18px">Plan de financement définitif</h2>
+
+      <!-- Factures réelles -->
+      <div class="card">
+        <div class="card-title">🧾 Factures réelles</div>
+        <p class="text-sm text-gris mb-2">Saisissez les montants des factures réelles des entreprises (hors honoraires AMO).</p>
+        <table class="tbl" id="facturesTbl">
+          <thead>
+            <tr>
+              <th>Poste / Entreprise</th>
+              <th style="width:130px">Montant HT (€)</th>
+              <th style="width:100px">TVA (%)</th>
+              <th style="width:130px">Montant TTC (€)</th>
+              <th style="width:40px"></th>
+            </tr>
+          </thead>
+          <tbody id="facturesBody"></tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td><strong>TOTAL Travaux</strong></td>
+              <td id="ttlHT">0,00 €</td>
+              <td></td>
+              <td id="ttlTTC">0,00 €</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+        <div class="flex gap-2 mt-2">
+          <button class="btn btn-outline btn-sm" onclick="addFacture()">+ Ajouter une ligne</button>
+        </div>
+      </div>
+
+      <!-- Honoraires AMO -->
+      <div class="card">
+        <div class="card-title">📋 Honoraires AMO — DMAAI</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Honoraires HT (€)</label>
+            <input type="number" id="hono_ht" value="0" step="0.01" oninput="calcPlanDef()">
+          </div>
+          <div class="form-group">
+            <label>TVA (%)</label>
+            <select id="hono_tva" onchange="calcPlanDef()">
+              <option value="0">0%</option>
+              <option value="10">10%</option>
+              <option value="20" selected>20%</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Honoraires TTC (€)</label>
+            <input type="text" id="hono_ttc" readonly style="background:var(--gris2);font-weight:600">
+          </div>
+        </div>
+        <div class="alert info" style="margin-top:0">Forfait AMO MaPrimeAdapt' : <strong id="mpa_forfait_txt">—</strong> pris en charge par l'ANAH</div>
+      </div>
+
+      <!-- Aides versées -->
+      <div class="card">
+        <div class="card-title">✅ Aides versées</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>MaPrimeAdapt' travaux (€ versés)</label>
+            <input type="number" id="aide_mpa" value="0" step="0.01" oninput="calcPlanDef()">
+          </div>
+          <div class="form-group">
+            <label>Forfait AMO versé (€)</label>
+            <input type="number" id="aide_amo" value="" step="0.01" oninput="calcPlanDef()">
+          </div>
+        </div>
+        <div id="autresAidesContainer">
+          <!-- autres aides dynamiques -->
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="addAutreAide()">+ Autre aide (collectivité, CAF…)</button>
+      </div>
+
+      <!-- RÉCAP -->
+      <div class="card">
+        <div class="card-title">📊 Récapitulatif définitif</div>
+        <div class="plan-recap" id="planRecap">
+          <div class="plan-box charges">
+            <div class="pb-title">Total charges (TTC)</div>
+            <div class="pb-val" id="rTotalTTC">0,00 €</div>
+            <div class="text-sm mt-1" id="rTotalHTLine">dont 0,00 € HT</div>
+          </div>
+          <div class="plan-box aides">
+            <div class="pb-title">Total aides versées</div>
+            <div class="pb-val" id="rTotalAides">0,00 €</div>
+            <div class="text-sm mt-1" id="rAidesDetail">—</div>
+          </div>
+          <div class="plan-box reste" style="grid-column:1/-1">
+            <div class="pb-title">Reste à charge bénéficiaire</div>
+            <div class="pb-val" id="rReste">0,00 €</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-2">
+        <button class="btn btn-outline" onclick="goSec(1)">← Retour</button>
+        <button class="btn btn-primary" onclick="goSec(3)">Génération →</button>
+      </div>
+    </div>
+
+    <!-- SECTION 3 : GÉNÉRATION -->
+    <div id="sec3" class="section">
+      <h2 style="font-family:'DM Serif Display',serif;color:var(--bleu);margin-bottom:18px">Génération des documents</h2>
+
+      <div class="card">
+        <div class="card-title">📄 Attestation de fin de mission</div>
+        <p class="text-sm text-gris mb-2">Document certifiant la réception des travaux et la fin de la mission AMO.</p>
+        <div class="attest-preview" id="attestPreview">
+          <h4>Aperçu de l'attestation</h4>
+          <div id="attestContent">Complétez les sections précédentes pour générer l'aperçu.</div>
+        </div>
+        <div class="flex gap-2 mt-3">
+          <button class="btn btn-primary" onclick="genAttestation()">📥 Télécharger attestation .docx</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📊 Plan de financement définitif</div>
+        <p class="text-sm text-gris mb-2">Document récapitulatif des coûts réels et des aides versées.</p>
+        <table class="tbl">
+          <thead>
+            <tr><th>Désignation</th><th>Montant HT</th><th>TVA</th><th>Montant TTC</th></tr>
+          </thead>
+          <tbody id="planDefBody"></tbody>
+        </table>
+        <div class="flex gap-2 mt-3">
+          <button class="btn btn-green" onclick="genPlanDefinitif()">📥 Télécharger plan définitif .docx</button>
+          <button class="btn btn-outline" onclick="genBoth()">📦 Télécharger les deux</button>
+        </div>
+      </div>
+
+      <div id="genStatus" style="display:none" class="alert success mt-2">✅ Document généré avec succès !</div>
+    </div>
+
+  </main>
+</div>
+
+<!-- IA CONFIG MODAL -->
+<div class="modal-overlay" id="iaModal">
+  <div class="modal">
+    <h3>⚙️ Configuration IA</h3>
+    <div class="form-group">
+      <label>Fournisseur</label>
+      <select id="ia_provider" onchange="toggleProviderFields()">
+        <option value="anthropic">Anthropic (Claude)</option>
+        <option value="openrouter">OpenRouter</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Clé API</label>
+      <input type="text" id="ia_key" placeholder="sk-ant-... ou clé OpenRouter">
+    </div>
+    <div class="form-group" id="ia_model_group">
+      <label>Modèle</label>
+      <select id="ia_model">
+        <option value="claude-opus-4-5">Claude Opus 4.5</option>
+        <option value="claude-sonnet-4-5" selected>Claude Sonnet 4.5</option>
+        <option value="claude-haiku-4-5">Claude Haiku 4.5</option>
+      </select>
+    </div>
+    <div class="form-group" id="ia_or_model_group" style="display:none">
+      <label>Modèle OpenRouter</label>
+      <input type="text" id="ia_or_model" placeholder="anthropic/claude-3.5-sonnet">
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeIAModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="saveIAConfig()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- REGLES_ANAH:BEGIN (généré par inject_regles.py, ne pas modifier à la main) -->
+<script>
+// Fichier GÉNÉRÉ par build_regles.py : ne pas modifier à la main.
+// Inclure dans une page avec une balise script dont src vaut regles_anah.js, ou via inject_regles.py.
+// Puis utiliser REGLES_ANAH (données) et RA (fonctions de calcul).
+(function (root) {
+  var REGLES_ANAH = {
+  "meta": {
+    "nom": "Référentiel financier Anah 2026 - MaPrimeAdapt', Ma Prime Logement Décent, MaPrimeRénov'",
+    "version": "2026-10-14",
+    "perimetre": "France métropolitaine, propriétaires occupants (sauf mention contraire)",
+    "regle_d_usage": "Source unique des règles financières pour les agents (devis, facturation, diagnostic MPA, plan de financement). Ne jamais recopier ces valeurs dans un agent : les lire ici. Toute valeur a un champ source ; une valeur sans source ou marquée a_verifier ne doit pas être présentée au client comme certaine."
+  },
+  "sources": {
+    "S1": {
+      "titre": "Circulaire Anah du 1er décembre 2025 relative aux plafonds de ressources applicables en 2026 (NOR VLOL2534404C)",
+      "url": "https://www.bulletin-officiel.developpement-durable.gouv.fr/documents/Bulletinofficiel-0034327/VLOL2534404C.pdf",
+      "nature": "texte officiel",
+      "consulte": "2026-10-14"
+    },
+    "S2": {
+      "titre": "Anah, Les aides financières en 2026, édition septembre 2026",
+      "url": "https://www.hargassner.com/wp-content/uploads/2026/09/guide-aides-financieres-france-septembre-2026.pdf",
+      "nature": "guide officiel Anah, copie hébergée par un tiers (l'original sur anah.gouv.fr n'a pas été consulté)",
+      "consulte": "2026-10-14"
+    },
+    "S3": {
+      "titre": "ANIL, analyse juridique n°2024-08 Ma Prime Logement Décent, à jour au 3 septembre 2026 (délibérations Anah 2026-23 du 26.6.26, 2025-32 du 16.12.25, 2025-06, 2023-51)",
+      "url": "https://www.anil.org/aj-prime-logement-decent/",
+      "nature": "analyse juridique d'un organisme public, cite les délibérations Anah article par article",
+      "consulte": "2026-10-14"
+    },
+    "S4": {
+      "titre": "France Rénov', page Ma Prime Logement Décent (extrait de recherche, page non lue en entier)",
+      "url": "https://france-renov.gouv.fr/aides/ma-prime-logement-decent",
+      "nature": "site officiel, extrait partiel",
+      "consulte": "2026-10-14"
+    },
+    "U1": {
+      "titre": "Échange de David Marie-Anne avec le Conseil départemental du Loiret (Astrid Crevel), tel que rapporté dans une conversation du 8 octobre 2026",
+      "url": null,
+      "nature": "information rapportée par l'utilisateur, non vérifiée sur un texte",
+      "consulte": "2026-10-14"
+    }
+  },
+  "plafonds_ressources": {
+    "annee": 2026,
+    "unite": "euros, revenu fiscal de référence cumulé des personnes du ménage",
+    "source": "S1",
+    "confirme_par": "S2",
+    "ile_de_france": {
+      "tres_modeste": {
+        "1_a_5_personnes": [
+          24031,
+          35270,
+          42357,
+          49455,
+          56580
+        ],
+        "par_personne_supplementaire": 7116
+      },
+      "modeste": {
+        "1_a_5_personnes": [
+          29253,
+          42933,
+          51564,
+          60208,
+          68877
+        ],
+        "par_personne_supplementaire": 8663
+      },
+      "intermediaire": {
+        "1_a_5_personnes": [
+          40851,
+          60051,
+          71846,
+          84562,
+          96817
+        ],
+        "par_personne_supplementaire": 12257
+      }
+    },
+    "hors_ile_de_france": {
+      "tres_modeste": {
+        "1_a_5_personnes": [
+          17363,
+          25393,
+          30540,
+          35676,
+          40835
+        ],
+        "par_personne_supplementaire": 5151
+      },
+      "modeste": {
+        "1_a_5_personnes": [
+          22259,
+          32553,
+          39148,
+          45735,
+          52348
+        ],
+        "par_personne_supplementaire": 6598
+      },
+      "intermediaire": {
+        "1_a_5_personnes": [
+          31185,
+          45842,
+          55196,
+          64550,
+          73907
+        ],
+        "par_personne_supplementaire": 9357
+      }
+    },
+    "note": "Au-dessus du plafond intermédiaire : revenus supérieurs. MaPrimeAdapt' et Ma Prime Logement Décent ne concernent que très modestes et modestes. Le Loiret est hors Île-de-France."
+  },
+  "mpa": {
+    "nom": "MaPrimeAdapt'",
+    "source": "S2",
+    "taux": {
+      "tres_modeste": 0.7,
+      "modeste": 0.5
+    },
+    "plafond_travaux_ht": 22000,
+    "aide_maximale": {
+      "tres_modeste": 15400,
+      "modeste": 11000
+    },
+    "eligibilite_personne": [
+      "70 ans ou plus",
+      "60 à 69 ans sous condition de GIR",
+      "situation de handicap avec taux d'incapacité d'au moins 50 % ou bénéficiaire de la PCH"
+    ],
+    "reliquat": "Si le plafond de 22 000 € HT n'a pas été atteint, une deuxième demande est possible dans les 5 ans, dans la limite du plafond restant.",
+    "travaux_induits": "Les travaux induits sont éligibles s'ils figurent clairement dans le diagnostic logement autonomie (exemple : carrelage lié à une douche de plain-pied), dans la limite du plafond.",
+    "exclusions": [
+      "équipements non attachés à perpétuelle demeure",
+      "installations entraînant un abonnement mensuel (exemple : visiophone connecté)"
+    ],
+    "amo": {
+      "obligatoire": true,
+      "forfait_complet_ttc": 600,
+      "forfait_complet_avec_ergotherapeute_ttc": 800,
+      "pris_en_charge_par": "Anah en secteur diffus ; 100 % collectivité en opération programmée",
+      "socle": "Supprimé : plus possible de proposer un accompagnement socle depuis le 1er janvier 2026",
+      "source": "S2"
+    },
+    "avance": {
+      "max_part_de_l_aide": 0.3,
+      "conditions": [
+        "demandée avant le début des travaux",
+        "devis signé d'une entreprise exigeant un acompte",
+        "pas d'avance si mandataire financier"
+      ],
+      "source": "S2"
+    },
+    "cumul": "Peut être couplée avec les autres aides de l'Anah ; les plafonds de travaux sont alors dissociés (S2). Cumulable avec APA, PCH, AEEH, AAH, aides des collectivités et caisses de retraite (S2).",
+    "tva_travaux_adaptation": {
+      "taux": 0.1,
+      "source": "S2",
+      "note": "Taux réduit de 10 % pour les travaux d'amélioration dans un logement achevé depuis plus de 2 ans ; 5,5 % réservé à la rénovation énergétique listée."
+    }
+  },
+  "mpld": {
+    "nom": "Ma Prime Logement Décent",
+    "source": "S3",
+    "beneficiaires": "Propriétaires occupants très modestes et modestes (ou personnes assurant la charge effective des travaux pour un ascendant/descendant propriétaire occupant)",
+    "taux_et_plafonds": {
+      "classe_E_atteinte": {
+        "tres_modeste": 0.8,
+        "modeste": 0.6,
+        "plafond_travaux_ht": 70000
+      },
+      "classe_E_non_atteinte": {
+        "tres_modeste": 0.5,
+        "modeste": 0.5,
+        "plafond_travaux_ht": 50000
+      },
+      "source": "S3 (délibération 2026-23 art. 5.1.1, 5.1.2, 5.1.3, 6.1)"
+    },
+    "bonification_sortie_passoire": {
+      "condition": "Logement passant de F ou G à D ou mieux après travaux",
+      "taux": {
+        "tres_modeste": 0.9,
+        "modeste": 0.7
+      },
+      "source": "S3 (délibération 2026-23 art. 5.2) ; S4 indique +10 points"
+    },
+    "ecretement_ttc": {
+      "tres_modeste": 1.0,
+      "modeste": 0.9,
+      "source": "S4",
+      "a_verifier": true
+    },
+    "hors_plafond_de_travaux": [
+      "Maîtrise d'œuvre et autres prestations intellectuelles subventionnables (SPS, diagnostics techniques) : prises en compte dans la dépense subventionnée, hors plafond de travaux, au prorata des travaux subventionnés",
+      "Missions d'AMO donnant lieu à subvention complémentaire : hors plafonds de travaux"
+    ],
+    "amo_complement_subvention": {
+      "indissociable_de_l_aide_principale": true,
+      "versement": "subordonné à l'achèvement des travaux",
+      "habitat_indigne_ou_degrade_seul_ttc_par_logement": 2000,
+      "habitat_indigne_ou_degrade_plus_renovation_energetique_ttc_par_logement": 4000,
+      "prime_reservation_publics_prioritaires": 520,
+      "prestataire": "Mission de maîtrise d'œuvre complète, OU prestation d'AMO par un organisme agréé (L.365-3 CCH) ou habilité par l'Anah. Assurance RC pro et indépendance vis-à-vis de l'exécution des travaux exigées.",
+      "source": "S3 (délibération 2025-32)"
+    },
+    "conditions": [
+      "occupation du logement pendant au moins 3 ans",
+      "valorisation des CEE réservée à l'Anah le cas échéant",
+      "audit énergétique indiquant la classe avant et après travaux",
+      "accompagnement obligatoire (MOE complète ou AMO)"
+    ],
+    "travaux_renovation_energetique_eligibles": [
+      "isolation des murs",
+      "isolation des planchers bas",
+      "isolation de la toiture",
+      "menuiseries extérieures",
+      "ventilation",
+      "production de chauffage ou d'eau chaude"
+    ],
+    "cumul": {
+      "avec_mpa": "Les plafonds de travaux MPLD et MPA se cumulent (S3).",
+      "interdit_pour_memes_travaux": [
+        "MaPrimeRénov'",
+        "crédit d'impôt autonomie"
+      ],
+      "nouvelle_demande_sous_5_ans": "Possible dans la limite du reliquat du plafond le plus élevé (S3)."
+    },
+    "mandataire_financier": "Un mandataire financier ne peut pas percevoir d'avance, sauf pour les propriétaires occupants modestes et très modestes au titre de MPLD (S2)."
+  },
+  "mpr_ampleur": {
+    "nom": "MaPrimeRénov' rénovation d'ampleur (parcours accompagné)",
+    "source": "S2",
+    "taux": {
+      "tres_modeste": 0.8,
+      "modeste": 0.6,
+      "intermediaire": 0.45,
+      "superieur": 0.1
+    },
+    "plafond_travaux_ht": {
+      "gain_2_classes": 30000,
+      "gain_3_classes_ou_plus": 40000
+    },
+    "ecretement_ttc": {
+      "tres_modeste": 1.0,
+      "modeste": 0.9,
+      "intermediaire": 0.8,
+      "superieur": 0.5
+    },
+    "conditions": [
+      "logement construit depuis au moins 15 ans, classé E, F ou G avant travaux, résidence principale (8 mois par an)",
+      "gain d'au moins 2 classes sur l'audit énergétique",
+      "au moins 2 gestes d'isolation",
+      "Mon Accompagnateur Rénov' obligatoire",
+      "à partir du 1er septembre 2026 : plus de chauffage ou ECS au gaz ou fioul en maison individuelle"
+    ],
+    "cumul": "Non cumulable avec les CEE. Cumulable avec les aides des collectivités et caisses de retraite, dans la limite de l'écrêtement.",
+    "avance": {
+      "max_part_de_l_aide": 0.3,
+      "pour": "propriétaires occupants modestes et très modestes",
+      "delai": "demandée avant le début des travaux et dans les 6 mois après l'accord",
+      "source": "S2"
+    }
+  },
+  "mpr_geste": {
+    "nom": "MaPrimeRénov' par geste",
+    "source": "S2",
+    "reserve_a": "ménages très modestes, modestes, intermédiaires",
+    "forfaits_depuis_1er_septembre_2026": "Recentrés sur les pompes à chaleur ; les forfaits isolation, ventilation et autres systèmes de chauffage ne sont plus disponibles (hors réseau de chaleur).",
+    "forfaits": {
+      "pac_air_eau": {
+        "tres_modeste": 5000,
+        "modeste": 4000,
+        "intermediaire": 3000,
+        "plafond_depense": 12000
+      },
+      "pac_geothermique_ou_solaire": {
+        "tres_modeste": 11000,
+        "modeste": 9000,
+        "intermediaire": 6000,
+        "plafond_depense": 18000
+      },
+      "reseau_de_chaleur": {
+        "tres_modeste": 1200,
+        "modeste": 800,
+        "intermediaire": 400,
+        "plafond_depense": 1800
+      },
+      "audit_hors_obligation": {
+        "tres_modeste": 500,
+        "modeste": 400,
+        "intermediaire": 300,
+        "plafond_depense": 800
+      },
+      "depose_cuve_fioul": {
+        "tres_modeste": 1200,
+        "modeste": 800,
+        "intermediaire": 400,
+        "plafond_depense": 4000
+      }
+    },
+    "ecretement_avec_cee": {
+      "tres_modeste": 0.9,
+      "modeste": 0.75,
+      "intermediaire": 0.6
+    },
+    "ecretement_toutes_aides": 1.0,
+    "plafond_cumule_sur_5_ans": 20000,
+    "avance": {
+      "max_part_de_l_aide": 0.5,
+      "pour": "ménages très modestes"
+    }
+  },
+  "mar": {
+    "nom": "Mon Accompagnateur Rénov' - prise en charge de la prestation (rénovation d'ampleur)",
+    "source": "S2",
+    "plafond_prestation_ttc": 2000,
+    "plafond_prestation_renforcee_ttc": 4000,
+    "plafond_renforce_condition": "Prestation renforcée pour traiter en plus une situation d'habitat indigne",
+    "taux_de_prise_en_charge": {
+      "tres_modeste": 1.0,
+      "modeste": 0.8,
+      "intermediaire": 0.4,
+      "superieur": 0.2
+    },
+    "interdit": "L'accompagnateur ne peut pas réaliser les travaux ; neutralité exigée sur le choix des travaux et des entreprises"
+  },
+  "tva": {
+    "source": "S2",
+    "taux_reduit_10": "Travaux d'amélioration, transformation, aménagement, entretien dans un logement achevé depuis plus de 2 ans",
+    "taux_reduit_5_5": "Prestations de rénovation énergétique listées (isolation, chauffage, ventilation, eau chaude) ; PAC air-air à 5,5 % depuis le 1er septembre 2026",
+    "taux_20": "Chaudière susceptible d'utiliser des combustibles fossiles (dont gaz)"
+  },
+  "aides_locales": [
+    {
+      "nom": "Conseil départemental du Loiret - aide propre à l'autonomie adossée à MaPrimeAdapt'",
+      "regle": "Majoration de 20 % plafonnée à 2 000 € pour les ménages très modestes, 10 % plafonnée à 1 500 € pour les modestes. Adoptée le 10 juillet 2026. Les dossiers déjà validés ne peuvent pas la réclamer rétroactivement.",
+      "source": "U1",
+      "a_verifier": true
+    }
+  ],
+  "points_a_verifier": [
+    "Année de l'avis d'imposition à retenir pour le revenu fiscal de référence (N-1 ou N-2) : non précisée dans les extraits lus du guide Anah, et les sources secondaires se contredisent. À confirmer sur le guide original ou auprès de la délégation.",
+    "Ma Prime Logement Décent, avance et acomptes : le pourcentage n'a pas été trouvé dans les sources lues. Les 30 % d'avance puis acomptes jusqu'à 70 % évoqués dans une conversation précédente ne sont pas confirmés ici.",
+    "Ma Prime Logement Décent, MOE complète et complément AMO : selon l'ANIL, l'accompagnement obligatoire repose sur une MOE complète OU une AMO. Si la MOE complète ouvre aussi droit au complément AMO de 2 000 à 4 000 € TTC, le texte lu ne le dit pas clairement. À confirmer par écrit auprès de la délégation Anah.",
+    "Ma Prime Logement Décent, honoraires de MOE : la source lue (ANIL, délibération 2026-23) les place hors plafond de travaux, au prorata des travaux subventionnés. Cela répond à la question laissée ouverte sur le dossier de Villemandeur, mais la formule exacte du prorata doit être confirmée.",
+    "Ma Prime Logement Décent, écrêtement 100 % / 90 % TTC : relevé dans un extrait partiel de France Rénov', pas dans le texte de la délibération.",
+    "Seuil minimal de 1 000 € HT de travaux subventionnables : mentionné sur la page ANIL de MPLD mais avec le sigle MPA. À confirmer pour chaque dispositif.",
+    "Cumul MaPrimeAdapt' avec MaPrimeRénov' parcours accompagné : le guide Anah dit que les plafonds de travaux sont dissociés ; un site tiers affirme qu'ils ne sont pas cumulables. Le guide Anah prévaut, à vérifier sur un cas concret.",
+    "Prise en charge de Mon Accompagnateur Rénov' : le guide parle d'un plafond de financement de 2 000 € TTC avec un taux par catégorie, sans préciser si le plafond porte sur le prix de la prestation ou sur l'aide. Pour une catégorie modeste, les deux lectures donnent des montants différents (1 600 € ou 2 000 € au maximum) : la fonction de calcul renvoie les deux.",
+    "Le guide Anah de septembre 2026 a été lu via une copie hébergée par un tiers. Contrôler les valeurs critiques sur anah.gouv.fr avant de les graver dans un contrat ou un devis.",
+    "Les forfaits MPR par geste sont ceux du guide de septembre 2026 ; ils changent souvent, à relire à chaque nouvelle édition."
+  ]
+};
+
+  // ---- Fonctions de calcul (utilisent uniquement REGLES_ANAH, aucune valeur en dur) ----
+  var R = REGLES_ANAH;
+
+  function arrondi(x) { return Math.round(x * 100) / 100; }
+
+  // Plafond de ressources pour une catégorie, une taille de ménage et une zone.
+  function plafondRessources(categorie, personnes, idf) {
+    var zone = idf ? R.plafonds_ressources.ile_de_france : R.plafonds_ressources.hors_ile_de_france;
+    var t = zone[categorie];
+    var n = Math.max(1, Math.floor(personnes));
+    var base = t["1_a_5_personnes"];
+    if (n <= 5) return base[n - 1];
+    return base[4] + (n - 5) * t.par_personne_supplementaire;
+  }
+
+  // rfr = somme des revenus fiscaux de référence des personnes du ménage.
+  // L'année de l'avis d'imposition à retenir est à vérifier (voir points_a_verifier).
+  function categorieMenage(personnes, rfr, idf) {
+    var ordre = ["tres_modeste", "modeste", "intermediaire"];
+    for (var i = 0; i < ordre.length; i++) {
+      if (rfr <= plafondRessources(ordre[i], personnes, idf)) return ordre[i];
+    }
+    return "superieur";
+  }
+
+  // MaPrimeAdapt' : taux x travaux HT plafonnés.
+  function aideMPA(travauxHT, categorie) {
+    var taux = R.mpa.taux[categorie];
+    if (taux === undefined) {
+      return { eligible: false, subvention: 0, raison: "MaPrimeAdapt' est réservée aux ménages très modestes et modestes." };
+    }
+    var base = Math.min(travauxHT, R.mpa.plafond_travaux_ht);
+    return {
+      eligible: true,
+      taux: taux,
+      base_subventionnable_ht: arrondi(base),
+      depasse_plafond: travauxHT > R.mpa.plafond_travaux_ht,
+      subvention: arrondi(base * taux),
+      reste_a_charge_ht: arrondi(travauxHT - base * taux)
+    };
+  }
+
+  // Forfait AMO MaPrimeAdapt' (secteur diffus), TTC.
+  function forfaitAmoMPA(avecErgotherapeute) {
+    return avecErgotherapeute ? R.mpa.amo.forfait_complet_avec_ergotherapeute_ttc : R.mpa.amo.forfait_complet_ttc;
+  }
+
+  // Ma Prime Logement Décent.
+  // classeAvant, classeApres : lettres "A" à "G" (classeAvant sert à la bonification passoire).
+  function aideMPLD(travauxHT, categorie, classeAvant, classeApres) {
+    if (categorie !== "tres_modeste" && categorie !== "modeste") {
+      return { eligible: false, subvention: 0, raison: "Ma Prime Logement Décent est réservée aux propriétaires occupants très modestes et modestes." };
+    }
+    var ordreClasses = "ABCDEFG";
+    var apres = ordreClasses.indexOf(String(classeApres).toUpperCase());
+    var avant = ordreClasses.indexOf(String(classeAvant).toUpperCase());
+    var eAtteinte = apres >= 0 && apres <= ordreClasses.indexOf("E");
+    var bloc = eAtteinte ? R.mpld.taux_et_plafonds.classe_E_atteinte : R.mpld.taux_et_plafonds.classe_E_non_atteinte;
+    var taux = bloc[categorie];
+    var bonifie = false;
+    if (avant >= ordreClasses.indexOf("F") && apres >= 0 && apres <= ordreClasses.indexOf("D")) {
+      taux = R.mpld.bonification_sortie_passoire.taux[categorie];
+      bonifie = true;
+    }
+    var base = Math.min(travauxHT, bloc.plafond_travaux_ht);
+    return {
+      eligible: true,
+      classe_E_atteinte: eAtteinte,
+      bonification_passoire: bonifie,
+      taux: taux,
+      plafond_travaux_ht: bloc.plafond_travaux_ht,
+      base_subventionnable_ht: arrondi(base),
+      depasse_plafond: travauxHT > bloc.plafond_travaux_ht,
+      subvention: arrondi(base * taux),
+      note: "Honoraires de MOE et prestations intellectuelles : hors plafond au prorata (formule à confirmer), non inclus dans ce calcul."
+    };
+  }
+
+  // Complément de subvention AMO pour MPLD (montant maximal, TTC par logement).
+  function plafondAmoMPLD(avecRenovationEnergetique) {
+    var a = R.mpld.amo_complement_subvention;
+    return avecRenovationEnergetique
+      ? a.habitat_indigne_ou_degrade_plus_renovation_energetique_ttc_par_logement
+      : a.habitat_indigne_ou_degrade_seul_ttc_par_logement;
+  }
+
+  // MaPrimeRénov' rénovation d'ampleur, avec écrêtement si travauxTTC est fourni.
+  // autresAides : somme des autres aides perçues pour les mêmes travaux (collectivités, caisse de retraite...).
+  function aideMPRAmpleur(travauxHT, categorie, gainClasses, travauxTTC, autresAides) {
+    var a = R.mpr_ampleur;
+    var plafond = gainClasses >= 3 ? a.plafond_travaux_ht.gain_3_classes_ou_plus
+                : gainClasses === 2 ? a.plafond_travaux_ht.gain_2_classes : null;
+    if (plafond === null) {
+      return { eligible: false, subvention: 0, raison: "Gain de 2 classes minimum requis." };
+    }
+    var taux = a.taux[categorie];
+    var base = Math.min(travauxHT, plafond);
+    var aide = base * taux;
+    var ecretee = false;
+    if (typeof travauxTTC === "number") {
+      var limite = a.ecretement_ttc[categorie] * travauxTTC - (autresAides || 0);
+      var plafonnee = Math.max(0, limite);
+      if (plafonnee < aide) { aide = plafonnee; ecretee = true; }
+    }
+    return {
+      eligible: true,
+      taux: taux,
+      plafond_travaux_ht: plafond,
+      base_subventionnable_ht: arrondi(base),
+      ecretee: ecretee,
+      subvention: arrondi(aide)
+    };
+  }
+
+  // Prise en charge de la prestation Mon Accompagnateur Rénov'.
+  // L'Anah indique un "plafond de financement de 2 000 € TTC" avec un taux par catégorie : le texte ne dit pas
+  // si le plafond porte sur le prix de la prestation ou sur l'aide. On renvoie les deux lectures.
+  function priseEnChargeMAR(prixPrestationTTC, categorie, renforcee) {
+    var m = R.mar;
+    var plafond = renforcee ? m.plafond_prestation_renforcee_ttc : m.plafond_prestation_ttc;
+    var taux = m.taux_de_prise_en_charge[categorie];
+    return {
+      taux: taux,
+      plafond_ttc: plafond,
+      si_plafond_sur_le_prix: arrondi(taux * Math.min(prixPrestationTTC, plafond)),
+      si_plafond_sur_l_aide: arrondi(Math.min(taux * prixPrestationTTC, plafond)),
+      a_verifier: true
+    };
+  }
+
+  var RA = {
+    plafondRessources: plafondRessources,
+    categorieMenage: categorieMenage,
+    aideMPA: aideMPA,
+    forfaitAmoMPA: forfaitAmoMPA,
+    aideMPLD: aideMPLD,
+    plafondAmoMPLD: plafondAmoMPLD,
+    aideMPRAmpleur: aideMPRAmpleur,
+    priseEnChargeMAR: priseEnChargeMAR
+  };
+
+  root.REGLES_ANAH = REGLES_ANAH;
+  root.RA = RA;
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { REGLES_ANAH: REGLES_ANAH, RA: RA };
+  }
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+<!-- REGLES_ANAH:END -->
+<script>
+const API = '';
+const STORE_KEY = 'dmaai_reception_v1';
+// Règles Anah : lues dans le référentiel partagé (bloc REGLES_ANAH injecté plus haut)
+const REGLES_OK = (typeof RA !== 'undefined' && typeof REGLES_ANAH !== 'undefined');
+const MPA_FORFAIT_AMO = REGLES_OK ? RA.forfaitAmoMPA(false) : 0;
+// Valeur numérique d'un champ ; le forfait par défaut ne remplace que l'absence de saisie (0 reste possible)
+function numChamp(id, defaut) { const v = parseFloat(document.getElementById(id)?.value); return isNaN(v) ? defaut : v; }
+function initRegles() {
+  if (!REGLES_OK) {
+    const b = document.createElement('div');
+    b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#c0392b;color:#fff;padding:10px 16px;font:600 13px sans-serif;text-align:center';
+    b.textContent = "Référentiel des règles Anah introuvable : forfait AMO non renseigné. Relancer inject_regles.py sur ce fichier.";
+    document.body.appendChild(b); return;
+  }
+  const s = document.getElementById('mpa_forfait_txt'); if (s) s.textContent = MPA_FORFAIT_AMO.toLocaleString('fr-FR') + ' €';
+}
+const IA_CONFIG_KEY = 'dmaai_ia_config';
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let D = {
+  beneficiaire: {},
+  photos_generales: [],
+  postes: [],       // [{nom, recu, photos:[]}]
+  factures: [],     // [{label, ht, tva}]
+  hono_ht: 0,
+  hono_tva: 20,
+  aide_mpa: 0,
+  aide_amo: MPA_FORFAIT_AMO,
+  autres_aides: [],
+};
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  initRegles();
+  loadData();
+  checkServer();
+  renderPhotosGenerales();
+  renderPostes();
+  renderFactures();
+  renderAutresAides();
+  calcPlanDef();
+  updateAttestPreview();
+  setInterval(checkServer, 15000);
+  // set form fields from D.beneficiaire
+  const b = D.beneficiaire || {};
+  ['nom','ddn','adresse','dossier','deb','recep','entreprises','permis','postes','reserves'].forEach(k => {
+    const el = document.getElementById('f_'+k);
+    if (el && b[k]) el.value = b[k];
+  });
+  const ht = document.getElementById('hono_ht');
+  if (ht) ht.value = D.hono_ht || 0;
+  const tv = document.getElementById('hono_tva');
+  if (tv) tv.value = D.hono_tva || 20;
+  const am = document.getElementById('aide_mpa');
+  if (am) am.value = D.aide_mpa || 0;
+  const ao = document.getElementById('aide_amo');
+  if (ao) ao.value = (D.aide_amo !== undefined && D.aide_amo !== null && D.aide_amo !== '') ? D.aide_amo : MPA_FORFAIT_AMO;
+});
+
+// ─── SERVER ───────────────────────────────────────────────────────────────────
+function checkServer() {
+  const el = document.getElementById('srvStatus');
+  const ctrl = new AbortController();
+  const tid = setTimeout(() => ctrl.abort(), 3000);
+  fetch(API + '/ping', {signal: ctrl.signal})
+    .then(r => r.json())
+    .then(j => {
+      clearTimeout(tid);
+      el.className = 'status-bar ok';
+      el.style.cssText = 'margin:0;padding:5px 10px;font-size:.78rem';
+      el.textContent = '✅ Serveur connecté';
+    })
+    .catch(() => {
+      clearTimeout(tid);
+      el.className = 'status-bar ko';
+      el.style.cssText = 'margin:0;padding:5px 10px;font-size:.78rem';
+      el.textContent = '🔴 Serveur déconnecté';
+    });
+}
+
+// ─── NAVIGATION ───────────────────────────────────────────────────────────────
+let currentSec = 0;
+function goSec(n) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+  document.getElementById('sec'+n).classList.add('active');
+  document.getElementById('nav'+n).classList.add('active');
+  currentSec = n;
+  if (n === 3) { updateAttestPreview(); renderPlanDefTable(); }
+  saveBeneficiaire();
+}
+
+function saveBeneficiaire() {
+  ['nom','ddn','adresse','dossier','deb','recep','entreprises','permis','postes','reserves'].forEach(k => {
+    const el = document.getElementById('f_'+k);
+    if (el) D.beneficiaire[k] = el.value;
+  });
+}
+
+// ─── PERSIST ──────────────────────────────────────────────────────────────────
+function saveData() {
+  saveBeneficiaire();
+  D.hono_ht = parseFloat(document.getElementById('hono_ht')?.value) || 0;
+  D.hono_tva = parseFloat(document.getElementById('hono_tva')?.value) || 0;
+  D.aide_mpa = parseFloat(document.getElementById('aide_mpa')?.value) || 0;
+  D.aide_amo = numChamp('aide_amo', MPA_FORFAIT_AMO);
+  // strip photos for localStorage (save only metadata)
+  const toSave = JSON.parse(JSON.stringify(D));
+  toSave.photos_generales = D.photos_generales.map(p => ({...p, data: null}));
+  toSave.postes = D.postes.map(po => ({...po, photos: po.photos.map(ph => ({...ph, data: null}))}));
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify(toSave));
+    showToast('💾 Données sauvegardées (photos dans ZIP)');
+  } catch(e) {
+    showToast('⚠️ Sauvegarde locale impossible — exportez un ZIP', 'warn');
+  }
+}
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) {
+      const loaded = JSON.parse(raw);
+      Object.assign(D, loaded);
+    }
+  } catch(e) {}
+}
+
+// ─── FILE IMPORT ──────────────────────────────────────────────────────────────
+function handleDragOver(e) { e.preventDefault(); document.getElementById('dropZone').classList.add('over'); }
+function handleDragLeave(e) { document.getElementById('dropZone').classList.remove('over'); }
+function handleFileDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('over');
+  const file = e.dataTransfer.files[0];
+  if (file) processImportFile(file);
+}
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (file) processImportFile(file);
+  e.target.value = '';
+}
+
+async function processImportFile(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  showImportProgress(10, 'Lecture du fichier…');
+  if (ext === 'json') {
+    const text = await file.text();
+    showImportProgress(50, 'Analyse JSON…');
+    try {
+      const json = JSON.parse(text);
+      importFromJSON(json);
+      showImportProgress(100, 'Import JSON terminé !');
+      showExtractResult(JSON.stringify(D.beneficiaire, null, 2));
+    } catch(e) {
+      showImportProgress(0, 'Erreur JSON : ' + e.message);
+    }
+  } else if (ext === 'zip') {
+    showImportProgress(30, 'Extraction ZIP…');
+    await importFromZip(file);
+    showImportProgress(100, 'Import ZIP terminé !');
+  } else if (ext === 'pdf') {
+    showImportProgress(30, 'Lecture PDF…');
+    await importFromPDF(file);
+  } else {
+    showImportProgress(0, 'Format non supporté. Utilisez PDF, JSON ou ZIP.');
+  }
+}
+
+function importFromJSON(json) {
+  // Try to extract from diagnostic agent format
+  const flds = json.flds || json;
+  D.beneficiaire = {
+    nom: flds.nom_ben || flds.nom || '',
+    ddn: flds.ddn_ben || flds.ddn || '',
+    adresse: flds.adresse_trav || flds.adresse || '',
+    dossier: flds.num_dossier || flds.dossier || '',
+    entreprises: '',
+    postes: extractPostesList(flds),
+    reserves: '',
+    deb: '',
+    recep: '',
+    permis: ''
+  };
+  D.hono_ht = parseFloat(flds.hono_ht) || 0;
+  D.hono_tva = parseFloat(flds.hono_tva) || 20;
+  // pre-fill factures from devis
+  if (json.postes_devis && Array.isArray(json.postes_devis)) {
+    D.factures = json.postes_devis.map(p => ({
+      label: p.label || '',
+      ht: parseFloat(p.montant_ht) || 0,
+      tva: parseFloat(p.tva) || 10
+    }));
+  } else if (flds.postes && Array.isArray(flds.postes)) {
+    D.factures = flds.postes.map(p => ({
+      label: p.label || p.nom || '',
+      ht: parseFloat(p.ht) || parseFloat(p.montant) || 0,
+      tva: parseFloat(p.tva) || 10
+    }));
+  }
+  // Build postes list for photos
+  if (D.postes.length === 0) {
+    const pl = extractPostesList(flds);
+    if (pl) {
+      D.postes = pl.split(/[,\n;]+/).map(s => s.trim()).filter(Boolean).map(nom => ({nom, recu: false, photos: []}));
+    }
+  }
+  // update form fields
+  const b = D.beneficiaire;
+  ['nom','ddn','adresse','dossier','deb','recep','entreprises','permis','postes','reserves'].forEach(k => {
+    const el = document.getElementById('f_'+k);
+    if (el && b[k]) el.value = b[k];
+  });
+  const ht = document.getElementById('hono_ht');
+  if (ht) ht.value = D.hono_ht;
+  renderPostes();
+  renderFactures();
+  calcPlanDef();
+}
+
+function extractPostesList(flds) {
+  const keys = ['postes_travaux','postes','travaux','postes_list'];
+  for (const k of keys) {
+    if (flds[k]) {
+      if (Array.isArray(flds[k])) return flds[k].map(p => p.label||p.nom||p).join(', ');
+      return String(flds[k]);
+    }
+  }
+  return '';
+}
+
+async function importFromZip(file) {
+  // Use JSZip if available
+  if (typeof JSZip === 'undefined') {
+    showImportProgress(0, 'JSZip non disponible. Utilisez un fichier JSON ou PDF.');
+    return;
+  }
+  try {
+    const zip = await JSZip.loadAsync(file);
+    const jsonFile = zip.file('reception_data.json') || zip.file('diagnostic_data.json');
+    if (!jsonFile) { showImportProgress(0, 'Fichier JSON non trouvé dans le ZIP'); return; }
+    const jsonText = await jsonFile.async('string');
+    const json = JSON.parse(jsonText);
+    importFromJSON(json);
+    // restore photos
+    const photoFiles = Object.keys(zip.files).filter(n => /\.(jpg|jpeg|png|webp|gif)$/i.test(n));
+    for (const pf of photoFiles) {
+      const blob = await zip.files[pf].async('blob');
+      const dataUrl = await blobToDataUrl(blob);
+      const parts = pf.split('/');
+      if (parts[0] === 'photos_generales') {
+        D.photos_generales.push({name: parts[1]||pf, data: dataUrl});
+      } else if (parts[0] === 'postes') {
+        const idx = parseInt(parts[1]);
+        if (!isNaN(idx) && D.postes[idx]) {
+          D.postes[idx].photos.push({name: parts[2]||pf, data: dataUrl});
+        }
+      }
+    }
+    renderPhotosGenerales();
+    renderPostes();
+    showExtractResult('Import ZIP OK — ' + photoFiles.length + ' photos restaurées');
+  } catch(e) {
+    showImportProgress(0, 'Erreur ZIP : ' + e.message);
+  }
+}
+
+async function importFromPDF(file) {
+  const cfg = getIAConfig();
+  if (!cfg.key) {
+    showImportProgress(0, 'Configurez une clé API IA pour extraire le PDF automatiquement.');
+    // Still allow reading file as base64
+    return;
+  }
+  showImportProgress(40, 'Envoi au modèle IA…');
+  try {
+    const arrayBuf = await file.arrayBuffer();
+    const base64 = arrayBufferToBase64(arrayBuf);
+    const prompt = `Tu es un assistant spécialisé dans l'analyse de rapports de diagnostic d'adaptation du logement MaPrimeAdapt'.
+
+Extrais du PDF fourni les informations suivantes et retourne-les UNIQUEMENT sous forme de JSON valide, sans autre texte :
+{
+  "nom_ben": "Nom complet du bénéficiaire",
+  "ddn_ben": "Date de naissance (YYYY-MM-DD si possible)",
+  "adresse_trav": "Adresse complète des travaux",
+  "num_dossier": "Numéro de dossier ANAH ou MPA",
+  "postes_travaux": "Liste des postes de travaux séparés par des virgules",
+  "hono_ht": 0,
+  "entreprises": "Noms des entreprises intervenantes",
+  "date_rapport": "Date du rapport diagnostic (YYYY-MM-DD)"
+}
+
+Si une information n'est pas trouvée, laisse la valeur vide ou à 0.`;
+
+    let response;
+    if (cfg.provider === 'anthropic') {
+      response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': cfg.key,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: cfg.model || 'claude-sonnet-4-5',
+          max_tokens: 1024,
+          messages: [{
+            role: 'user',
+            content: [{
+              type: 'document',
+              source: { type: 'base64', media_type: 'application/pdf', data: base64 }
+            }, {
+              type: 'text',
+              text: prompt
+            }]
+          }]
+        })
+      });
+    } else {
+      // OpenRouter — PDF via text extraction (limited)
+      response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + cfg.key
+        },
+        body: JSON.stringify({
+          model: cfg.or_model || 'anthropic/claude-3.5-sonnet',
+          messages: [{role:'user', content:'[PDF envoyé — extraction OpenRouter non supportée directement]\n\n'+prompt}]
+        })
+      });
+    }
+
+    if (!response.ok) throw new Error('API error ' + response.status);
+    const data = await response.json();
+    const text = cfg.provider === 'anthropic'
+      ? (data.content?.[0]?.text || '')
+      : (data.choices?.[0]?.message?.content || '');
+
+    showImportProgress(80, 'Analyse de la réponse…');
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const extracted = JSON.parse(jsonMatch[0]);
+      importFromJSON({flds: extracted});
+      D.beneficiaire.entreprises = extracted.entreprises || '';
+      const ent = document.getElementById('f_entreprises');
+      if (ent) ent.value = extracted.entreprises || '';
+      showImportProgress(100, 'Extraction IA terminée !');
+      showExtractResult(JSON.stringify(extracted, null, 2));
+    } else {
+      showImportProgress(90, 'Extraction partielle — vérifiez les champs');
+      showExtractResult(text);
+    }
+  } catch(e) {
+    showImportProgress(0, 'Erreur IA : ' + e.message);
+  }
+}
+
+function showImportProgress(pct, msg) {
+  document.getElementById('importStatus').style.display = 'block';
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('importMsg').textContent = msg;
+}
+
+function showExtractResult(text) {
+  document.getElementById('extractResult').style.display = 'block';
+  document.getElementById('extractContent').textContent = text;
+}
+
+// ─── PHOTOS GÉNÉRALES ─────────────────────────────────────────────────────────
+function renderPhotosGenerales() {
+  const grid = document.getElementById('photosGenerales');
+  if (!grid) return;
+  grid.innerHTML = '';
+  D.photos_generales.forEach((ph, i) => {
+    const div = document.createElement('div');
+    div.className = 'photo-thumb';
+    div.innerHTML = '<img src="'+(ph.data||'')+'"><button class="del-btn" onclick="delPhotoGen('+i+')">×</button>';
+    div.querySelector('img').onclick = () => openLightbox(ph.data);
+    grid.appendChild(div);
+  });
+  // Add button
+  const addBtn = document.createElement('div');
+  addBtn.className = 'add-photo-btn';
+  addBtn.innerHTML = '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>Photo</span>';
+  addBtn.onclick = () => document.getElementById('pgInput').click();
+  grid.appendChild(addBtn);
+}
+
+function addPhotos(target, event, posteIdx) {
+  const files = Array.from(event.target.files);
+  const promises = files.map(f => fileToDataUrl(f).then(data => ({name: f.name, data})));
+  Promise.all(promises).then(photos => {
+    if (target === 'generales') {
+      D.photos_generales.push(...photos);
+      renderPhotosGenerales();
+    } else {
+      D.postes[posteIdx].photos.push(...photos);
+      renderPostes();
+    }
+    event.target.value = '';
+  });
+}
+
+function delPhotoGen(i) {
+  D.photos_generales.splice(i, 1);
+  renderPhotosGenerales();
+}
+
+// ─── POSTES ───────────────────────────────────────────────────────────────────
+function renderPostes() {
+  const container = document.getElementById('postesContainer');
+  if (!container) return;
+  if (D.postes.length === 0) {
+    container.innerHTML = '<div class="alert info">Aucun poste défini. Importez un diagnostic ou ajoutez des postes manuellement.</div>';
+    return;
+  }
+  container.innerHTML = '';
+  D.postes.forEach((poste, i) => {
+    const item = document.createElement('div');
+    item.className = 'poste-item';
+    const checked = poste.recu ? 'checked' : '';
+    const badgeClass = poste.recu ? 'ok' : 'pending';
+    const badgeText = poste.recu ? '✓ Réceptionné' : '⏳ À réceptionner';
+    item.innerHTML = `
+      <div class="poste-header" onclick="togglePoste(${i})">
+        <div class="ph-left">
+          <input type="checkbox" ${checked} onclick="event.stopPropagation();toggleRecep(${i},this)" style="width:16px;height:16px;cursor:pointer">
+          <span id="posteNom${i}">${poste.nom || 'Poste '+( i+1)}</span>
+          <span class="ph-badge">${poste.photos.length} photo(s)</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="badge ${badgeClass}" id="posteBadge${i}">${badgeText}</span>
+          <span style="font-size:.85rem;color:var(--gris)">▼</span>
+        </div>
+      </div>
+      <div class="poste-body" id="posteBody${i}">
+        <div class="form-row" style="margin-bottom:10px">
+          <div class="form-group">
+            <label>Nom du poste</label>
+            <input type="text" value="${poste.nom}" oninput="D.postes[${i}].nom=this.value;document.getElementById('posteNom${i}').textContent=this.value">
+          </div>
+          <div class="form-group">
+            <label>Observations</label>
+            <input type="text" placeholder="RAS / réserves…" value="${poste.obs||''}" oninput="D.postes[${i}].obs=this.value">
+          </div>
+        </div>
+        <div class="photo-grid" id="postePhotos${i}"></div>
+        <input type="file" id="ppInput${i}" style="display:none" accept="image/*" multiple onchange="addPhotos('poste',event,${i})">
+        <button class="btn btn-outline btn-sm mt-2" onclick="document.getElementById('ppInput${i}').click()">📷 Ajouter photos</button>
+        <button class="btn btn-danger btn-sm mt-2" style="margin-left:8px" onclick="removePoste(${i})">🗑️ Supprimer</button>
+      </div>
+    `;
+    container.appendChild(item);
+    // render photos
+    renderPostePhotos(i);
+  });
+}
+
+function renderPostePhotos(i) {
+  const grid = document.getElementById('postePhotos'+i);
+  if (!grid) return;
+  grid.innerHTML = '';
+  D.postes[i].photos.forEach((ph, j) => {
+    const div = document.createElement('div');
+    div.className = 'photo-thumb';
+    div.innerHTML = '<img src="'+(ph.data||'')+'"><button class="del-btn" onclick="delPostePhoto('+i+','+j+')">×</button>';
+    div.querySelector('img').onclick = () => openLightbox(ph.data);
+    grid.appendChild(div);
+  });
+}
+
+function togglePoste(i) {
+  const body = document.getElementById('posteBody'+i);
+  body.classList.toggle('open');
+}
+
+function toggleRecep(i, cb) {
+  D.postes[i].recu = cb.checked;
+  const badge = document.getElementById('posteBadge'+i);
+  if (badge) {
+    badge.className = 'badge ' + (cb.checked ? 'ok' : 'pending');
+    badge.textContent = cb.checked ? '✓ Réceptionné' : '⏳ À réceptionner';
+  }
+}
+
+function addPoste() {
+  D.postes.push({nom: 'Nouveau poste', recu: false, photos: [], obs: ''});
+  renderPostes();
+}
+
+function removePoste(i) {
+  D.postes.splice(i, 1);
+  renderPostes();
+}
+
+function delPostePhoto(i, j) {
+  D.postes[i].photos.splice(j, 1);
+  renderPostePhotos(i);
+}
+
+// ─── FACTURES ─────────────────────────────────────────────────────────────────
+function renderFactures() {
+  const tbody = document.getElementById('facturesBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  if (D.factures.length === 0) {
+    D.factures.push({label: '', ht: 0, tva: 10});
+  }
+  D.factures.forEach((f, i) => {
+    const tr = document.createElement('tr');
+    const ttc = f.ht * (1 + (f.tva||0)/100);
+    tr.innerHTML = `
+      <td><input type="text" value="${f.label}" placeholder="Poste / Entreprise" oninput="D.factures[${i}].label=this.value"></td>
+      <td><input type="number" value="${f.ht||0}" step="0.01" oninput="D.factures[${i}].ht=parseFloat(this.value)||0;calcPlanDef()" style="text-align:right"></td>
+      <td>
+        <select onchange="D.factures[${i}].tva=parseFloat(this.value);calcPlanDef()">
+          <option value="0" ${f.tva==0?'selected':''}>0%</option>
+          <option value="5.5" ${f.tva==5.5?'selected':''}>5,5%</option>
+          <option value="10" ${f.tva==10?'selected':''}>10%</option>
+          <option value="20" ${f.tva==20?'selected':''}>20%</option>
+        </select>
+      </td>
+      <td style="text-align:right;font-weight:600">${fmtEur(ttc)}</td>
+      <td><button onclick="removeFacture(${i})" style="background:none;border:none;cursor:pointer;color:#B91C1C;font-size:1rem">🗑️</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  updateFacturesTotals();
+}
+
+function addFacture() {
+  D.factures.push({label: '', ht: 0, tva: 10});
+  renderFactures();
+}
+
+function removeFacture(i) {
+  D.factures.splice(i, 1);
+  if (D.factures.length === 0) D.factures.push({label: '', ht: 0, tva: 10});
+  renderFactures();
+  calcPlanDef();
+}
+
+function updateFacturesTotals() {
+  const totHT = D.factures.reduce((s,f) => s + (parseFloat(f.ht)||0), 0);
+  const totTTC = D.factures.reduce((s,f) => {
+    const ht = parseFloat(f.ht)||0;
+    const ttc = ht * (1 + (parseFloat(f.tva)||0)/100);
+    return s + ttc;
+  }, 0);
+  const el1 = document.getElementById('ttlHT');
+  const el2 = document.getElementById('ttlTTC');
+  if (el1) el1.textContent = fmtEur(totHT);
+  if (el2) el2.textContent = fmtEur(totTTC);
+}
+
+// ─── AUTRES AIDES ─────────────────────────────────────────────────────────────
+function renderAutresAides() {
+  const cont = document.getElementById('autresAidesContainer');
+  if (!cont) return;
+  cont.innerHTML = '';
+  (D.autres_aides || []).forEach((a, i) => {
+    const row = document.createElement('div');
+    row.className = 'form-row mt-1';
+    row.innerHTML = `
+      <div class="form-group">
+        <label>Organisme / Aide</label>
+        <input type="text" value="${a.label||''}" placeholder="CAF, Conseil Dép., Ville…" oninput="D.autres_aides[${i}].label=this.value;calcPlanDef()">
+      </div>
+      <div class="form-group">
+        <label>Montant versé (€)</label>
+        <input type="number" value="${a.montant||0}" step="0.01" oninput="D.autres_aides[${i}].montant=parseFloat(this.value)||0;calcPlanDef()">
+      </div>
+      <div style="display:flex;align-items:flex-end;padding-bottom:14px">
+        <button onclick="removeAutreAide(${i})" class="btn btn-danger btn-sm">🗑️</button>
+      </div>
+    `;
+    cont.appendChild(row);
+  });
+}
+
+function addAutreAide() {
+  if (!D.autres_aides) D.autres_aides = [];
+  D.autres_aides.push({label:'', montant: 0});
+  renderAutresAides();
+}
+
+function removeAutreAide(i) {
+  D.autres_aides.splice(i, 1);
+  renderAutresAides();
+  calcPlanDef();
+}
+
+// ─── CALCUL PLAN DÉFINITIF ────────────────────────────────────────────────────
+function calcPlanDef() {
+  const honoHT = parseFloat(document.getElementById('hono_ht')?.value) || 0;
+  const honoTvaPct = parseFloat(document.getElementById('hono_tva')?.value) || 0;
+  const honoTTC = honoHT * (1 + honoTvaPct/100);
+  const honoTTCEl = document.getElementById('hono_ttc');
+  if (honoTTCEl) honoTTCEl.value = fmtEur(honoTTC);
+
+  const totHT = D.factures.reduce((s,f) => s + (parseFloat(f.ht)||0), 0);
+  const totTTC = D.factures.reduce((s,f) => {
+    return s + (parseFloat(f.ht)||0) * (1 + (parseFloat(f.tva)||0)/100);
+  }, 0);
+  updateFacturesTotals();
+
+  const totalChargesHT = totHT + honoHT;
+  const totalChargesTTC = totTTC + honoTTC;
+
+  const aideMPA = parseFloat(document.getElementById('aide_mpa')?.value) || 0;
+  const aideAMO = parseFloat(document.getElementById('aide_amo')?.value) || 0;
+  const autresAides = (D.autres_aides || []).reduce((s,a) => s + (parseFloat(a.montant)||0), 0);
+  const totalAides = aideMPA + aideAMO + autresAides;
+  const reste = Math.max(0, totalChargesTTC - totalAides);
+
+  // Update recap
+  const rTTC = document.getElementById('rTotalTTC');
+  const rHT  = document.getElementById('rTotalHTLine');
+  const rAides = document.getElementById('rTotalAides');
+  const rDetail = document.getElementById('rAidesDetail');
+  const rReste = document.getElementById('rReste');
+  if (rTTC) rTTC.textContent = fmtEur(totalChargesTTC);
+  if (rHT) rHT.textContent = 'dont ' + fmtEur(totalChargesHT) + ' HT';
+  if (rAides) rAides.textContent = fmtEur(totalAides);
+  if (rDetail) {
+    let det = 'MPA\' travaux : ' + fmtEur(aideMPA);
+    det += ' · Forfait AMO : ' + fmtEur(aideAMO);
+    if (autresAides > 0) det += ' · Autres : ' + fmtEur(autresAides);
+    rDetail.textContent = det;
+  }
+  if (rReste) rReste.textContent = fmtEur(reste);
+}
+
+// ─── PLAN DÉFINITIF TABLE (section 3) ────────────────────────────────────────
+function renderPlanDefTable() {
+  const tbody = document.getElementById('planDefBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  const honoHT = parseFloat(document.getElementById('hono_ht')?.value) || 0;
+  const honoTvaPct = parseFloat(document.getElementById('hono_tva')?.value) || 0;
+  const honoTTC = honoHT * (1 + honoTvaPct/100);
+  const honoAMO = Math.min(numChamp('aide_amo', MPA_FORFAIT_AMO), MPA_FORFAIT_AMO);
+
+  D.factures.forEach(f => {
+    if (!f.label && !f.ht) return;
+    const ht = parseFloat(f.ht)||0;
+    const ttc = ht * (1 + (parseFloat(f.tva)||0)/100);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${f.label||'—'}</td><td class="text-right">${fmtEur(ht)}</td><td class="text-right">${f.tva||0} %</td><td class="text-right font-bold">${fmtEur(ttc)}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  // Honoraires
+  if (honoHT > 0) {
+    const tr = document.createElement('tr');
+    tr.className = 'hono-row';
+    tr.innerHTML = `<td>Honoraires AMO — DMAAI (Forfait ${fmtEur(honoAMO)} pris en charge)</td><td class="text-right">${fmtEur(honoHT)}</td><td class="text-right">${honoTvaPct} %</td><td class="text-right font-bold">${fmtEur(honoTTC)}</td>`;
+    tbody.appendChild(tr);
+  }
+
+  // Totals
+  const totHT = D.factures.reduce((s,f) => s + (parseFloat(f.ht)||0), 0) + honoHT;
+  const totTTC = D.factures.reduce((s,f) => {
+    return s + (parseFloat(f.ht)||0)*(1+(parseFloat(f.tva)||0)/100);
+  }, 0) + honoTTC;
+  const trTot = document.createElement('tr');
+  trTot.className = 'total-row';
+  trTot.innerHTML = `<td>TOTAL</td><td class="text-right">${fmtEur(totHT)}</td><td></td><td class="text-right">${fmtEur(totTTC)}</td>`;
+  tbody.appendChild(trTot);
+
+  // Aides
+  const aideMPA = parseFloat(document.getElementById('aide_mpa')?.value) || 0;
+  const aideAMO = numChamp('aide_amo', MPA_FORFAIT_AMO);
+  const totalAides = aideMPA + aideAMO + (D.autres_aides||[]).reduce((s,a)=>s+(parseFloat(a.montant)||0),0);
+  const reste = Math.max(0, totTTC - totalAides);
+
+  const trAides = document.createElement('tr');
+  trAides.style.background = '#E2F0E8';
+  trAides.innerHTML = `<td colspan="3" style="color:var(--vert);font-weight:700">Total aides versées</td><td class="text-right" style="color:var(--vert);font-weight:700">- ${fmtEur(totalAides)}</td>`;
+  tbody.appendChild(trAides);
+
+  const trReste = document.createElement('tr');
+  trReste.style.background = '#FCE4D6';
+  trReste.innerHTML = `<td colspan="3" style="color:var(--orange);font-weight:700">Reste à charge bénéficiaire</td><td class="text-right" style="color:var(--orange);font-weight:700">${fmtEur(reste)}</td>`;
+  tbody.appendChild(trReste);
+}
+
+// ─── ATTESTATION PREVIEW ──────────────────────────────────────────────────────
+function updateAttestPreview() {
+  const b = D.beneficiaire || {};
+  const nom = b.nom || '[Bénéficiaire]';
+  const adresse = b.adresse || '[Adresse]';
+  const dossier = b.dossier || '[N° dossier]';
+  const recep = b.recep ? new Date(b.recep).toLocaleDateString('fr-FR') : '[date]';
+  const postes = b.postes || D.postes.map(p=>p.nom).join(', ') || '[postes]';
+  const el = document.getElementById('attestContent');
+  if (el) {
+    el.innerHTML = `
+<strong>ATTESTATION DE FIN DE MISSION AMO</strong><br>
+MaPrimeAdapt' — Assistance à Maîtrise d'Ouvrage<br><br>
+Je soussigné(e), David MARIE-ANNE, Architecte DPLG, en ma qualité d'Assistant à Maîtrise d'Ouvrage (AMO) dans le cadre du dispositif MaPrimeAdapt',<br><br>
+<strong>CERTIFIE</strong> avoir accompagné :<br>
+M./Mme <strong>${nom}</strong><br>
+Domicile : ${adresse}<br>
+N° dossier ANAH : ${dossier}<br><br>
+dans la réalisation des travaux d'adaptation du logement suivants :<br>
+<em>${postes}</em><br><br>
+Date de réception des travaux : <strong>${recep}</strong><br><br>
+Les travaux ont été réceptionnés ${D.postes.filter(p=>p.recu).length}/${D.postes.length} poste(s) sans réserve.<br><br>
+Fait à Orléans, le ${new Date().toLocaleDateString('fr-FR')}<br>
+<em>David MARIE-ANNE — Architecte DPLG<br>SIRET 808 408 165 000 13</em>
+    `;
+  }
+}
+
+// ─── GÉNÉRATION DOCUMENTS ─────────────────────────────────────────────────────
+function collectData() {
+  saveBeneficiaire();
+  const honoHT = parseFloat(document.getElementById('hono_ht')?.value) || 0;
+  const honoTvaPct = parseFloat(document.getElementById('hono_tva')?.value) || 0;
+  const aideMPA = parseFloat(document.getElementById('aide_mpa')?.value) || 0;
+  const aideAMO = numChamp('aide_amo', MPA_FORFAIT_AMO);
+  return {
+    beneficiaire: D.beneficiaire,
+    factures: D.factures,
+    hono_ht: honoHT,
+    hono_tva: honoTvaPct,
+    aide_mpa: aideMPA,
+    aide_amo: aideAMO,
+    autres_aides: D.autres_aides || [],
+    photos_generales: (D.photos_generales || []).filter(p => p.data),
+    postes: D.postes.map(p => ({nom: p.nom, recu: p.recu, obs: p.obs||'', photos: (p.photos||[]).filter(ph => ph.data)})),
+    date_gen: new Date().toISOString().split('T')[0]
+  };
+}
+
+async function genAttestation() {
+  const payload = collectData();
+  showGenStatus('Génération de l\'attestation…');
+  try {
+    const r = await fetch(API + '/attestation', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    if (!r.ok) throw new Error('Erreur serveur ' + r.status);
+    const blob = await r.blob();
+    downloadBlob(blob, 'attestation_fin_mission_'+(payload.beneficiaire.nom||'').replace(/ /g,'_')+'.docx');
+    showGenStatus('✅ Attestation générée !', 'success');
+  } catch(e) {
+    showGenStatus('❌ ' + e.message, 'error');
+  }
+}
+
+async function genPlanDefinitif() {
+  const payload = collectData();
+  showGenStatus('Génération du plan définitif…');
+  try {
+    const r = await fetch(API + '/plan_definitif', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    if (!r.ok) throw new Error('Erreur serveur ' + r.status);
+    const blob = await r.blob();
+    downloadBlob(blob, 'plan_financement_definitif_'+(payload.beneficiaire.nom||'').replace(/ /g,'_')+'.docx');
+    showGenStatus('✅ Plan définitif généré !', 'success');
+  } catch(e) {
+    showGenStatus('❌ ' + e.message, 'error');
+  }
+}
+
+async function genBoth() {
+  await genAttestation();
+  await genPlanDefinitif();
+}
+
+function showGenStatus(msg, type='info') {
+  const el = document.getElementById('genStatus');
+  if (!el) return;
+  el.style.display = 'block';
+  el.className = 'alert ' + (type==='success'?'success':type==='error'?'warn':'info') + ' mt-2';
+  el.textContent = msg;
+}
+
+// ─── ZIP EXPORT ───────────────────────────────────────────────────────────────
+async function exportZip() {
+  if (typeof JSZip === 'undefined') {
+    showToast('JSZip non disponible', 'warn'); return;
+  }
+  saveBeneficiaire();
+  const zip = new JSZip();
+  const meta = JSON.parse(JSON.stringify(D));
+  meta.photos_generales = D.photos_generales.map((p,i) => ({name: p.name||('gen_'+i+'.jpg'), data: null}));
+  meta.postes = D.postes.map((po,i) => ({...po, photos: po.photos.map((ph,j) => ({name: ph.name||('p'+i+'_'+j+'.jpg'), data: null}))}));
+  zip.file('reception_data.json', JSON.stringify(meta, null, 2));
+  const pg = zip.folder('photos_generales');
+  for (const ph of D.photos_generales) {
+    if (ph.data) {
+      const b64 = ph.data.split(',')[1]||ph.data;
+      pg.file(ph.name||'photo.jpg', b64, {base64:true});
+    }
+  }
+  const pf = zip.folder('postes');
+  D.postes.forEach((po, i) => {
+    const pFolder = pf.folder(String(i));
+    po.photos.forEach(ph => {
+      if (ph.data) {
+        const b64 = ph.data.split(',')[1]||ph.data;
+        pFolder.file(ph.name||'photo.jpg', b64, {base64:true});
+      }
+    });
+  });
+  const blob = await zip.generateAsync({type:'blob', compression:'DEFLATE', compressionOptions:{level:6}});
+  const nom = (D.beneficiaire?.nom||'reception').replace(/ /g,'_');
+  downloadBlob(blob, 'reception_mpa_'+nom+'.zip');
+  showToast('📦 ZIP exporté');
+}
+
+function manualEntry() {
+  document.getElementById('extractResult').style.display = 'none';
+  document.getElementById('importStatus').style.display = 'none';
+  showToast('✏️ Remplissez les champs manuellement');
+}
+
+// ─── IA CONFIG ────────────────────────────────────────────────────────────────
+function getIAConfig() {
+  try {
+    return JSON.parse(localStorage.getItem(IA_CONFIG_KEY) || '{}');
+  } catch(e) { return {}; }
+}
+
+function openIAModal() {
+  const cfg = getIAConfig();
+  document.getElementById('ia_provider').value = cfg.provider || 'anthropic';
+  document.getElementById('ia_key').value = cfg.key || '';
+  document.getElementById('ia_model').value = cfg.model || 'claude-sonnet-4-5';
+  document.getElementById('ia_or_model').value = cfg.or_model || '';
+  toggleProviderFields();
+  document.getElementById('iaModal').classList.add('open');
+}
+
+function closeIAModal() {
+  document.getElementById('iaModal').classList.remove('open');
+}
+
+function toggleProviderFields() {
+  const prov = document.getElementById('ia_provider').value;
+  document.getElementById('ia_model_group').style.display = prov==='anthropic'?'block':'none';
+  document.getElementById('ia_or_model_group').style.display = prov==='openrouter'?'block':'none';
+}
+
+function saveIAConfig() {
+  const cfg = {
+    provider: document.getElementById('ia_provider').value,
+    key: document.getElementById('ia_key').value.trim(),
+    model: document.getElementById('ia_model').value,
+    or_model: document.getElementById('ia_or_model').value.trim()
+  };
+  localStorage.setItem(IA_CONFIG_KEY, JSON.stringify(cfg));
+  closeIAModal();
+  showToast('✅ Config IA sauvegardée');
+}
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+function fmtEur(val) {
+  const n = parseFloat(val) || 0;
+  return n.toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' €';
+}
+
+function fileToDataUrl(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+function blobToDataUrl(blob) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result);
+    r.onerror = rej;
+    r.readAsDataURL(blob);
+  });
+}
+
+function arrayBufferToBase64(buf) {
+  const bytes = new Uint8Array(buf);
+  let b = '';
+  for (const byte of bytes) b += String.fromCharCode(byte);
+  return btoa(b);
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
+}
+
+function openLightbox(src) {
+  const ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out';
+  const img = document.createElement('img');
+  img.src = src;
+  img.style.cssText = 'max-width:90vw;max-height:90vh;border-radius:8px;box-shadow:0 4px 32px rgba(0,0,0,.4)';
+  ov.appendChild(img);
+  ov.onclick = () => document.body.removeChild(ov);
+  document.body.appendChild(ov);
+}
+
+let toastTimer;
+function showToast(msg, type='ok') {
+  let t = document.getElementById('_toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = '_toast';
+    t.style.cssText = 'position:fixed;bottom:24px;right:24px;padding:12px 18px;border-radius:8px;font-size:.85rem;font-weight:600;z-index:9999;transition:opacity .3s';
+    document.body.appendChild(t);
+  }
+  t.style.background = type==='ok'?'#1B7A3C':type==='warn'?'#F59E0B':'#B91C1C';
+  t.style.color = '#fff';
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.style.opacity = '0'; }, 3000);
+}
+</script>
+<!-- JSZip -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</body>
+</html>

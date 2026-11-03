@@ -1,0 +1,15 @@
+{
+  "name": "Diagnostic MPLD – Ma Prime Logement Décent",
+  "short_name": "Diag MPLD",
+  "description": "Diagnostic logement décent MPLD (dégradation + insalubrité) — EI David MARIE-ANNE",
+  "start_url": "./agent_diagnostic_mpld.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f5f7",
+  "theme_color": "#1F3864",
+  "orientation": "portrait",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"}
+  ]
+}

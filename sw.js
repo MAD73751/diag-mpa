@@ -1,7 +1,9 @@
-const CACHE = 'dmaai-mpa-v1';
+const CACHE = 'dmaai-mpa-v2';
 const FILES = [
-  './diagnostic_mpa.html',
-  './manifest.json'
+  './agent_diagnostic_mpa.html',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', e => {

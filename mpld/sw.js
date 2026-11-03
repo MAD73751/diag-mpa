@@ -1,4 +1,4 @@
-const CACHE = 'dmaai-mpld-v1';   // changer le numéro à chaque mise à jour de l'outil
+const CACHE = 'dmaai-mpld-v2';   // changer le numéro à chaque mise à jour de l'outil
 const FILES = [
   './agent_diagnostic_mpld.html',
   './manifest.json',

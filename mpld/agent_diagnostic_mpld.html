@@ -69,20 +69,21 @@ function save(){try{if(db)db.transaction('s','readwrite').objectStore('s').put(S
 function load(){return new Promise(r=>{try{const q=db.transaction('s').objectStore('s').get('cur');q.onsuccess=()=>{if(q.result)S=q.result;r()};q.onerror=()=>r()}catch(e){r()}})}
 /* ---------- calculs ---------- */
 function K(e){return e.k=='N'?(+S.info.niveaux||1):e.k=='P'?(+S.info.pieces||1):1}
-function calcDeg(){let pts=0,mx=0,maj=0,sumM=0,rest=0,nM=0;
+function calcDeg(){let pts=0,mx=0,maj=0,sumM=0,rest=0,nM=0,nv=0;
  DEG.forEach(e=>{const d=S.deg[e.id]||{};const n=d.n;if(e.maj)nM++;
   if(n===undefined||n===''||n===null){rest++;mx+=3*K(e);return}
   if(n==='SO')return;mx+=3*K(e);
+  if(n==='NV'){nv++;return}
   const am=(e.a&&d.a)?d.a/100:1,p=(!e.p||d.p===undefined||d.p===''||d.p===null)?1:+d.p;
   pts+=n*am*p*K(e);if(e.maj)sumM+=n});
- const DM=sumM/nM/3,DG=mx?pts/mx:0,ID=1-Math.sqrt(((1-DM)**2+(1-DG)**2)/2);return {DM,DG,ID,rest}}
+ const DM=sumM/nM/3,DG=mx?pts/mx:0,ID=1-Math.sqrt(((1-DM)**2+(1-DG)**2)/2);return {DM,DG,ID,rest,nv}}
 function calcIns(){let pts=0,mx=0,rest=0,dan=0;
  INS.forEach(c=>{const d=S.ins[c.id]||{};if(d.d)dan++;const n=d.n;
   if(n===undefined||n===''||n===null){rest++;mx+=3*c.coef;return}
   if(n==='SO')return;mx+=3*c.coef;pts+=n*c.coef});
  return {idx:mx?pts/mx:0,pts,mx,rest,dan,miss:Math.max(0,.4*mx-pts)}}
 function live(){const a=calcDeg(),b=calcIns();
- $('#live').innerHTML=`Dégradation ID <b>${a.ID.toFixed(3)}</b> (seuil dossier 0,35 : ${a.ID>=.35?'atteint':'non atteint'}) · restants ${a.rest} &nbsp;|&nbsp; Insalubrité <b>${b.idx.toFixed(3)}</b> (seuil 0,4) · restants ${b.rest}${b.dan?' · DANGER ×'+b.dan:''}`}
+ $('#live').innerHTML=`Dégradation ID <b>${a.ID.toFixed(3)}</b> (seuil dossier 0,35 : ${a.ID>=.35?'atteint':'non atteint'}) · restants ${a.rest}${a.nv?' · NV '+a.nv+(a.nv>3?' ⚠':''):''} &nbsp;|&nbsp; Insalubrité <b>${b.idx.toFixed(3)}</b> (seuil 0,4) · restants ${b.rest}${b.dan?' · DANGER ×'+b.dan:''}`}
 /* ---------- photos ---------- */
 function shrink(file){return new Promise(res=>{const img=new Image(),u=URL.createObjectURL(file);img.onload=()=>{const m=1400,s=Math.min(1,m/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',.72))};img.onerror=()=>res(null);img.src=u})}
 async function addPhotos(kind,id,files){const o=(S[kind][id]=S[kind][id]||{});o.ph=o.ph||[];for(const f of files){const d=await shrink(f);if(d)o.ph.push({name:f.name,data:d})}save();render()}
@@ -97,8 +98,9 @@ function degCard(e){const d=S.deg[e.id]||{};const n=d.n;
  const flag=(n===2||n===3)&&!(d.ph&&d.ph.length)?'<span class="flag w">photo requise</span>':'';
  return `<div class="card"><h3>${e.lab}${e.maj?' <small style="color:var(--acc)">● majeur</small>':''}${flag}</h3><div class="hint">${e.hint||''}</div>
  <div class="opts">${NOTES.map(([v,l,t])=>`<div class="opt n${v} ${n===v?'sel':''}" onclick="setv('deg','${e.id}','n',${n===v?'undefined':v})"><b>${l}</b>${t}</div>`).join('')}
- <div class="opt ${n==='SO'?'sel':''}" onclick="setv('deg','${e.id}','n','${n==='SO'?'':'SO'}')"><b>SO</b>Absent, pas de création</div></div>
- ${(n>0&&n!=='SO'&&(e.a||e.p))?`<div class="row">${e.a?`<span>Ampleur :</span>${AMP.map(a=>`<span class="chip ${d.a===a?'sel':''}" onclick="setv('deg','${e.id}','a',${a})">${a} % ${AMPL[a]}</span>`).join('')}
+ <div class="opt ${n==='SO'?'sel':''}" onclick="setv('deg','${e.id}','n','${n==='SO'?'':'SO'}')"><b>SO</b>Absent, pas de création</div>
+ <div class="opt ${n==='NV'?'sel':''}" onclick="setv('deg','${e.id}','n','${n==='NV'?'':'NV'}')"><b>NV – Non vu</b>Non visible / non visité (à justifier ; plus de 3 NV = grille irrecevable)</div></div>
+ ${(n>0&&n!=='SO'&&n!=='NV'&&(e.a||e.p))?`<div class="row">${e.a?`<span>Ampleur :</span>${AMP.map(a=>`<span class="chip ${d.a===a?'sel':''}" onclick="setv('deg','${e.id}','a',${a})">${a} % ${AMPL[a]}</span>`).join('')}
  `:''}${e.p?`<span>Prorata (0–1) :</span><input style="width:70px" type="number" step="0.05" min="0" max="1" value="${d.p??''}" onchange="setv('deg','${e.id}','p',this.value)">`:''}</div>`:''}
  <textarea placeholder="Observations (descriptif technique)" onchange="setv('deg','${e.id}','o',this.value)">${d.o||''}</textarea>${thumbs('deg',e.id)}</div>`}
 function insCard(c){const d=S.ins[c.id]||{};const n=d.n;
@@ -118,7 +120,7 @@ function render(keep){const y=scrollY;
  if(tab=='deg')h=filt+DEG.filter(e=>pass('deg',e.id,(S.deg[e.id]||{}).n)).map(degCard).join('');
  if(tab=='ins')h=filt+INS.filter(c=>pass('ins',c.id,(S.ins[c.id]||{}).n)).map(insCard).join('');
  if(tab=='syn'){const a=calcDeg(),b=calcIns();
-  h=`<div class="card"><div class="sec-t">Dégradation (grille Anah)</div><div class="kv"><span>Éléments restants</span><span>${a.rest}</span><span>DM (éléments majeurs)</span><span>${a.DM.toFixed(3)}</span><span>DG (générale)</span><span>${a.DG.toFixed(3)}</span><span>Indicateur ID</span><span class="big">${a.ID.toFixed(3)}</span><span>Lecture</span><span>${a.ID<.4?'faible':a.ID<.55?'moyenne':'très importante'}</span><span>Seuil dossier MPLD (≥ 0,35)</span><b style="color:${a.ID>=.35?'var(--ok)':'var(--bad)'}">${a.ID>=.35?'ATTEINT':'non atteint'} (écart ${(a.ID-.35).toFixed(3)})</b></div>
+  h=`<div class="card"><div class="sec-t">Dégradation (grille Anah)</div><div class="kv"><span>Éléments restants</span><span>${a.rest}</span><span>Éléments NV (non vus)</span><b style="color:${a.nv>3?'var(--bad)':'inherit'}">${a.nv}${a.nv>3?' – plus de 3 : grille irrecevable':''}</b><span>DM (éléments majeurs)</span><span>${a.DM.toFixed(3)}</span><span>DG (générale)</span><span>${a.DG.toFixed(3)}</span><span>Indicateur ID</span><span class="big">${a.ID.toFixed(3)}</span><span>Lecture</span><span>${a.ID<.4?'faible':a.ID<.55?'moyenne':'très importante'}</span><span>Seuil dossier MPLD (≥ 0,35)</span><b style="color:${a.ID>=.35?'var(--ok)':'var(--bad)'}">${a.ID>=.35?'ATTEINT':'non atteint'} (écart ${(a.ID-.35).toFixed(3)})</b></div>
   <div class="sec-t">Insalubrité (grille DGS)</div><div class="kv"><span>Critères restants</span><span>${b.rest}</span><span>Points / max</span><span>${b.pts} / ${b.mx}</span><span>Indice</span><span class="big">${b.idx.toFixed(3)}</span><span>Points manquants pour 0,4</span><span>${b.miss.toFixed(1)}</span><span>Danger (D)</span><b style="color:${b.dan?'var(--bad)':'inherit'}">${b.dan?'OUI ×'+b.dan:'non'}</b><span>Statut</span><span>${b.idx>=.4?'insalubrité avérée (≥0,4)':b.idx>=.3?'zone intermédiaire (0,3–0,4)':'manquement à la salubrité (<0,3)'}</span></div>
   ${(a.rest||b.rest)?'<p class="hint">Résultat PROVISOIRE : les éléments non renseignés comptent comme « bon / 0 ».</p>':''}</div>
   <div class="card"><div class="sec-t">Contrôles</div>${controls()}</div>`}
@@ -127,14 +129,14 @@ function render(keep){const y=scrollY;
   <button class="btn sec" onclick="printRap()">🖨 Rapport (PDF)</button><button class="btn sec" onclick="exportCsv()">⬇ CSV des notes</button><button class="btn" onclick="csvEtGrille()">⚙ CSV + grille Anah</button><button class="btn sec" style="color:var(--bad);border-color:var(--bad)" onclick="if(confirm('Tout effacer ?')){S=blank();save();render()}">Nouveau</button></div>
   <p class="hint">Les données sont enregistrées automatiquement sur cet appareil. Exporte le ZIP en fin de visite : il contient donnees.json et le dossier photos/. Le CSV sert à reporter les notes dans la grille Anah officielle.</p></div>`;
  $('#app').innerHTML=h;live();if(keep)scrollTo(0,y)}
-function controls(){const o=[];DEG.forEach(e=>{const d=S.deg[e.id]||{};if((d.n===2||d.n===3)&&!(d.ph&&d.ph.length))o.push('Dégradation – '+e.lab+' : photo manquante');if(d.n>0&&d.n!=='SO'&&d.n!==undefined&&!d.a)o.push('Dégradation – '+e.lab+' : ampleur non choisie (100 % par défaut)');if((d.n===2||d.n===3)&&!d.o)o.push('Dégradation – '+e.lab+' : observation à rédiger')});
+function controls(){const o=[];DEG.forEach(e=>{const d=S.deg[e.id]||{};if(d.n==='NV'&&!d.o)o.push('Dégradation – '+e.lab+' : NV à justifier dans les observations');if((d.n===2||d.n===3)&&!(d.ph&&d.ph.length))o.push('Dégradation – '+e.lab+' : photo manquante');if(d.n>0&&d.n!=='SO'&&d.n!=='NV'&&d.n!==undefined&&!d.a)o.push('Dégradation – '+e.lab+' : ampleur non choisie (100 % par défaut)');if((d.n===2||d.n===3)&&!d.o)o.push('Dégradation – '+e.lab+' : observation à rédiger')});
  INS.forEach(c=>{const d=S.ins[c.id]||{};if((d.n>=2||d.d)&&!(d.ph&&d.ph.length))o.push('Insalubrité – '+c.id+' '+c.lab+' : photo manquante')});
  return o.length?'<ul>'+o.map(x=>'<li>'+x+'</li>').join('')+'</ul>':'<p style="color:var(--ok)">Aucun point bloquant relevé.</p>'}
 /* ---------- rapport / export ---------- */
 function printRap(){const a=calcDeg(),b=calcIns();const i=S.info;
  let h=`<h2>Diagnostic MPLD – ${i.adresse}</h2><p>${i.nom} · construction ${i.annee} · visite du ${i.date} · évaluateur : ${i.eval}</p><p>${(i.descriptif||'').replace(/\n/g,'<br>')}</p>
  <p><b>Dégradation</b> : DM ${a.DM.toFixed(3)} · DG ${a.DG.toFixed(3)} · ID <b>${a.ID.toFixed(3)}</b> &nbsp;|&nbsp; <b>Insalubrité</b> : indice <b>${b.idx.toFixed(3)}</b>${b.dan?' · DANGER':''}</p><h3>Éléments dégradés (notes 1 à 3)</h3>`;
- DEG.forEach(e=>{const d=S.deg[e.id]||{};if(d.n>0&&d.n!=='SO')h+=`<div class="card"><b>${e.lab}</b> – note ${d.n}, ampleur ${d.a||100} %${d.p?', prorata '+d.p:''}<br>${(d.o||'').replace(/\n/g,'<br>')}<br>${(d.ph||[]).map(p=>`<img src="${p.data}">`).join('')}</div>`});
+ DEG.forEach(e=>{const d=S.deg[e.id]||{};if(d.n==='NV')h+=`<div class="card"><b>${e.lab}</b> – NON VU<br>${(d.o||'').replace(/\n/g,'<br>')}</div>`;if(d.n>0&&d.n!=='SO'&&d.n!=='NV')h+=`<div class="card"><b>${e.lab}</b> – note ${d.n}, ampleur ${d.a||100} %${d.p?', prorata '+d.p:''}<br>${(d.o||'').replace(/\n/g,'<br>')}<br>${(d.ph||[]).map(p=>`<img src="${p.data}">`).join('')}</div>`});
  h+='<h3>Critères d\'insalubrité relevés (mauvais, très mauvais, danger)</h3>';
  INS.forEach(c=>{const d=S.ins[c.id]||{};if(d.n>=2||d.d)h+=`<div class="card"><b>${c.id} – ${c.lab}</b> – ${d.d?'DANGER – ':''}${INSL[d.n]?INSL[d.n][1]:''}<br>${(d.o||'').replace(/\n/g,'<br>')}<br>${(d.ph||[]).map(p=>`<img src="${p.data}">`).join('')}</div>`});
  $('#rapport').innerHTML=h;setTimeout(()=>print(),300)}
